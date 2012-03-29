@@ -31,28 +31,28 @@ class SelectBuilder extends AbstractWhereBuilder {
     public function join($table, $fromTableField, $joinTableField) {
         $this->joinSql .= ' JOIN `' . $table
             . '` ON `' . $this->from . '`.`' . $fromTableField
-            . '`=`' . $table . '`.`' . $joinTableField . '` ';
+            . '`=`' . $table . '`.`' . $joinTableField . '`';
         return $this;
     }
     public function group($sql) {
-        $this->havingSql = ' GROUP BY ' . $sql . ' ';
+        $this->groupSql = ' GROUP BY ' . $sql;
         return $this;
     }
     public function having($sql) {
-        $this->havingSql = ' HAVING ' . $sql . ' ';
+        $this->havingSql = ' HAVING ' . $sql;
         return $this;
     }
     public function order($sql) {
-        $this->orderSql = ' ORDER BY ' . $sql . ' ';
+        $this->orderSql = ' ORDER BY ' . $sql;
         return $this;
     }
     public function limit($from, $limit) {
-        $this->limitSql = ' LIMIT ' . $from . ',' . $limit . ' ';
+        $this->limitSql = ' LIMIT ' . $from . ',' . $limit;
         return $this;
     }
     protected function getQueryString() {
         return 'SELECT ' . $this->fields . ' FROM `' . $this->from . '`'
-            . $this->joinSql . $this->whereSql
+            . $this->joinSql . $this->getWhereSql()
             . $this->groupSql . $this->havingSql
             . $this->orderSql . $this->limitSql;
     }

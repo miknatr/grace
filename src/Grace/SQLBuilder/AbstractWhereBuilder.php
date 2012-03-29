@@ -3,11 +3,11 @@
 namespace Grace\SQLBuilder;
 
 abstract class AbstractWhereBuilder extends AbstractBuilder {
-    protected $arguments = array();
-    protected $whereSql = '';
+    private $arguments = array();
+    private $whereSqlConditions = array();
 
     protected function setTwoArgsOperator($field, $value, $operator) {
-        $this->whereSql .= ' ' . $field . '' . $operator . '\'?e\'';
+        $this->whereSqlConditions[] = $field . '' . $operator . '?q';
         $this->arguments[] = $value;
         return $this;
     }
@@ -42,7 +42,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder {
         return $this->setTwoArgsOperator($field, '%' . $value . '%', ' NOT LIKE ');
     }
     protected function setInOperator($field, array $values, $operator) {
-        $this->whereSql .= $field . ' ' . $operator
+        $this->whereSqlConditions[] = $field . ' ' . $operator
             . ' (' . substr(str_repeat('?q,', count($values)), 0, -1) . ')';
         $this->arguments = array_merge($this->arguments, $values);
         return $this;
@@ -54,7 +54,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder {
         return $this->setInOperator($field, $values, 'NOT IN');
     }
     protected function setBetweenOperator($field, $value1, $value2, $operator) {
-        $this->whereSql .= ' ' . $field . ' ' . $operator . ' \'?e\' AND \'?e\'';
+        $this->whereSqlConditions[] = $field . ' ' . $operator . ' ?q AND ?q';
         $this->arguments[] = $value1;
         $this->arguments[] = $value2;
         return $this;
@@ -68,5 +68,11 @@ abstract class AbstractWhereBuilder extends AbstractBuilder {
     
     protected function getQueryArguments() {
         return $this->arguments;
+    }
+    protected function getWhereSql() {
+        if (count($this->whereSqlConditions) == 0) {
+            return '';
+        }
+        return ' WHERE ' . implode(' AND ', $this->whereSqlConditions);
     }
 }

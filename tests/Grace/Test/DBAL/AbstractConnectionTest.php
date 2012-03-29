@@ -6,6 +6,7 @@ use Grace\DBAL\InterfaceConnection;
 use Grace\DBAL\InterfaceResult;
 use Grace\DBAL\ExceptionConnection;
 use Grace\DBAL\ExceptionQuery;
+use Grace\SQLBuilder\Factory;
 
 abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase {
     /** @var InterfaceConnection */
@@ -134,5 +135,8 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase {
             ->fetchResult();
         $this->assertEquals('0', $r);
         $this->connection->execute('DROP TABLE IF EXISTS test');
+    }
+    public function testGettingSQLBuilder() {
+        $this->assertTrue($this->connection->getSQLBuilder() instanceof Factory);
     }
 }
