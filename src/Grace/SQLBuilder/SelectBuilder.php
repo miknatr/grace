@@ -1,0 +1,60 @@
+<?php
+
+namespace Grace\SQLBuilder;
+
+use Grace\DBAL\InterfaceExecutable;
+
+class SelectBuilder extends AbstractWhereBuilder {
+    protected $fields = '*';
+    protected $joinSql = '';
+    protected $groupSql = '';
+    protected $havingSql = '';
+    protected $orderSql = '';
+    protected $limitSql;
+
+    public function fetchAll() {
+        return $this->execute()->fetchAll();
+    }
+    public function fetchOne() {
+        return $this->execute()->fetchOne();
+    }
+    public function fetchResult() {
+        return $this->execute()->fetchResult();
+    }
+    public function fetchColumn() {
+        return $this->execute()->fetchColumn();
+    }
+    public function fields($sql) {
+        $this->fields = $sql;
+        return $this;
+    }
+    public function join($table, $fromTableField, $joinTableField) {
+        $this->joinSql .= ' JOIN `' . $table
+            . '` ON `' . $this->from . '`.`' . $fromTableField
+            . '`=`' . $table . '`.`' . $joinTableField . '` ';
+        return $this;
+    }
+    public function group($sql) {
+        $this->havingSql = ' GROUP BY ' . $sql . ' ';
+        return $this;
+    }
+    public function having($sql) {
+        $this->havingSql = ' HAVING ' . $sql . ' ';
+        return $this;
+    }
+    public function order($sql) {
+        $this->orderSql = ' ORDER BY ' . $sql . ' ';
+        return $this;
+    }
+    public function limit($from, $limit) {
+        $this->limitSql = ' LIMIT ' . $from . ',' . $limit . ' ';
+        return $this;
+    }
+    protected function getQueryString() {
+        return 'SELECT ' . $this->fields . ' FROM `' . $this->from . '`'
+            . $this->joinSql . $this->whereSql
+            . $this->groupSql . $this->havingSql
+            . $this->orderSql . $this->limitSql;
+    }
+}
+
