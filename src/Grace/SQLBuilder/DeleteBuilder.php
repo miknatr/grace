@@ -2,13 +2,8 @@
 
 namespace Grace\SQLBuilder;
 
-use Grace\DBAL\InterfaceExecutable;
-
-class DeleteBuilder extends AbstractBuilder {
+class DeleteBuilder extends AbstractWhereBuilder {
     protected function getQueryString() {
-        return '';
-    }
-    protected function getQueryArguments() {
-        return array();
+        return 'DELETE FROM `' . $this->from . '`' . $this->getWhereSql();
     }
 }

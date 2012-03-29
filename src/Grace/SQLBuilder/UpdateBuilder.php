@@ -2,13 +2,27 @@
 
 namespace Grace\SQLBuilder;
 
-use Grace\DBAL\InterfaceExecutable;
-
-class UpdateBuilder extends AbstractBuilder {
+class UpdateBuilder extends AbstractWhereBuilder {
+    private $fieldsSql = '';
+    private $fieldValues = array();
+    
+    public function values(array $values) {
+        $fieldQueryParts = array();
+        foreach ($values as $k => $v) {
+            $fieldQueryParts[] = '`' . $k . '`=?q'; 
+        }
+        $this->fieldsSql = implode(', ', $fieldQueryParts);
+        $this->fieldValues= array_values($values);
+        return $this;
+    }
     protected function getQueryString() {
-        return '';
+        if (count($this->fieldValues) == 0) {
+            throw new ExceptionCallOrder('Set values for update before execute');
+        }
+        return 'UPDATE `' . $this->from . '` SET ' . $this->fieldsSql
+            . $this->getWhereSql();
     }
     protected function getQueryArguments() {
-        return array();
+        return array_merge($this->fieldValues, parent::getQueryArguments());
     }
 }

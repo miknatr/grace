@@ -2,17 +2,16 @@
 
 namespace Grace\Test\SQLBuilder;
 
-use Grace\SQLBuilder\Factory;
 use Grace\SQLBuilder\SelectBuilder;
 
 class SelectBuilderTest extends \PHPUnit_Framework_TestCase {
     /** @var SelectBuilder */
     protected $builder;
-    /** @var ExecutablePlug */
+    /** @var ExecutableAndResultPlug */
     protected $plug;
 
     protected function setUp() {
-        $this->plug = new ExecutablePlug;
+        $this->plug = new ExecutableAndResultPlug;
         $this->builder = new SelectBuilder('TestTable', $this->plug);
     }
     protected function tearDown() {
@@ -45,4 +44,17 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase {
             . ' LIMIT 5,15', $this->plug->query);
         $this->assertEquals(array(1, 10, 20), $this->plug->arguments);
     }
+    public function testFetchAll() {
+        $this->assertEquals('all', $this->builder->fetchAll());
+    }
+    public function testFetchResult() {
+        $this->assertEquals('result', $this->builder->fetchResult());
+    }
+    public function testFetchColumn() {
+        $this->assertEquals('column', $this->builder->fetchColumn());
+    }
+    public function testFetchOne() {
+        $this->assertEquals('one', $this->builder->fetchOne());
+    }
+    
 }

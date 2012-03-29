@@ -2,8 +2,6 @@
 
 namespace Grace\SQLBuilder;
 
-use Grace\DBAL\InterfaceExecutable;
-
 class SelectBuilder extends AbstractWhereBuilder {
     protected $fields = '*';
     protected $joinSql = '';

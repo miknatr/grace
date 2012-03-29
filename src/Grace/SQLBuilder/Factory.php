@@ -10,7 +10,7 @@ class Factory {
         $this->executable = $executable;
     }
     public function execute() {
-        throw new \BadMethodCallException('It is factory class, please use select/insert/update/delete/create methods to get concrete sql builders');
+        throw new ExceptionCallOrder('It is factory class, please use select/insert/update/delete/create methods to get concrete sql builders');
     }
     public function select($table) {
         return new SelectBuilder($table, $this->executable);
@@ -23,12 +23,6 @@ class Factory {
     }
     public function delete($table) {
         return new DeleteBuilder($table, $this->executable);
-    }
-    public function create($table) {
-        return new CreateBuilder($table, $this->executable);
-    }
-    public function alter($table) {
-        return new AlterBuilder($table, $this->executable);
     }
 }
 

@@ -21,16 +21,8 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
         
     }
     public function testExecuteExcepcion() {
-        $this->setExpectedException('\BadMethodCallException');
+        $this->setExpectedException('Grace\SQLBuilder\ExceptionCallOrder');
         $this->builder->execute();
-    }
-    public function testCreateFactory() {
-        $r = $this->builder->create('Test');
-        $this->assertTrue($r instanceof CreateBuilder);
-    }
-    public function testAlterFactory() {
-        $r = $this->builder->alter('Test');
-        $this->assertTrue($r instanceof AlterBuilder);
     }
     public function testSelectFactory() {
         $r = $this->builder->select('Test');
