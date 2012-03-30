@@ -15,7 +15,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder {
         return $this->setTwoArgsOperator($field, $value, '=');
     }
     public function notEq($field, $value) {
-        return $this->setTwoArgsOperator($field, $value, '=');
+        return $this->setTwoArgsOperator($field, $value, '!=');
     }
     public function gt($field, $value) {
         return $this->setTwoArgsOperator($field, $value, '>');
