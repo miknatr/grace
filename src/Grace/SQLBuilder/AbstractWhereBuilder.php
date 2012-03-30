@@ -6,6 +6,11 @@ abstract class AbstractWhereBuilder extends AbstractBuilder {
     private $arguments = array();
     private $whereSqlConditions = array();
 
+    public function sql($sql, array $values = array()) {
+        $this->whereSqlConditions[] = $sql;
+        $this->arguments = array_merge($this->arguments, $values);
+        return $this;
+    }
     protected function setTwoArgsOperator($field, $value, $operator) {
         $this->whereSqlConditions[] = $field . '' . $operator . '?q';
         $this->arguments[] = $value;
@@ -39,7 +44,8 @@ abstract class AbstractWhereBuilder extends AbstractBuilder {
         return $this->setTwoArgsOperator($field, '%' . $value . '%', ' LIKE ');
     }
     public function notLikeInPart($field, $value) {
-        return $this->setTwoArgsOperator($field, '%' . $value . '%', ' NOT LIKE ');
+        return $this->setTwoArgsOperator($field, '%' . $value . '%',
+                ' NOT LIKE ');
     }
     protected function setInOperator($field, array $values, $operator) {
         $this->whereSqlConditions[] = $field . ' ' . $operator
@@ -65,7 +71,6 @@ abstract class AbstractWhereBuilder extends AbstractBuilder {
     public function notBetween($field, $value1, $value2) {
         return $this->setBetweenOperator($field, $value1, $value2, 'NOT BETWEEN');
     }
-    
     protected function getQueryArguments() {
         return $this->arguments;
     }

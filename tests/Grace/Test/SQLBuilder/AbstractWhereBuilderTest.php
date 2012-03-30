@@ -40,6 +40,7 @@ class AbstractWhereBuilderTest extends \PHPUnit_Framework_TestCase {
             ->notIn('category', array(6, 7, 8, 9, 0))
             ->between('id', 7, 8)
             ->notBetween('id', 9, 10)
+            ->sql('(id > ?q OR id < ?q)', array(100, 200))
             ;
         $this->assertEquals(' WHERE id=?q AND id!=?q'
             . ' AND id>?q AND id>=?q AND id<?q AND id<=?q'
@@ -48,11 +49,13 @@ class AbstractWhereBuilderTest extends \PHPUnit_Framework_TestCase {
             . ' AND category IN (?q,?q,?q,?q,?q)'
             . ' AND category NOT IN (?q,?q,?q,?q,?q)'
             . ' AND id BETWEEN ?q AND ?q AND id NOT BETWEEN ?q AND ?q'
+            . ' AND (id > ?q OR id < ?q)'
             , $this->builder->getWhereSql());
         $this->assertEquals(array(
                 1, 2, 3, 4, 5, 6, 'Mike', 'John', '%Li%', '%Fu%',
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 0,
                 7, 8, 9, 10,
+                100, 200
             ), $this->builder->getQueryArguments());
     }
 }
