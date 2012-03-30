@@ -1,0 +1,41 @@
+## YAML Template.
+---
+main:
+  namespace: namespace/Example
+  type: class
+  classname: fooClass
+  interface: defaultInterface
+  extends: abstractDefaultClass
+#next - mysql connector name, class
+#connector:
+#  name: instanceName
+# classname: nameClass
+#next - fields for use (name, getter, setter and connector method for change each) as format %methodname%%Fieldname%($var)
+#parents:
+# regionId: Region
+  
+fields: {field1, field2}
+  
+#  fieldName1:
+#    dbtype: varvchar
+#    set: setDataField1
+#    get: getDataField1
+#  fieldName2:
+#    set: setDataField2
+#    get: getDataField2
+#  fieldName3:
+#    set: setDataField2
+#    get: getDataField2
+    
+    
+#$this->$connector->name = new $connector->classname();
+#$this->instanceName = new nameClass();
+
+
+#public function setFieldName1($val) {
+#  $this->instancename->setDataField1($val);
+#  return;
+#}
+#getCompany() {
+# `orm->
+#}
