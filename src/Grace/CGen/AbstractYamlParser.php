@@ -26,8 +26,7 @@ abstract class AbstractYamlParser implements InterfaceYamlParser{
             return $parsedFile;
         } catch (Symfony\Component\Yaml\Exception\ParseException $ex){
             printf("Unable to parse the YAML string: %s", $ex->getMessage());
+            return FALSE;
         }
     }
 }
-
-?>

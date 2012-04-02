@@ -32,4 +32,3 @@ abstract class AbstractCGenerator implements InterfaceCGenerator {
         return $this->config["className"];
     }
 }
-?>

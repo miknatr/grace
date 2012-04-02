@@ -19,15 +19,22 @@ class DefaultCGenerator extends AbstractCGenerator {
         $this->config['className'] = $className;
     }
 
+    
+    
     public function genYamlClass() {
         $this->parseYamlClass();
         $file = $this->generateClass($this->parsedFile);
         try {
-            file_put_contents($this->config["dirClasses"]."/".$this->config["className"].".php", $file);
-        } catch (ErrorException $ex){
+            if ($this->writeClass($this->getClassesDir(), $this->getClassName(), $file)){
+                return true;
+            }else{
+                return false;
+            }
+        }catch (ErrorException $ex){
             //TODO add exceptions
-            print_r($ex->getMessage());
-            die();
+            die($ex->getMessage());
+        }catch (CGenException $ex){
+            die($ex->getMessage());
         }
         return true;
     }
@@ -77,19 +84,24 @@ class DefaultCGenerator extends AbstractCGenerator {
     }
 
     private function getGetter($fieldname){
-        //FIXME strtolower is so need?
-        $str = "\tpublic function get".ucfirst(strtolower($fieldname))."(\$value) {\r\n";
+        $str = "\tpublic function get".ucfirst($fieldname)."(\$value) {\r\n";
         $str .= "\t\t\$this->".$fieldname." = \$value;\r\n";
         $str .= "\t}\r\n";
     }
     
     private function getSetter($fieldname){
-        $str = "\tpublic function set".ucfirst(strtolower($fieldname))."() {\r\n";
+        $str = "\tpublic function set".ucfirst($fieldname)."() {\r\n";
         $str .= "\t\t\return $this->".$fieldname.";\r\n";
         $str .= "\t}\r\n";
     }
-
     
+    private function writeClass($classes, $classname, $file){
+        $path = (substr($classes, -1)=="/")?substr($classes, 0, strlen($classes)-1):$classes."/";
+        $path .= $classname.".php";
+        if (!file_put_contents($path, $file)){
+            throw new CGenException("File not write");
+        }else{
+            return true;
+        }
+    }
 }
-
-?>

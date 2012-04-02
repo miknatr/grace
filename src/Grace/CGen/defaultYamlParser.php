@@ -8,5 +8,3 @@ namespace Grace\CGen;
 class defaultYamlParser extends AbstractYamlParser {
 
 }
-
-?>

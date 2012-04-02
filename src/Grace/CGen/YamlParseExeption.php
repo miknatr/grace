@@ -6,8 +6,6 @@
  *
  * @author darthvader
  */
-class YamlParseExeption {
+class YamlParseExeption extends \Grace\CGen\CGenException{
     
 }
-
-?>
