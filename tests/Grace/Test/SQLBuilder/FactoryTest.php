@@ -20,7 +20,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
     protected function tearDown() {
         
     }
-    public function testExecuteExcepcion() {
+    public function testExecuteException() {
         $this->setExpectedException('Grace\SQLBuilder\ExceptionCallOrder');
         $this->builder->execute();
     }
