@@ -56,16 +56,21 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase {
         $r = $this->dispatcher->filter('doubleFilter', 'qwe');
         $this->assertEquals('qweqwe', $r);
     }
-    public function testSubscribing() {
+    public function testSubscribingTwoSubscribers() {
         
         $plug = new EventSubscriberPlug;
-        $this->dispatcher->addSubscriberObject($plug);
+        $plug2 = new EventSubscriberPlug;
+        $this->dispatcher
+                ->addSubscriberObject($plug)
+                ->addSubscriberObject($plug2);
         $this->dispatcher
             ->notify('firstEvent')
             ->notify('secondEvent')
             ;
         $this->assertTrue($plug->wasFirstEvent);
         $this->assertTrue($plug->wasSecondEvent);
+        $this->assertTrue($plug2->wasFirstEvent);
+        $this->assertTrue($plug2->wasSecondEvent);
     }
     public function testFiltering() {
         
@@ -73,5 +78,15 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase {
         $this->dispatcher->addSubscriberObject($plug);
         $r = $this->dispatcher->filter('doubleFilter', 'qwe');
         $this->assertEquals('qweqwe', $r);
+    }
+    public function testFilteringTwoSubscribers() {
+        
+        $plug = new EventSubscriberPlug;
+        $plug2 = new EventSubscriberPlug;
+        $this->dispatcher
+                ->addSubscriberObject($plug)
+                ->addSubscriberObject($plug2);
+        $r = $this->dispatcher->filter('doubleFilter', 'qwe');
+        $this->assertEquals('qweqweqweqwe', $r);
     }
 }

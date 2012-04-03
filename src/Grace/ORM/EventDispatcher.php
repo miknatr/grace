@@ -15,14 +15,16 @@ class EventDispatcher {
     private $subscriberBuilders = array();
 
     public function addSubscriberBuilder($className, \Closure $subscriberBuilder) {
-        $this->setSubscribedEvents($className);
-        $this->subscriberBuilders[$className] = $subscriberBuilder;
+        $id = spl_object_hash($subscriberBuilder);
+        $this->setSubscribedEvents($id, $className);
+        $this->subscriberBuilders[$id] = $subscriberBuilder;
         return $this;
     }
     public function addSubscriberObject(EventSubscriberInterface $subscriber) {
         $className = get_class($subscriber);
-        $this->setSubscribedEvents($className);
-        $this->subscribers[$className] = $subscriber;
+        $id = spl_object_hash($subscriber);
+        $this->setSubscribedEvents($id, $className);
+        $this->subscribers[$id] = $subscriber;
         return $this;
     }
     public function notify($eventName, $context = null) {
@@ -44,21 +46,21 @@ class EventDispatcher {
         }
         return $value;
     }
-    private function setSubscribedEvents($className) {
+    private function setSubscribedEvents($id, $className) {
         $methods = get_class_methods($className);
         foreach ($methods as $method) {
-            $this->subscribedEvents[$method][] = $className;
+            $this->subscribedEvents[$method][] = $id;
         }
     }
-    private function getSubscriber($className) {
-        if (!isset($this->subscribers[$className])) {
-            $builder = $this->subscriberBuilders[$className];
+    private function getSubscriber($id) {
+        if (!isset($this->subscribers[$id])) {
+            $builder = $this->subscriberBuilders[$id];
             $object = $builder();
             if (!($object instanceof EventSubscriberInterface)) {
                 throw new ExceptionBadSubscriberBuilder('Subscribers must implement EventSubscriberInterface');
             }
-            $this->subscribers[$className] = $object;
+            $this->subscribers[$id] = $object;
         }
-        return $this->subscribers[$className];
+        return $this->subscribers[$id];
     }
 }
