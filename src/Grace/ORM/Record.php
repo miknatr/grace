@@ -1,57 +1,64 @@
 <?php
 
-abstract class Model_Record
-{
-    public function __construct(array $row = array())
-    {
-        foreach ($row as $k => $v) {
-            //get only public properties
-            if (property_exists($this, $k) and $k[0] != '_') {
-                $this->$k = $v;
-            }
-        }
-    }
-    final public function asArray()
-    {
-        return get_object_vars($this);
-    }
-    public function edit($rowOrField, $value = null)
-    {
-        if (!is_array($rowOrField))
-            $rowOrField = array($rowOrField => $value);
-        
-        //TODO глюки если объект удален в базе уже, а тут есть, нужно удалять тогда и объект?
-        self::m()->updateById($this->id, $rowOrField);
-        $newRow = self::m()->getRowById($this->id);
+namespace Grace\ORM;
 
-        if (is_array($newRow)) {
-            foreach ($newRow as $k => $v) {
-                //get only public properties
-                if (property_exists($this, $k) and $k[0] != '_') {
+abstract class Record implements RecordInterface, MapperRecordInterface {
+
+    private $eventDispatcher;
+    private $identityMap;
+    private $id;
+
+    final public function __construct(EventDispatcher $eventDispatcher,
+        IdentityMap $identityMap, array $fields = array()) {
+
+        $this->eventDispatcher = $eventDispatcher;
+        $this->identityMap = $identityMap;
+
+        if (count($fields) == 0) { //if it is a new object
+            $this->getIdentityMap()->markRecordAsNew(get_class($this),
+                $this->getId());
+        } else { //if it is a exists object            
+            //mapper properties mast start with 'field'
+            if (isset($fields['id'])) {
+                $this->id = $fields['id'];
+            }
+            foreach ($fields as $k => $v) {
+                if (property_exists($this, $k) and substr($k, 0, 5) == 'field') {
                     $this->$k = $v;
                 }
             }
         }
-
+    }
+    final public function asArray() {
+        return get_object_vars($this);
+    }
+    final public function delete() {
+        $this->getIdentityMap()->markRecordAsDeleted(get_class($this),
+            $this->getId());
         return $this;
     }
-    public function save()
-    {
-        self::m()->updateById($this->id, $this->asArray(), true);
+    final public function edit(array $fields) {
+        foreach ($fields as $k => $v) {
+            $method = 'set' . ucfirst($k);
+            if (method_exists($this, $method)) {
+                $this->$method($v);
+            }
+        }
         return $this;
     }
-    public function delete()
-    {
-        self::m()->deleteById($this->id);
-        return $this;
+    final public function getId() {
+        if ($this->id == null) {
+            $this->id = $this->generateNewId();
+        }
+        return $this->id;
     }
-
-    static public function m()
-    {
-        return Model_IdMap::getMapper(get_called_class());
+    protected function generateNewId() {
+        //return substr(md5(microtime()), rand(0, 32-8), 8);
     }
-    static public function getMapperName()
-    {
-        return 'Model_Mapper';
+    final protected function getEventDispatcher() {
+        return $this->eventDispatcher;
+    }
+    final protected function getIdentityMap() {
+        return $this->identityMap;
     }
 }
