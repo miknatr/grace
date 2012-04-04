@@ -25,12 +25,12 @@ class Manager implements ManagerInterface {
             if (class_exists($fullClassName)) {
                 $this->finders[$className] = new $fullClassName;                 
             } else {
-                $this->finders[$className] = new Finder;
+                $this->finders[$className] = new Finder();
             }
         }
         return $this->finders[$className];
     }
-    public function getMapper($className) {
+    private function getMapper($className) {
         if (!isset($this->mappers[$className])) {
             $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Mapper';
             if (class_exists($fullClassName)) {
