@@ -22,6 +22,11 @@ class SelectBuilder extends AbstractWhereBuilder {
     public function fetchColumn() {
         return $this->execute()->fetchColumn();
     }
+    public function count() {
+        //TODO id - magic field
+        $this->fields = 'COUNT(id)';
+        return $this;
+    }
     public function fields($sql) {
         $this->fields = $sql;
         return $this;

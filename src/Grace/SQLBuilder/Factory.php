@@ -2,7 +2,6 @@
 namespace Grace\SQLBuilder;
 
 use Grace\DBAL\InterfaceExecutable;
-use Grace\DBAL\InterfaceResult;
 
 class Factory {
     private $executable;

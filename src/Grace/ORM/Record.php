@@ -2,28 +2,28 @@
 
 namespace Grace\ORM;
 
-abstract class Record implements RecordInterface, MapperRecordInterface {
+abstract class Record implements RecordInterface, MapperRecordInterface, ManagerRecordInterface {
 
     private $eventDispatcher;
-    private $identityMap;
+    private $unitOfWork;
+    private $changedFields = array();
     private $id;
 
     final public function __construct(EventDispatcher $eventDispatcher,
-        IdentityMap $identityMap, array $fields = array()) {
+        UnitOfWork $unitOfWork, array $fields = array()) {
 
         $this->eventDispatcher = $eventDispatcher;
-        $this->identityMap = $identityMap;
+        $this->unitOfWork = $unitOfWork;
 
         if (count($fields) == 0) { //if it is a new object
-            $this->getIdentityMap()->markRecordAsNew(get_class($this),
-                $this->getId());
-        } else { //if it is a exists object            
-            //mapper properties mast start with 'field'
+            $this->getUnitOfWork()->markAsNew($this);
+        } else { //if it is a exists object
             if (isset($fields['id'])) {
                 $this->id = $fields['id'];
             }
+            //mapper gets prepared properties which must start with 'field'
             foreach ($fields as $k => $v) {
-                if (property_exists($this, $k) and substr($k, 0, 5) == 'field') {
+                if (property_exists($this, $k)) {// and substr($k, 0, 5) == 'field') {
                     $this->$k = $v;
                 }
             }
@@ -33,9 +33,16 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
         return get_object_vars($this);
     }
     final public function delete() {
-        $this->getIdentityMap()->markRecordAsDeleted(get_class($this),
-            $this->getId());
+        $this->getUnitOfWork()->markAsDeleted($this);
         return $this;
+    }
+    //TODO в генератор
+    final protected function markFieldAsChanged($field) {
+        return $this->changedFields[$field] = $field;
+    }
+    final public function getChangedFields() {
+        //TODO
+        ;
     }
     final public function edit(array $fields) {
         foreach ($fields as $k => $v) {
@@ -44,6 +51,10 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
                 $this->$method($v);
             }
         }
+        return $this;
+    }
+    final public function save() {
+        $this->getUnitOfWork()->markAsChanged($this);
         return $this;
     }
     final public function getId() {
@@ -58,7 +69,7 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
     final protected function getEventDispatcher() {
         return $this->eventDispatcher;
     }
-    final protected function getIdentityMap() {
-        return $this->identityMap;
+    final protected function getUnitOfWork() {
+        return $this->unitOfWork;
     }
 }
