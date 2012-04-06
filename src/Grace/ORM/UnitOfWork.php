@@ -8,15 +8,15 @@ class UnitOfWork {
     private $changedRecords = array();
     private $deletedRecords = array();
 
-    public function markAsNew(Record $record) {
+    public function markAsNew($record) {
         $this->newRecords[spl_object_hash($record)] = $record;
         return $this;
     }
-    public function markAsChanged(Record $record) {
+    public function markAsChanged($record) {
         $this->changedRecords[spl_object_hash($record)] = $record;
         return $this;
     }
-    public function markAsDeleted(Record $record) {
+    public function markAsDeleted($record) {
         $this->deletedRecords[spl_object_hash($record)] = $record;
         return $this;
     }

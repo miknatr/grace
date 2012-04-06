@@ -1,5 +1,8 @@
 Конвенция
 
+покрыто
+12/17
+
 TODO
 Вынести EventDispatcher в отдельный пакет и использовать его в DBAL (логгирование запросов и тд)
 
@@ -28,7 +31,7 @@ Exceptions
 1. наследовать разные исключения от разных базовых исключений (например BadMethodCallException)
 2. ловить исключения по подпакетам (например все исплючения DBAL)
 Для этого в каждом подпакете определяется интерфейс ExceptionInterface (пример Grace\DBAL\ExceptionInterface).
-Все остальные исключения подпакета его реализуют и наследуют один из базовах типов исключений включая Exception.
+Все остальные исключения подпакета его реализуют и наследуют один из базовых типов исключений включая Exception.
 
 
 SQLBuilder
@@ -52,13 +55,13 @@ CodeGenerator
 
 Абстрактные классы Record (домен)
 1. Для каждой сущности в yaml создает и записывает абстрактный класс.
-2. В абстрактных классах есть сеттеры, геттеры и приватные поля начинающиеся со слова field (e.g. fieldClientPhone).
+2. В абстрактных классах есть сеттеры, геттеры на поля в массиве fields (свойство Record).
     public function setName($name) {
-        $this->fieldName = $name;
+        $this->fields['name'] = $name;
         return $this;
     }
     public function getName($name) {
-        return $this->fieldName;
+        return $this->fields['name'];
     }
 3. Абстрактные поля унаследованы от Record (OrderAbstract extends Record)
 
@@ -68,7 +71,7 @@ CodeGenerator
 
 Классы коллекций для каждой сущности
 1. Запоминает все методы абстрастного класса и написаного руками наследника (Record).
-2. Генерирует абстрактный и конкретный классы OrderCollection extends OrderCollectionAbstract extends Collection.
+2. Генерирует абстрактный и конкретный классы OrderCollection extends OrderCollectionAbstract extends Grace\ORM\Collection.
 3. В созданном классе OrderCollectionAbstract для каждого метода Record (кроме начинающихся с get) создает метод с такой же сигнатурой и циклом foreach внутри:
     public closeOrder($price, $notifyClient = false) {
         foreach ($this->items as $item) {

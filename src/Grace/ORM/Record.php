@@ -3,32 +3,24 @@
 namespace Grace\ORM;
 
 abstract class Record implements RecordInterface, MapperRecordInterface {
-
     private $eventDispatcher;
     private $unitOfWork;
-    private $defaultFields = array();
     private $id;
+    private $defaultFields = array();
+    protected $fields = array();
 
     final public function __construct(EventDispatcher $eventDispatcher,
-        UnitOfWork $unitOfWork, array $fields = array()) {
-        
-        $this->defaultFields = $fields;
+        UnitOfWork $unitOfWork, $id, array $fields, $isNew = false) {
 
         $this->eventDispatcher = $eventDispatcher;
         $this->unitOfWork = $unitOfWork;
 
-        if (count($fields) == 0) { //if it is a new object
+        $this->id = $id;
+        $this->defaultFields = $fields;
+        $this->fields = $fields;
+
+        if ($isNew) { //if it is a new object
             $this->getUnitOfWork()->markAsNew($this);
-        } else { //if it is a exists object
-            if (isset($fields['id'])) {
-                $this->id = $fields['id'];
-            }
-            //mapper gets prepared properties which must start with 'field'
-            foreach ($fields as $k => $v) {
-                if (property_exists($this, $k)) {// and substr($k, 0, 5) == 'field') {
-                    $this->$k = $v;
-                }
-            }
         }
     }
     final public function asArray() {
@@ -55,13 +47,7 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
         return $this;
     }
     final public function getId() {
-        if ($this->id == null) {
-            $this->id = $this->generateNewId();
-        }
         return $this->id;
-    }
-    protected function generateNewId() {
-        //return substr(md5(microtime()), rand(0, 32-8), 8);
     }
     final protected function getEventDispatcher() {
         return $this->eventDispatcher;

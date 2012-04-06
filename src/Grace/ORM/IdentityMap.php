@@ -12,8 +12,8 @@ class IdentityMap {
         }
         return $this->records[$class][$id];
     }
-    public function setRecord($class, $id, $object) {
-        $this->records[$class][$id] = $object;
+    public function setRecord($class, $id, $record) {
+        $this->records[$class][$id] = $record;
         return $this;
     }
     public function issetRecord($class, $id) {
@@ -21,5 +21,6 @@ class IdentityMap {
     }
     public function unsetRecord($class, $id) {
         unset($this->records[$class][$id]);
+        return $this;
     }
 }
