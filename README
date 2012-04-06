@@ -53,6 +53,13 @@ CodeGenerator
 Абстрактные классы Record (домен)
 1. Для каждой сущности в yaml создает и записывает абстрактный класс.
 2. В абстрактных классах есть сеттеры, геттеры и приватные поля начинающиеся со слова field (e.g. fieldClientPhone).
+    public function setName($name) {
+        $this->fieldName = $name;
+        return $this;
+    }
+    public function getName($name) {
+        return $this->fieldName;
+    }
 3. Абстрактные поля унаследованы от Record (OrderAbstract extends Record)
 
 Конкретные классы Record (домен)

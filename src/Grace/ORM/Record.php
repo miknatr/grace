@@ -2,15 +2,17 @@
 
 namespace Grace\ORM;
 
-abstract class Record implements RecordInterface, MapperRecordInterface, ManagerRecordInterface {
+abstract class Record implements RecordInterface, MapperRecordInterface {
 
     private $eventDispatcher;
     private $unitOfWork;
-    private $changedFields = array();
+    private $defaultFields = array();
     private $id;
 
     final public function __construct(EventDispatcher $eventDispatcher,
         UnitOfWork $unitOfWork, array $fields = array()) {
+        
+        $this->defaultFields = $fields;
 
         $this->eventDispatcher = $eventDispatcher;
         $this->unitOfWork = $unitOfWork;
@@ -32,17 +34,12 @@ abstract class Record implements RecordInterface, MapperRecordInterface, Manager
     final public function asArray() {
         return get_object_vars($this);
     }
+    final public function getDefaultFields() {
+        return $this->defaultFields;
+    }
     final public function delete() {
         $this->getUnitOfWork()->markAsDeleted($this);
         return $this;
-    }
-    //TODO в генератор
-    final protected function markFieldAsChanged($field) {
-        return $this->changedFields[$field] = $field;
-    }
-    final public function getChangedFields() {
-        //TODO
-        ;
     }
     final public function edit(array $fields) {
         foreach ($fields as $k => $v) {

@@ -42,6 +42,11 @@ class Manager implements ManagerInterface {
         }
         return $this->finders[$className];
     }
+    /**
+     *
+     * @param string $className
+     * @return MapperInterface
+     */
     private function getMapper($className) {
         if (!isset($this->mappers[$className])) {
             $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Mapper';
@@ -53,15 +58,35 @@ class Manager implements ManagerInterface {
         return $this->mappers[$className];
     }
     public function commit() {
-        //TODO
-        foreach ($this->unitOfWork->getNewRecords() as $record) {
-            
+        foreach ($this->unitOfWork->getNewRecords()  as $record) {
+            $className = get_class($record);
+            $changes = $this->getMapper($className)
+                ->convertRecordToDbRow($record);
+            $this->dbWriteConnection->getSQLBuilder()
+                ->insert($className)
+                ->values($changes)
+                ->execute();
         }
         foreach ($this->unitOfWork->getChangedRecords() as $record) {
-            
+            $className = get_class($record);
+            $changes = $this->getMapper($className)
+                ->getRecordChanges($record);
+            if (count($changes) > 0) {
+                $this->dbWriteConnection->getSQLBuilder()
+                    ->update($className)
+                    ->values($changes)
+                    //TODO 'id' - magic string
+                    ->eq('id', $record->getId())
+                    ->execute();
+            }
         }
         foreach ($this->unitOfWork->getDeletedRecords() as $record) {
-            
+            $className = get_class($record);
+            $this->dbWriteConnection->getSQLBuilder()
+                ->delete($className)
+                //TODO 'id' - magic string
+                ->eq('id', $record->getId())
+                ->execute();
         }
     }
 }

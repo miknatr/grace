@@ -2,6 +2,8 @@
 
 namespace Grace\DBAL;
 
+use Grace\SQLBuilder\Factory;
+
 interface InterfaceConnection extends InterfaceExecutable {
     public function __construct(array $config);
     public function escape($value);
@@ -20,5 +22,8 @@ interface InterfaceConnection extends InterfaceExecutable {
      * Rollback transaction if it have started 
      */
     public function rollback();
+    /**
+     * @return Factory; 
+     */
     public function getSQLBuilder();
 }

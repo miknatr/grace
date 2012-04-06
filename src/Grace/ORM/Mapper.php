@@ -34,6 +34,17 @@ class Mapper implements MapperInterface {
                 $recordArray[$kWithoutField] = $v;
             }        
         }
-        return $row;        
+        return $row;
+    }
+    public function getRecordChanges(MapperRecordInterface $record) {
+        $changes = array();
+        $defaultFields = $record->getDefaultFields();
+        foreach ($record->asArray() as $k => $v) {
+            if ($defaultFields[$k] != $v) {
+                //$k has a prefix 'field'
+                $changes[ucfirst(substr($k, 5))] = $v;
+            }
+        }
+        return $changes;
     }
 }
