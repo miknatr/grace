@@ -23,6 +23,11 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('SELECT * FROM `TestTable`', $this->plug->query);
         $this->assertEquals(array(), $this->plug->arguments);
     }
+    public function testCountSelectWithoutParams() {
+        $this->builder->count()->execute();
+        $this->assertEquals('SELECT COUNT(id) FROM `TestTable`', $this->plug->query);
+        $this->assertEquals(array(), $this->plug->arguments);
+    }
     public function testSelectAllParams() {
         $this->builder
             ->fields('id, name')
