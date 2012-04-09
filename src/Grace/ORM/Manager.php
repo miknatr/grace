@@ -5,8 +5,8 @@ namespace Grace\ORM;
 use Grace\DBAL\InterfaceConnection;
 
 abstract class Manager implements ManagerInterface {
-    private $dbReadConnection;
-    private $dbWriteConnection;
+    private $sqlReadConnection;
+    private $crudConnection;
     //TODO memcache, redis etc
     private $cacheConnection;
     private $eventDispatcher;
@@ -18,11 +18,11 @@ abstract class Manager implements ManagerInterface {
 
     public function __construct($modelsNamespace,
         EventDispatcher $eventDispatcher, IdentityMap $identityMap,
-        UnitOfWork $unitOfWork, InterfaceConnection $dbReadConnection,
-        InterfaceConnection $dbWriteConnection) {
+        UnitOfWork $unitOfWork, InterfaceConnection $sqlReadConnection,
+        InterfaceConnection $crudConnection) {
 
-        $this->dbReadConnection = $dbReadConnection;
-        $this->dbWriteConnection = $dbWriteConnection;
+        $this->sqlReadConnection = $sqlReadConnection;
+        $this->crudConnection = $crudConnection;
         $this->eventDispatcher = $eventDispatcher;
         $this->identityMap = $identityMap;
         $this->unitOfWork = $unitOfWork;
@@ -35,7 +35,7 @@ abstract class Manager implements ManagerInterface {
             $fullCollectionClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Collection';
             $this->finders[$className] = new $fullFinderClassName($this->eventDispatcher,
                     $this->unitOfWork, $this->identityMap,
-                    $this->dbReadConnection, $this->getMapper($className),
+                    $this->sqlReadConnection, $this->getMapper($className),
                     $className, $fullClassName, $fullCollectionClassName);
         }
         return $this->finders[$className];
@@ -57,7 +57,7 @@ abstract class Manager implements ManagerInterface {
             $className = $this->trimFullClassName($record);
             $changes = $this->getMapper($className)
                 ->convertRecordArrayToDbRow($record->asArray());
-            $this->dbWriteConnection->getSQLBuilder()
+            $this->crudConnection->getSQLBuilder()
                 ->insert($className)
                 ->values($changes)
                 ->execute();
@@ -68,7 +68,7 @@ abstract class Manager implements ManagerInterface {
                 ->getRecordChanges($record->asArray(),
                 $record->getDefaultFields());
             if (count($changes) > 0) {
-                $this->dbWriteConnection->getSQLBuilder()
+                $this->crudConnection->getSQLBuilder()
                     ->update($className)
                     ->values($changes)
                     //TODO 'id' - magic string
@@ -78,7 +78,7 @@ abstract class Manager implements ManagerInterface {
         }
         foreach ($this->unitOfWork->getDeletedRecords() as $record) {
             $className = $this->trimFullClassName($record);
-            $this->dbWriteConnection->getSQLBuilder()
+            $this->crudConnection->getSQLBuilder()
                 ->delete($className)
                 //TODO 'id' - magic string
                 ->eq('id', $record->getId())
