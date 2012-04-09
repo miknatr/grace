@@ -1,13 +1,18 @@
-Конвенция
+Grace ORM
+=============================
+
+
+
+## Конвенция
 
 покрыто
 12/17
 
-TODO
+## TODO
 Вынести EventDispatcher в отдельный пакет и использовать его в DBAL (логгирование запросов и тд)
 
 
-Стандарт кодирования
+## Стандарт кодирования
 
 Имена
 1. Все имена, кроме имен костант пишутся в CamelCase
@@ -24,7 +29,7 @@ TODO
 3. ...
 
 
-Exceptions
+## Exceptions
 
 Каждый подпакет (DBAL, SQLBuilder etc.) должен иметь свои классы исключений.
 Необходима возможность:
@@ -34,7 +39,7 @@ Exceptions
 Все остальные исключения подпакета его реализуют и наследуют один из базовых типов исключений включая Exception.
 
 
-SQLBuilder
+## SQLBuilder
 
 1. При составлении сложных запросов из различных частей (where, group, having 
 части sql запроса), нужно делать один пробел вначале выражения и осталять
@@ -44,7 +49,7 @@ $this->orderSql = ' ORDER BY ' . $sql;
 2. ...
 
 
-CodeGenerator
+## CodeGenerator
 
 Имеются две папки include_generatet и include.
 Обе будут в include_path или аналоге для auto-loader'а.
@@ -56,13 +61,15 @@ CodeGenerator
 Абстрактные классы Record (домен)
 1. Для каждой сущности в yaml создает и записывает абстрактный класс.
 2. В абстрактных классах есть сеттеры, геттеры на поля в массиве fields (свойство Record).
-    public function setName($name) {
-        $this->fields['name'] = $name;
-        return $this;
-    }
-    public function getName($name) {
-        return $this->fields['name'];
-    }
+```php
+public function setName($name) {
+    $this->fields['name'] = $name;
+    return $this;
+}
+public function getName($name) {
+    return $this->fields['name'];
+}
+```
 3. Абстрактные поля унаследованы от Record (OrderAbstract extends Record)
 
 Конкретные классы Record (домен)
@@ -73,25 +80,50 @@ CodeGenerator
 1. Запоминает все методы абстрастного класса и написаного руками наследника (Record).
 2. Генерирует абстрактный и конкретный классы OrderCollection extends OrderCollectionAbstract extends Grace\ORM\Collection.
 3. В созданном классе OrderCollectionAbstract для каждого метода Record (кроме начинающихся с get) создает метод с такой же сигнатурой и циклом foreach внутри:
-    public closeOrder($price, $notifyClient = false) {
-        foreach ($this->items as $item) {
-            $item->closeOrder($price, $notifyClient);
-        }
+```php
+public closeOrder($price, $notifyClient = false) {
+    foreach ($this->items as $item) {
+        $item->closeOrder($price, $notifyClient);
     }
+}
+```
 
 Класс-наследник класса Manager
 1. Это только один класс для всех сущностей.
 2. Для каждой сущности в нем есть метод получения Finder'а - getOrderFinder
-    /**
-     * @return OrderFinder
-     */
-    public function getOrderFinder() {
-        return $this->getFinder('Order');
-    }
+```php
+/**
+    * @return OrderFinder
+    */
+public function getOrderFinder() {
+    return $this->getFinder('Order');
+}
+```
+
 3. Php-doc с тегом @return обязателен (для автодополнения)
 
 Mapper'ы
-1. Пока не генерируются
+1. Так же, как и выше, генерируются два mapper'а на каждую сущность (OrderMapper и OrderMapperAbstract)
+```php
+OrderMapper extends OrderMapperAbstract {}
+OrderMapperAbstract extends \Grace\ORM\Mapper {
+    protected $fields = array(
+        'id',
+        'name',
+        'phone',
+        ...
+    );
+}
+```
 
 Finder'ы
-1. Пока не генерируются
+1. Так же, как и выше, генерируются два Finder'а на каждую сущность (OrderFinder и OrderFinderAbstract)
+```php
+OrderFinder extends OrderFinderAbstract {}
+/**
+ * @method Order getById($id)
+ * @method Order fetchOne()
+ * @method OrderCollection fetchAll()
+ */
+OrderFinderAbstract extends \Grace\ORM\Finder {}
+```

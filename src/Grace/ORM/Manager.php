@@ -4,7 +4,7 @@ namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
 
-class Manager implements ManagerInterface {
+abstract class Manager implements ManagerInterface {
 
     private $dbReadConnection;
     private $dbWriteConnection;
@@ -29,7 +29,7 @@ class Manager implements ManagerInterface {
         $this->unitOfWork = $unitOfWork;
         $this->modelsNamespace = $modelsNamespace;
     }
-    public function getFinder($className) {
+    protected function getFinder($className) {
         if (!isset($this->finders[$className])) {
             $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Finder';
             $fullCollectionClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Collection';
@@ -61,7 +61,7 @@ class Manager implements ManagerInterface {
         foreach ($this->unitOfWork->getNewRecords()  as $record) {
             $className = get_class($record);
             $changes = $this->getMapper($className)
-                ->convertRecordToDbRow($record);
+                ->convertRecordArrayToDbRow($record->asArray());
             $this->dbWriteConnection->getSQLBuilder()
                 ->insert($className)
                 ->values($changes)
@@ -70,7 +70,7 @@ class Manager implements ManagerInterface {
         foreach ($this->unitOfWork->getChangedRecords() as $record) {
             $className = get_class($record);
             $changes = $this->getMapper($className)
-                ->getRecordChanges($record);
+                ->getRecordChanges($record->asArray(), $record->getDefaultFields());
             if (count($changes) > 0) {
                 $this->dbWriteConnection->getSQLBuilder()
                     ->update($className)

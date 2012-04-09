@@ -20,7 +20,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase {
             'name' => 'Mike',
             'phone' => '+79991234567',
         );
-        $this->order = new Order($this->dispatcher, $this->unitOfWork, 123, $fields);
+        $this->order = new Order($this->dispatcher, $this->unitOfWork, 123, $fields, false);
     }
     public function testGettingEventDispatcher() {
         $this->assertEquals($this->dispatcher, $this->order->getEventDispatcherPublic());
@@ -52,7 +52,9 @@ class RecordTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('Mike', $defaults['name']);
         $this->assertEquals('+79991234567', $defaults['phone']);
         
-        print_r($this->order->asArray());
+        $recordArray = $this->order->asArray();
+        $this->assertEquals('John', $recordArray['name']);
+        $this->assertEquals('+1234546890', $recordArray['phone']);
     }
     public function testSettingFieldWithSaving() {
         $this->order

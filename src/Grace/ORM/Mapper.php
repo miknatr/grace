@@ -2,47 +2,39 @@
 
 namespace Grace\ORM;
 
-class Mapper implements MapperInterface {
+abstract class Mapper implements MapperInterface {
     protected $fields = array();
-    public function __construct($fullRecordClassName) {
-        $rClass = new \ReflectionClass($fullRecordClassName);
-        $properties = $rClass->getProperties($filter);
-        foreach ($properties as $property) {
-            //TODO magic string
-            if (substr($property, 0, 5) == 'field') {
-                $this->fields[] = lcfirst(substr($property, 5));
-            }
-        }
-    }
+
     public function convertDbRowToRecordArray(array $row) {
         $recordArray = array();
-        foreach ($row as $k => $v) {
-            if (in_array($k, $this->fields)) {
-                //TODO magic string
-                $recordArray['field' . ucfirst($k)] = $v;
-            }            
+        foreach ($this->fields as $field) {
+            if (isset($row[$field])) {
+                $recordArray[$field] = $row[$field];
+            } else {
+                $recordArray[$field] = null;
+            }
         }
         return $recordArray;
     }
-    public function convertRecordToDbRow(MapperRecordInterface $record) {
+    public function convertRecordArrayToDbRow(array $recordArray) {
         $row = array();
-        $recordArray = $record->asArray();
-        foreach ($recordArray as $k => $v) {
-            $kWithoutField = lcfirst(substr($property, 5));
-            if (in_array($kWithoutField, $this->fields)) {
-                //TODO magic string
-                $recordArray[$kWithoutField] = $v;
-            }        
+        foreach ($this->fields as $field) {
+            if (isset($recordArray[$field])) {
+                $row[$field] = $recordArray[$field];
+            } else {
+                $row[$field] = null;
+            }
         }
         return $row;
     }
-    public function getRecordChanges(MapperRecordInterface $record) {
+    public function getRecordChanges(array $recordArray, array $defaults) {
         $changes = array();
-        $defaultFields = $record->getDefaultFields();
-        foreach ($record->asArray() as $k => $v) {
-            if ($defaultFields[$k] != $v) {
-                //$k has a prefix 'field'
-                $changes[ucfirst(substr($k, 5))] = $v;
+        foreach ($this->fields as $field) {
+            if (isset($recordArray[$field])
+                and isset($defaults[$field])
+                and $recordArray[$field] != $defaults[$field]) {
+                
+                $changes[$field] = $recordArray[$field];
             }
         }
         return $changes;
