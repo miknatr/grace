@@ -8,8 +8,8 @@ namespace Grace\CGen;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 //TODO Add exceptions to all classes
-abstract class AbstractYamlParser implements InterfaceYamlParser{
-    private $parser = null;
+abstract class YamlParserAbstract implements YamlParserInterface{
+    public $parser = null;
     public function __construct(){
         $this->parser = new Parser();
         return $this;
