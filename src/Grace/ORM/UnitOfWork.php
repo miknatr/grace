@@ -20,13 +20,10 @@ class UnitOfWork {
         $this->deletedRecords[spl_object_hash($record)] = $record;
         return $this;
     }
-    /*
-     * @return ManagerRecordInterface[]
-     */
     public function getNewRecords() {
         return $this->newRecords;
     }
-    public function getChandedRecords() {
+    public function getChangedRecords() {
         return $this->changedRecords;
     }
     public function getDeletedRecords() {

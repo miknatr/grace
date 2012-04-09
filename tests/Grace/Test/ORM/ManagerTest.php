@@ -66,7 +66,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
         $this->manager->getOrderFinder()->getById(3)->delete();
         
         //test update
-        $this->manager->getOrderFinder()->getById(2)->setName('Jack');
+        $this->manager->getOrderFinder()->getById(2)->setName('Jack')->save();
         
         $this->manager->commit();
         

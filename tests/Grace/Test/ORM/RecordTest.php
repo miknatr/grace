@@ -36,7 +36,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase {
             ->setPhone('+1234546890');
         $this->assertEquals('John', $this->order->getName());
         $this->assertEquals('+1234546890', $this->order->getPhone());
-        $this->assertEquals(array(), $this->unitOfWork->getChandedRecords());
+        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
     }
     public function testDeleting() {
         $this->order->delete();
@@ -46,7 +46,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('John', $this->order->getName());
         $this->assertEquals('+1234546890', $this->order->getPhone());
         
-        $this->assertEquals(array($this->order), array_values($this->unitOfWork->getChandedRecords()));
+        $this->assertEquals(array($this->order), array_values($this->unitOfWork->getChangedRecords()));
         
         $defaults = $this->order->getDefaultFields();
         $this->assertEquals('Mike', $defaults['name']);

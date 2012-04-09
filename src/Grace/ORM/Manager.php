@@ -46,8 +46,6 @@ abstract class Manager implements ManagerInterface {
      * @return MapperInterface
      */
     private function getMapper($className) {
-        //TODO
-        echo "\n$className\n";
         if (!isset($this->mappers[$className])) {
             $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Mapper';
             $this->mappers[$className] = new $fullClassName;
@@ -56,7 +54,7 @@ abstract class Manager implements ManagerInterface {
     }
     public function commit() {
         foreach ($this->unitOfWork->getNewRecords() as $record) {
-            $className = get_class($record);
+            $className = $this->trimFullClassName($record);
             $changes = $this->getMapper($className)
                 ->convertRecordArrayToDbRow($record->asArray());
             $this->dbWriteConnection->getSQLBuilder()
@@ -65,7 +63,7 @@ abstract class Manager implements ManagerInterface {
                 ->execute();
         }
         foreach ($this->unitOfWork->getChangedRecords() as $record) {
-            $className = get_class($record);
+            $className = $this->trimFullClassName($record);
             $changes = $this->getMapper($className)
                 ->getRecordChanges($record->asArray(),
                 $record->getDefaultFields());
@@ -79,12 +77,15 @@ abstract class Manager implements ManagerInterface {
             }
         }
         foreach ($this->unitOfWork->getDeletedRecords() as $record) {
-            $className = get_class($record);
+            $className = $this->trimFullClassName($record);
             $this->dbWriteConnection->getSQLBuilder()
                 ->delete($className)
                 //TODO 'id' - magic string
                 ->eq('id', $record->getId())
                 ->execute();
         }
+    }
+    private function trimFullClassName(Record $record) {
+        return substr(get_class($record), strlen($this->modelsNamespace . '\\'));
     }
 }

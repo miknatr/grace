@@ -54,7 +54,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('Anonymous', $r->getName());
         $this->assertEquals('nophone', $r->getPhone());
         
-        $this->assertEquals(array(), $this->unitOfWork->getChandedRecords());
+        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
     }
     public function testDeleting() {
         $this->collection->delete();
@@ -77,7 +77,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('Anonymous', $r->getName());
         $this->assertEquals('nophone', $r->getPhone());
         
-        $this->assertEquals(2, count($this->unitOfWork->getChandedRecords()));
+        $this->assertEquals(2, count($this->unitOfWork->getChangedRecords()));
     }
     public function testSettingFieldWithSaving() {
         $this->collection
