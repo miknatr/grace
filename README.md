@@ -62,6 +62,7 @@ $this->orderSql = ' ORDER BY ' . $sql;
 1. Для каждой сущности в yaml создает и записывает абстрактный класс.
 2. В абстрактных классах есть сеттеры, геттеры на поля в массиве fields (свойство Record).
 ```php
+<?php
 public function setName($name) {
     $this->fields['name'] = $name;
     return $this;
@@ -81,6 +82,7 @@ public function getName($name) {
 2. Генерирует абстрактный и конкретный классы OrderCollection extends OrderCollectionAbstract extends Grace\ORM\Collection.
 3. В созданном классе OrderCollectionAbstract для каждого метода Record (кроме начинающихся с get) создает метод с такой же сигнатурой и циклом foreach внутри:
 ```php
+<?php
 public closeOrder($price, $notifyClient = false) {
     foreach ($this->items as $item) {
         $item->closeOrder($price, $notifyClient);
@@ -92,6 +94,7 @@ public closeOrder($price, $notifyClient = false) {
 1. Это только один класс для всех сущностей.
 2. Для каждой сущности в нем есть метод получения Finder'а - getOrderFinder
 ```php
+<?php
 /**
     * @return OrderFinder
     */
@@ -105,6 +108,7 @@ public function getOrderFinder() {
 Mapper'ы
 1. Так же, как и выше, генерируются два mapper'а на каждую сущность (OrderMapper и OrderMapperAbstract)
 ```php
+<?php
 OrderMapper extends OrderMapperAbstract {}
 OrderMapperAbstract extends \Grace\ORM\Mapper {
     protected $fields = array(
@@ -119,6 +123,7 @@ OrderMapperAbstract extends \Grace\ORM\Mapper {
 Finder'ы
 1. Так же, как и выше, генерируются два Finder'а на каждую сущность (OrderFinder и OrderFinderAbstract)
 ```php
+<?php
 OrderFinder extends OrderFinderAbstract {}
 /**
  * @method Order getById($id)
