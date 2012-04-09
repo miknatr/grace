@@ -10,7 +10,7 @@
  */
 namespace Grace\CGen;
 
-class DefaultCGenerator extends AbstractCGenerator {
+class DefaultClassGenerator extends ClassGeneratorAbstract{
     private $parsedFile = null;
     
     public function __construct($dirYaml, $classesDir, $className){
@@ -33,7 +33,7 @@ class DefaultCGenerator extends AbstractCGenerator {
         }catch (ErrorException $ex){
             //TODO add exceptions
             die($ex->getMessage());
-        }catch (CGenException $ex){
+        }catch (ClassGeneratorException $ex){
             die($ex->getMessage());
         }
         return true;
@@ -99,7 +99,7 @@ class DefaultCGenerator extends AbstractCGenerator {
         $path = (substr($classes, -1)=="/")?substr($classes, 0, strlen($classes)-1):$classes."/";
         $path .= $classname.".php";
         if (!file_put_contents($path, $file)){
-            throw new CGenException("File not write");
+            throw new ClassGeneratorException("File not write");
         }else{
             return true;
         }
