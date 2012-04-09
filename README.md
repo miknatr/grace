@@ -1,20 +1,6 @@
 Grace ORM
 =============================
 
-
-```php
-<?php
-require_once __DIR__.'/silex.phar';
-
-$app = new Silex\Application();
-
-$app->get('/hello/{name}', function ($name) use ($app) {
-  return 'Hello '.$app->escape($name);
-});
-
-$app->run();
-```
-
 ## Конвенция
 
 покрыто
@@ -56,7 +42,10 @@ $app->run();
 1. При составлении сложных запросов из различных частей (where, group, having 
 части sql запроса), нужно делать один пробел вначале выражения и осталять
 без пробела после. Пример:
+
+```php
 $this->orderSql = ' ORDER BY ' . $sql;
+```
 
 2. ...
 
@@ -73,6 +62,7 @@ $this->orderSql = ' ORDER BY ' . $sql;
 Абстрактные классы Record (домен)
 1. Для каждой сущности в yaml создает и записывает абстрактный класс.
 2. В абстрактных классах есть сеттеры, геттеры на поля в массиве fields (свойство Record).
+
 ```php
 <?php
 public function setName($name) {
@@ -93,6 +83,7 @@ public function getName($name) {
 1. Запоминает все методы абстрастного класса и написаного руками наследника (Record).
 2. Генерирует абстрактный и конкретный классы OrderCollection extends OrderCollectionAbstract extends Grace\ORM\Collection.
 3. В созданном классе OrderCollectionAbstract для каждого метода Record (кроме начинающихся с get) создает метод с такой же сигнатурой и циклом foreach внутри:
+
 ```php
 <?php
 public closeOrder($price, $notifyClient = false) {
@@ -105,6 +96,7 @@ public closeOrder($price, $notifyClient = false) {
 Класс-наследник класса Manager
 1. Это только один класс для всех сущностей.
 2. Для каждой сущности в нем есть метод получения Finder'а - getOrderFinder
+
 ```php
 <?php
 /**
@@ -119,6 +111,7 @@ public function getOrderFinder() {
 
 Mapper'ы
 1. Так же, как и выше, генерируются два mapper'а на каждую сущность (OrderMapper и OrderMapperAbstract)
+
 ```php
 <?php
 OrderMapper extends OrderMapperAbstract {}
@@ -134,6 +127,7 @@ OrderMapperAbstract extends \Grace\ORM\Mapper {
 
 Finder'ы
 1. Так же, как и выше, генерируются два Finder'а на каждую сущность (OrderFinder и OrderFinderAbstract)
+
 ```php
 <?php
 OrderFinder extends OrderFinderAbstract {}
