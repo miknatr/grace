@@ -16,6 +16,7 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
     private $readConnection;
     private $mapper;
     private $className;
+    private $idCounter = null;
     /** @var InterfaceResult */
     private $queryResult;
 
@@ -36,9 +37,38 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
     final protected function getEventDispatcher() {
         return $this->eventDispatcher;
     }
-    final public function execute($query, array $arguments = array()) {
-        $this->queryResult = $this->readConnection->execute($query, $arguments);
-        return $this;
+    protected function generateNewId() {
+        if ($this->idCounter === null) {
+            $this->idCounter = $this->getSelectBuilder()
+                ->fields('id')
+                ->order('id DESC')
+                ->limit(0, 1)
+                ->fetchResult();
+        }
+        return ++$this->idCounter;
+    }
+    final public function create() {
+        $id = $this->generateNewId();
+        //TODO magic string 'id'
+        $recordArray = $this->mapper->convertDbRowToRecordArray(array('id' => $id));
+        $recordClass = $this->fullClassName;
+        //TODO magic string 'id'
+        $record = new $recordClass($this->eventDispatcher, $this->unitOfWork,
+                $recordArray['id'], $recordArray, true);
+        $this->identityMap->setRecord($this->className, $record->getId(),
+            $record);
+        return $record;
+    }
+    final public function getById($id) {
+        if ($this->identityMap->issetRecord($this->className, $id)) {
+            return $this->identityMap->getRecord($this->className, $id);
+        }
+
+        $record = $this->getSelectBuilder()->eq('id', $id)->fetchOne();
+        if (!is_object($record)) {
+            throw new ExceptionNotFoundById('Row ' . $id . ' in ' . $this->className . ' is not found by id');
+        }
+        return $record;
     }
     final public function fetchOne() {
         $row = $this->queryResult->fetchOne();
@@ -46,7 +76,7 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
             return false;
         }
         $recordArray = $this->mapper->convertDbRowToRecordArray($row);
-        $recordClass = $this->fullCollectionClassName;
+        $recordClass = $this->fullClassName;
         //TODO magic string 'id'
         $record = new $recordClass($this->eventDispatcher, $this->unitOfWork,
                 $recordArray['id'], $recordArray, false);
@@ -68,37 +98,11 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
     final public function fetchColumn() {
         return $this->queryResult->fetchColumn();
     }
+    final public function execute($query, array $arguments = array()) {
+        $this->queryResult = $this->readConnection->execute($query, $arguments);
+        return $this;
+    }
     final protected function getSelectBuilder() {
-        return new SelectBuilder($table, $this);
-    }
-    final public function getById($id) {
-        if ($this->identityMap->issetRecord($this->className, $id)) {
-            return $this->identityMap->getRecord($this->className, $id);
-        }
-
-        $record = $this->getSelectBuilder()->eq('id', $id)->fetchOne();
-        if (!is_object($record)) {
-            throw new ExceptionNotFoudById('Row ' . $id . ' in ' . $this->className . ' is not found by id');
-        }
-        return $record;
-    }
-    final public function create() {
-        $id = $this->generateNewId();
-        //TODO magic string 'id'
-        $recordArray = $this->mapper->convertDbRowToRecordArray(array('id' => $id));
-        $recordClass = $this->fullCollectionClassName;
-        //TODO magic string 'id'
-        $record = new $recordClass($this->eventDispatcher, $this->unitOfWork,
-                $recordArray['id'], $recordArray, true);
-        $this->identityMap->setRecord($this->className, $record->getId(),
-            $record);
-        return $record;
-    }
-    protected function generateNewId() {
-        return $this->getSelectBuilder()
-                ->fields('id')
-                ->order('id DESC')
-                ->limit(0, 1)
-                ->fetchResult();
+        return new SelectBuilder($this->className, $this);
     }
 }

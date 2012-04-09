@@ -51,4 +51,36 @@ class FinderTest extends \PHPUnit_Framework_TestCase {
     public function testGetEventDispatcher() {
         $this->assertEquals($this->dispatcher, $this->finder->getEventDispatcherPublic());
     }
+    public function testCreate() {
+        $r = $this->finder->create();
+        $this->assertTrue($r instanceof Order);
+        $this->assertEquals(4, $r->getId());
+        
+        $r = $this->finder->create();
+        $this->assertTrue($r instanceof Order);
+        $this->assertEquals(5, $r->getId());
+    }
+    public function testGetById() {
+        $r = $this->finder->getById(3);
+        $this->assertTrue($r instanceof Order);
+        $this->assertEquals(3, $r->getId());
+        $this->assertEquals('Bill', $r->getName());
+        
+        //Testing Identity Map work
+        $r2 = $this->finder->getById(3);
+        $this->assertEquals(spl_object_hash($r), spl_object_hash($r2));
+    }
+    public function testGetByIdWithBadId() {
+        $this->setExpectedException('Grace\ORM\ExceptionNotFoundById');
+        $r = $this->finder->getById(123123);
+    }
+    public function testFetchColumn() {
+        $r = $this->finder->getNameColumn();
+        $this->assertEquals(array('Mike', 'John', 'Bill'), $r);
+    }
+    public function testFetchAll() {
+        $r = $this->finder->getAllRecords();
+        $this->assertEquals(3, count($r));
+        $this->assertEquals('Mike', $r->getIterator()->current()->getName());
+    }
 }

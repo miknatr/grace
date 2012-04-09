@@ -5,7 +5,6 @@ namespace Grace\ORM;
 use Grace\DBAL\InterfaceConnection;
 
 abstract class Manager implements ManagerInterface {
-
     private $dbReadConnection;
     private $dbWriteConnection;
     //TODO memcache, redis etc
@@ -31,14 +30,13 @@ abstract class Manager implements ManagerInterface {
     }
     protected function getFinder($className) {
         if (!isset($this->finders[$className])) {
-            $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Finder';
+            $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . '';
+            $fullFinderClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Finder';
             $fullCollectionClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Collection';
-            if (!class_exists($fullClassName)) {
-                $fullClassName = 'Finder';
-            }
-            $this->finders[$className] = new $fullClassName($this->identityMap,
+            $this->finders[$className] = new $fullFinderClassName($this->eventDispatcher,
+                    $this->unitOfWork, $this->identityMap,
                     $this->dbReadConnection, $this->getMapper($className),
-                    $className, $fullCollectionClassName);
+                    $className, $fullClassName, $fullCollectionClassName);
         }
         return $this->finders[$className];
     }
@@ -48,17 +46,16 @@ abstract class Manager implements ManagerInterface {
      * @return MapperInterface
      */
     private function getMapper($className) {
+        //TODO
+        echo "\n$className\n";
         if (!isset($this->mappers[$className])) {
             $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Mapper';
-            if (!class_exists($fullClassName)) {
-                $fullClassName = 'Mapper';
-            }
             $this->mappers[$className] = new $fullClassName;
         }
         return $this->mappers[$className];
     }
     public function commit() {
-        foreach ($this->unitOfWork->getNewRecords()  as $record) {
+        foreach ($this->unitOfWork->getNewRecords() as $record) {
             $className = get_class($record);
             $changes = $this->getMapper($className)
                 ->convertRecordArrayToDbRow($record->asArray());
@@ -70,7 +67,8 @@ abstract class Manager implements ManagerInterface {
         foreach ($this->unitOfWork->getChangedRecords() as $record) {
             $className = get_class($record);
             $changes = $this->getMapper($className)
-                ->getRecordChanges($record->asArray(), $record->getDefaultFields());
+                ->getRecordChanges($record->asArray(),
+                $record->getDefaultFields());
             if (count($changes) > 0) {
                 $this->dbWriteConnection->getSQLBuilder()
                     ->update($className)
