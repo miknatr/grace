@@ -2,6 +2,8 @@
 
 namespace Grace\ORM;
 
+use Grace\EventDispatcher\Dispatcher;
+
 abstract class Record implements RecordInterface, MapperRecordInterface {
     private $eventDispatcher;
     private $unitOfWork;
@@ -9,7 +11,7 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
     private $defaultFields = array();
     protected $fields = array();
 
-    final public function __construct(EventDispatcher $eventDispatcher,
+    final public function __construct(Dispatcher $eventDispatcher,
         UnitOfWork $unitOfWork, $id, array $fields, $isNew) {
 
         $this->eventDispatcher = $eventDispatcher;

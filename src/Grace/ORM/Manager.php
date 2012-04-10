@@ -4,6 +4,7 @@ namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
 use Grace\CRUD\CRUDInterface;
+use Grace\EventDispatcher\Dispatcher;
 
 abstract class Manager implements ManagerInterface {
     private $modelsNamespace;
@@ -15,7 +16,7 @@ abstract class Manager implements ManagerInterface {
     private $mappers = array();
     private $finders = array();
 
-    public function __construct(EventDispatcher $eventDispatcher,
+    public function __construct(Dispatcher $eventDispatcher,
         $modelsNamespace, InterfaceConnection $sqlReadOnly, CRUDInterface $crud) {
 
         $this->sqlReadOnly = $sqlReadOnly;

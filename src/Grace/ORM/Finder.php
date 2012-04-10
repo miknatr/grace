@@ -7,6 +7,7 @@ use Grace\CRUD\CRUDInterface;
 use Grace\DBAL\InterfaceExecutable;
 use Grace\DBAL\InterfaceResult;
 use Grace\SQLBuilder\SelectBuilder;
+use Grace\EventDispatcher\Dispatcher;
 
 abstract class Finder implements FinderInterface, InterfaceExecutable, InterfaceResult {
     private $fullCollectionClassName;
@@ -22,7 +23,7 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
     /** @var InterfaceResult */
     private $queryResult;
 
-    final public function __construct(EventDispatcher $eventDispatcher,
+    final public function __construct(Dispatcher $eventDispatcher,
         UnitOfWork $unitOfWork, IdentityMap $identityMap,
         InterfaceConnection $sqlReadOnly, CRUDInterface $crud,
         MapperInterface $mapper, $className, $fullClassName,

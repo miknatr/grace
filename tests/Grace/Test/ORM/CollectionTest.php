@@ -2,11 +2,11 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\EventDispatcher;
+use Grace\EventDispatcher\Dispatcher;
 use Grace\ORM\UnitOfWork;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase {
-    /** @var EventDispatcher */
+    /** @var Dispatcher */
     protected $dispatcher;
     /** @var UnitOfWork */
     protected $unitOfWork;
@@ -14,7 +14,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase {
     protected $collection;
 
     protected function setUp() {
-        $this->dispatcher = new EventDispatcher;
+        $this->dispatcher = new Dispatcher;
         $this->unitOfWork = new UnitOfWork;
         
         $fields = array(

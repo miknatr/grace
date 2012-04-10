@@ -2,7 +2,7 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\EventDispatcher;
+use Grace\EventDispatcher\Dispatcher;
 use Grace\ORM\UnitOfWork;
 use Grace\ORM\IdentityMap;
 use Grace\DBAL\MysqliConnection;
@@ -12,7 +12,7 @@ use Grace\ORM\ExceptionNotFoundById;
 class ManagerTest extends \PHPUnit_Framework_TestCase {
     /** @var RealManager */
     protected $manager;
-    /** @var EventDispatcher */
+    /** @var Dispatcher */
     protected $dispatcher;
     /** @var MysqliConnection */
     protected $connection;
@@ -37,7 +37,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
                 'database' => TEST_MYSQLI_DATABASE,
             ));
         $this->crud = new DBMasterDriver($this->connection);
-        $this->dispatcher = new EventDispatcher;
+        $this->dispatcher = new Dispatcher;
 
         $this->manager = new RealManager($this->dispatcher, 'Grace\Test\ORM',
                 $this->connection, $this->crud);

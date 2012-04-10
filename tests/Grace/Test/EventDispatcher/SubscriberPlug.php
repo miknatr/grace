@@ -1,10 +1,10 @@
 <?php
 
-namespace Grace\Test\ORM;
+namespace Grace\Test\EventDispatcher;
 
-use Grace\ORM\EventSubscriberInterface;
+use Grace\EventDispatcher\SubscriberInterface;
 
-class EventSubscriberPlug implements EventSubscriberInterface {
+class SubscriberPlug implements SubscriberInterface {
     public $wasFirstEvent = false;
     public $wasSecondEvent = false;
     public function firstEvent($context) {

@@ -2,11 +2,11 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\EventDispatcher;
+use Grace\EventDispatcher\Dispatcher;
 use Grace\ORM\UnitOfWork;
 
 class RecordTest extends \PHPUnit_Framework_TestCase {
-    /** @var EventDispatcher */
+    /** @var Dispatcher */
     protected $dispatcher;
     /** @var UnitOfWork */
     protected $unitOfWork;
@@ -14,7 +14,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase {
     protected $order;
 
     protected function setUp() {
-        $this->dispatcher = new EventDispatcher;
+        $this->dispatcher = new Dispatcher;
         $this->unitOfWork = new UnitOfWork;
         $fields = array(
             'name' => 'Mike',

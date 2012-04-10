@@ -2,7 +2,7 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\EventDispatcher;
+use Grace\EventDispatcher\Dispatcher;
 use Grace\ORM\UnitOfWork;
 use Grace\ORM\IdentityMap;
 use Grace\DBAL\MysqliConnection;
@@ -11,7 +11,7 @@ use Grace\CRUD\DBMasterDriver;
 class FinderTest extends \PHPUnit_Framework_TestCase {
     /** @var OrderFinder */
     protected $finder;
-    /** @var EventDispatcher */
+    /** @var Dispatcher */
     protected $dispatcher;
     /** @var UnitOfWork */
     protected $unitOfWork;
@@ -33,7 +33,7 @@ class FinderTest extends \PHPUnit_Framework_TestCase {
                 'database' => TEST_MYSQLI_DATABASE,
             ));
         $this->crud = new DBMasterDriver($this->connection);
-        $this->dispatcher = new EventDispatcher;
+        $this->dispatcher = new Dispatcher;
         $this->unitOfWork = new UnitOfWork;
         $this->identityMap = new IdentityMap;
         $this->mapper = new OrderMapper;

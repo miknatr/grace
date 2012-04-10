@@ -1,8 +1,8 @@
 <?php
 
-namespace Grace\ORM;
+namespace Grace\EventDispatcher;
 
-class EventDispatcher {
+class Dispatcher {
     /**
      * array(
      *     'closeOrder' => array('OrderLogger', 'OrderSmsSender'),
@@ -20,7 +20,7 @@ class EventDispatcher {
         $this->subscriberBuilders[$id] = $subscriberBuilder;
         return $this;
     }
-    public function addSubscriberObject(EventSubscriberInterface $subscriber) {
+    public function addSubscriberObject(SubscriberInterface $subscriber) {
         $className = get_class($subscriber);
         $id = spl_object_hash($subscriber);
         $this->setSubscribedEvents($id, $className);
@@ -56,7 +56,7 @@ class EventDispatcher {
         if (!isset($this->subscribers[$id])) {
             $builder = $this->subscriberBuilders[$id];
             $object = $builder();
-            if (!($object instanceof EventSubscriberInterface)) {
+            if (!($object instanceof SubscriberInterface)) {
                 throw new ExceptionBadSubscriberBuilder('Subscribers must implement EventSubscriberInterface');
             }
             $this->subscribers[$id] = $object;
