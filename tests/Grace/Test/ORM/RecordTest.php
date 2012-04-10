@@ -2,11 +2,11 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\EventDispatcher;
+use Grace\EventDispatcher\Dispatcher;
 use Grace\ORM\UnitOfWork;
 
 class RecordTest extends \PHPUnit_Framework_TestCase {
-    /** @var EventDispatcher */
+    /** @var Dispatcher */
     protected $dispatcher;
     /** @var UnitOfWork */
     protected $unitOfWork;
@@ -14,13 +14,13 @@ class RecordTest extends \PHPUnit_Framework_TestCase {
     protected $order;
 
     protected function setUp() {
-        $this->dispatcher = new EventDispatcher;
+        $this->dispatcher = new Dispatcher;
         $this->unitOfWork = new UnitOfWork;
         $fields = array(
             'name' => 'Mike',
             'phone' => '+79991234567',
         );
-        $this->order = new Order($this->dispatcher, $this->unitOfWork, 123, $fields);
+        $this->order = new Order($this->dispatcher, $this->unitOfWork, 123, $fields, false);
     }
     public function testGettingEventDispatcher() {
         $this->assertEquals($this->dispatcher, $this->order->getEventDispatcherPublic());
@@ -36,7 +36,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase {
             ->setPhone('+1234546890');
         $this->assertEquals('John', $this->order->getName());
         $this->assertEquals('+1234546890', $this->order->getPhone());
-        $this->assertEquals(array(), $this->unitOfWork->getChandedRecords());
+        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
     }
     public function testDeleting() {
         $this->order->delete();
@@ -46,13 +46,15 @@ class RecordTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('John', $this->order->getName());
         $this->assertEquals('+1234546890', $this->order->getPhone());
         
-        $this->assertEquals(array($this->order), array_values($this->unitOfWork->getChandedRecords()));
+        $this->assertEquals(array($this->order), array_values($this->unitOfWork->getChangedRecords()));
         
         $defaults = $this->order->getDefaultFields();
         $this->assertEquals('Mike', $defaults['name']);
         $this->assertEquals('+79991234567', $defaults['phone']);
         
-        print_r($this->order->asArray());
+        $recordArray = $this->order->asArray();
+        $this->assertEquals('John', $recordArray['name']);
+        $this->assertEquals('+1234546890', $recordArray['phone']);
     }
     public function testSettingFieldWithSaving() {
         $this->order

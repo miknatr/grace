@@ -10,18 +10,6 @@ class SelectBuilder extends AbstractWhereBuilder {
     protected $orderSql = '';
     protected $limitSql;
 
-    public function fetchAll() {
-        return $this->execute()->fetchAll();
-    }
-    public function fetchOne() {
-        return $this->execute()->fetchOne();
-    }
-    public function fetchResult() {
-        return $this->execute()->fetchResult();
-    }
-    public function fetchColumn() {
-        return $this->execute()->fetchColumn();
-    }
     public function count() {
         //TODO id - magic field
         $this->fields = 'COUNT(id)';

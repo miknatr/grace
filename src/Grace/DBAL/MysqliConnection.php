@@ -14,9 +14,15 @@ class MysqliConnection extends AbstractConnection {
             $this->connect();
         }
 
-        //$this->_logger->startQuery();
+        $timer = time() + microtime(false);
         $result = $this->dbh->query($query);
-        //$this->_logger->stopQuery($query);
+        $timer = (time() + microtime(false) - $timer);
+        $this->getEventDispatcher()
+            ->notify(InterfaceConnection::EVENT_DB_QUERY, array(
+                //TODO magic strings
+                'time' => $timer,
+                'query' => $query,
+            ));
 
         if ($result === false) {
             if ($this->transactionProcess) {
@@ -80,10 +86,18 @@ class MysqliConnection extends AbstractConnection {
 
         $config = $this->getConfig();
 
+        $timer = time() + microtime(false);
         //Can throw warning, if have incorrect connection params
         //So we need '@'
         $this->dbh = @mysqli_connect($config['host'], $config['user'],
                 $config['password'], $config['database'], (int) $config['port']);
+        $timer = (time() + microtime(false) - $timer);
+        $this->getEventDispatcher()
+            ->notify(InterfaceConnection::EVENT_DB_CONNECT, array(
+                //TODO magic strings
+                'time' => $timer,
+                'query' => 'CONNECT',
+            ));
 
         if (mysqli_connect_error()) {
             throw new ExceptionConnection('Error ' . mysqli_connect_errno() . ' - ' . mysqli_connect_error());

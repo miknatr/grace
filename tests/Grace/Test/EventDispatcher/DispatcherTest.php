@@ -1,15 +1,15 @@
 <?php
 
-namespace Grace\Test\ORM;
+namespace Grace\Test\EventDispatcher;
 
-use Grace\ORM\EventDispatcher;
+use Grace\EventDispatcher\Dispatcher;
 
-class EventDispatcherTest extends \PHPUnit_Framework_TestCase {
-    /** @var EventDispatcher */
+class DispatcherTest extends \PHPUnit_Framework_TestCase {
+    /** @var Dispatcher */
     protected $dispatcher;
 
     protected function setUp() {
-        $this->dispatcher = new EventDispatcher;
+        $this->dispatcher = new Dispatcher;
     }
     protected function tearDown() {
         
@@ -25,17 +25,17 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('some value', $r);
     }
     public function testBadBuilderClosure() {
-        $this->setExpectedException('Grace\ORM\ExceptionBadSubscriberBuilder');
-        $this->dispatcher->addSubscriberBuilder('Grace\Test\ORM\EventSubscriberBadPlug',
+        $this->setExpectedException('Grace\EventDispatcher\ExceptionBadSubscriberBuilder');
+        $this->dispatcher->addSubscriberBuilder('Grace\Test\EventDispatcher\SubscriberBadPlug',
             function() {
-                return new EventSubscriberBadPlug;
+                return new SubscriberBadPlug;
             });
         $this->dispatcher->notify('badEvent');
     }
     public function testSubscribingWithClosure() {
         
-        $plug = new EventSubscriberPlug;
-        $this->dispatcher->addSubscriberBuilder('Grace\Test\ORM\EventSubscriberPlug',
+        $plug = new SubscriberPlug;
+        $this->dispatcher->addSubscriberBuilder('Grace\Test\EventDispatcher\SubscriberPlug',
             function() use ($plug) {
                 return $plug;
             });
@@ -48,8 +48,8 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase {
     }
     public function testFilteringWithClosure() {
         
-        $plug = new EventSubscriberPlug;
-        $this->dispatcher->addSubscriberBuilder('Grace\Test\ORM\EventSubscriberPlug',
+        $plug = new SubscriberPlug;
+        $this->dispatcher->addSubscriberBuilder('Grace\Test\EventDispatcher\SubscriberPlug',
             function() use ($plug) {
                 return $plug;
             });
@@ -58,8 +58,8 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase {
     }
     public function testSubscribingTwoSubscribers() {
         
-        $plug = new EventSubscriberPlug;
-        $plug2 = new EventSubscriberPlug;
+        $plug = new SubscriberPlug;
+        $plug2 = new SubscriberPlug;
         $this->dispatcher
                 ->addSubscriberObject($plug)
                 ->addSubscriberObject($plug2);
@@ -74,15 +74,15 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase {
     }
     public function testFiltering() {
         
-        $plug = new EventSubscriberPlug;
+        $plug = new SubscriberPlug;
         $this->dispatcher->addSubscriberObject($plug);
         $r = $this->dispatcher->filter('doubleFilter', 'qwe');
         $this->assertEquals('qweqwe', $r);
     }
     public function testFilteringTwoSubscribers() {
         
-        $plug = new EventSubscriberPlug;
-        $plug2 = new EventSubscriberPlug;
+        $plug = new SubscriberPlug;
+        $plug2 = new SubscriberPlug;
         $this->dispatcher
                 ->addSubscriberObject($plug)
                 ->addSubscriberObject($plug2);

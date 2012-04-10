@@ -2,16 +2,26 @@
 
 namespace Grace\DBAL;
 
+use Grace\EventDispatcher\Dispatcher;
 use Grace\SQLBuilder\Factory;
 
 abstract class AbstractConnection implements InterfaceConnection {
     private $config = array();
+    private $dispatcher;
 
-    public function __construct(array $config) {
+    public function __construct(array $config, Dispatcher $dispatcher) {
         $this->config = $config;
+        $this->dispatcher = $dispatcher;
     }
     public function getSQLBuilder() {
         return new Factory($this);
+    }
+    /**
+     *
+     * @return Dispatcher 
+     */
+    protected function getEventDispatcher() {
+        return $this->dispatcher;
     }
     public function replacePlaceholders($query, array $arguments) {
         $position = 0;

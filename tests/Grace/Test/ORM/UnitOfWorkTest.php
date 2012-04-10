@@ -13,7 +13,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     }
     public function testEmptyReturn() {
         $this->assertEquals(array(), $this->unitOfWork->getNewRecords());
-        $this->assertEquals(array(), $this->unitOfWork->getChandedRecords());
+        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
         $this->assertEquals(array(), $this->unitOfWork->getDeletedRecords());
     }
     public function testNewMarkers() {
@@ -25,7 +25,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
             ->markAsNew($record2)
             ->markAsNew($record3);
         $this->assertEquals(array($record1, $record2), array_values($this->unitOfWork->getNewRecords()));
-        $this->assertEquals(array(), $this->unitOfWork->getChandedRecords());
+        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
         $this->assertEquals(array(), $this->unitOfWork->getDeletedRecords());
     }
     public function testChangedMarkers() {
@@ -37,7 +37,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
             ->markAsChanged($record2)
             ->markAsChanged($record3);
         $this->assertEquals(array(), $this->unitOfWork->getNewRecords());
-        $this->assertEquals(array($record1, $record2), array_values($this->unitOfWork->getChandedRecords()));
+        $this->assertEquals(array($record1, $record2), array_values($this->unitOfWork->getChangedRecords()));
         $this->assertEquals(array(), $this->unitOfWork->getDeletedRecords());
     }
     public function testDeleteMarkers() {
@@ -49,7 +49,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
             ->markAsDeleted($record2)
             ->markAsDeleted($record3);
         $this->assertEquals(array(), $this->unitOfWork->getNewRecords());
-        $this->assertEquals(array(), $this->unitOfWork->getChandedRecords());
+        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
         $this->assertEquals(array($record1, $record2), array_values($this->unitOfWork->getDeletedRecords()));
     }
 }

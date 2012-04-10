@@ -3,42 +3,38 @@
 namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
+use Grace\CRUD\CRUDInterface;
+use Grace\EventDispatcher\Dispatcher;
 
-class Manager implements ManagerInterface {
-
-    private $dbReadConnection;
-    private $dbWriteConnection;
-    //TODO memcache, redis etc
-    private $cacheConnection;
+abstract class Manager implements ManagerInterface {
+    private $modelsNamespace;
+    private $sqlReadOnly;
+    private $crud;
     private $eventDispatcher;
     private $identityMap;
     private $unitOfWork;
-    private $modelsNamespace;
     private $mappers = array();
     private $finders = array();
 
-    public function __construct($modelsNamespace,
-        EventDispatcher $eventDispatcher, IdentityMap $identityMap,
-        UnitOfWork $unitOfWork, InterfaceConnection $dbReadConnection,
-        InterfaceConnection $dbWriteConnection) {
+    public function __construct(Dispatcher $eventDispatcher,
+        $modelsNamespace, InterfaceConnection $sqlReadOnly, CRUDInterface $crud) {
 
-        $this->dbReadConnection = $dbReadConnection;
-        $this->dbWriteConnection = $dbWriteConnection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->identityMap = $identityMap;
-        $this->unitOfWork = $unitOfWork;
+        $this->sqlReadOnly = $sqlReadOnly;
+        $this->crud = $crud;
         $this->modelsNamespace = $modelsNamespace;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->identityMap = new IdentityMap;
+        $this->unitOfWork = new UnitOfWork;
     }
-    public function getFinder($className) {
+    protected function getFinder($className) {
         if (!isset($this->finders[$className])) {
-            $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Finder';
+            $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . '';
+            $fullFinderClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Finder';
             $fullCollectionClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Collection';
-            if (!class_exists($fullClassName)) {
-                $fullClassName = 'Finder';
-            }
-            $this->finders[$className] = new $fullClassName($this->identityMap,
-                    $this->dbReadConnection, $this->getMapper($className),
-                    $className, $fullCollectionClassName);
+            $this->finders[$className] = new $fullFinderClassName($this->eventDispatcher,
+                    $this->unitOfWork, $this->identityMap,
+                    $this->sqlReadOnly, $this->crud, $this->getMapper($className),
+                    $className, $fullClassName, $fullCollectionClassName);
         }
         return $this->finders[$className];
     }
@@ -50,43 +46,32 @@ class Manager implements ManagerInterface {
     private function getMapper($className) {
         if (!isset($this->mappers[$className])) {
             $fullClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Mapper';
-            if (!class_exists($fullClassName)) {
-                $fullClassName = 'Mapper';
-            }
             $this->mappers[$className] = new $fullClassName;
         }
         return $this->mappers[$className];
     }
     public function commit() {
-        foreach ($this->unitOfWork->getNewRecords()  as $record) {
-            $className = get_class($record);
+        foreach ($this->unitOfWork->getNewRecords() as $record) {
+            $className = $this->trimFullClassName($record);
             $changes = $this->getMapper($className)
-                ->convertRecordToDbRow($record);
-            $this->dbWriteConnection->getSQLBuilder()
-                ->insert($className)
-                ->values($changes)
-                ->execute();
+                ->convertRecordArrayToDbRow($record->asArray());
+            $this->crud->insertById($className, $record->getId(), $changes);
         }
         foreach ($this->unitOfWork->getChangedRecords() as $record) {
-            $className = get_class($record);
+            $className = $this->trimFullClassName($record);
             $changes = $this->getMapper($className)
-                ->getRecordChanges($record);
+                ->getRecordChanges($record->asArray(),
+                $record->getDefaultFields());
             if (count($changes) > 0) {
-                $this->dbWriteConnection->getSQLBuilder()
-                    ->update($className)
-                    ->values($changes)
-                    //TODO 'id' - magic string
-                    ->eq('id', $record->getId())
-                    ->execute();
+                $this->crud->updateById($className, $record->getId(), $changes);
             }
         }
         foreach ($this->unitOfWork->getDeletedRecords() as $record) {
-            $className = get_class($record);
-            $this->dbWriteConnection->getSQLBuilder()
-                ->delete($className)
-                //TODO 'id' - magic string
-                ->eq('id', $record->getId())
-                ->execute();
+            $className = $this->trimFullClassName($record);
+            $this->crud->deleteById($className, $record->getId());
         }
+    }
+    private function trimFullClassName(Record $record) {
+        return substr(get_class($record), strlen($this->modelsNamespace . '\\'));
     }
 }

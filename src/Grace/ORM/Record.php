@@ -2,6 +2,8 @@
 
 namespace Grace\ORM;
 
+use Grace\EventDispatcher\Dispatcher;
+
 abstract class Record implements RecordInterface, MapperRecordInterface {
     private $eventDispatcher;
     private $unitOfWork;
@@ -9,8 +11,8 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
     private $defaultFields = array();
     protected $fields = array();
 
-    final public function __construct(EventDispatcher $eventDispatcher,
-        UnitOfWork $unitOfWork, $id, array $fields, $isNew = false) {
+    final public function __construct(Dispatcher $eventDispatcher,
+        UnitOfWork $unitOfWork, $id, array $fields, $isNew) {
 
         $this->eventDispatcher = $eventDispatcher;
         $this->unitOfWork = $unitOfWork;
@@ -20,17 +22,17 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
         $this->fields = $fields;
 
         if ($isNew) { //if it is a new object
-            $this->getUnitOfWork()->markAsNew($this);
+            $this->unitOfWork->markAsNew($this);
         }
     }
     final public function asArray() {
-        return get_object_vars($this);
+        return $this->fields;
     }
     final public function getDefaultFields() {
         return $this->defaultFields;
     }
     final public function delete() {
-        $this->getUnitOfWork()->markAsDeleted($this);
+        $this->unitOfWork->markAsDeleted($this);
         return $this;
     }
     final public function edit(array $fields) {
@@ -43,7 +45,7 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
         return $this;
     }
     final public function save() {
-        $this->getUnitOfWork()->markAsChanged($this);
+        $this->unitOfWork->markAsChanged($this);
         return $this;
     }
     final public function getId() {
@@ -51,8 +53,5 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
     }
     final protected function getEventDispatcher() {
         return $this->eventDispatcher;
-    }
-    final protected function getUnitOfWork() {
-        return $this->unitOfWork;
     }
 }
