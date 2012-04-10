@@ -99,7 +99,7 @@ public function getName($name) {
 ```php
 <?php
 public closeOrder($price, $notifyClient = false) {
-    foreach ($this->items as $item) {
+    foreach ($this as $item) {
         $item->closeOrder($price, $notifyClient);
     }
 }
