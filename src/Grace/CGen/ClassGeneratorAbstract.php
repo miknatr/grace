@@ -1,7 +1,10 @@
 <?php
 /*
+ * 
  */
 namespace Grace\CGen;
+
+define(GENERATE_NAMESPACE, "Grace\TestNamespace");
 
 abstract class ClassGeneratorAbstract implements ClassGeneratorInterface {
     private $config = array(
