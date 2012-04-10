@@ -3,30 +3,27 @@
 namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
+use Grace\CRUD\CRUDInterface;
 
 abstract class Manager implements ManagerInterface {
-    private $sqlReadConnection;
-    private $crudConnection;
-    //TODO memcache, redis etc
-    private $cacheConnection;
+    private $modelsNamespace;
+    private $sqlReadOnly;
+    private $crud;
     private $eventDispatcher;
     private $identityMap;
     private $unitOfWork;
-    private $modelsNamespace;
     private $mappers = array();
     private $finders = array();
 
-    public function __construct($modelsNamespace,
-        EventDispatcher $eventDispatcher, IdentityMap $identityMap,
-        UnitOfWork $unitOfWork, InterfaceConnection $sqlReadConnection,
-        InterfaceConnection $crudConnection) {
+    public function __construct(EventDispatcher $eventDispatcher,
+        $modelsNamespace, InterfaceConnection $sqlReadOnly, CRUDInterface $crud) {
 
-        $this->sqlReadConnection = $sqlReadConnection;
-        $this->crudConnection = $crudConnection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->identityMap = $identityMap;
-        $this->unitOfWork = $unitOfWork;
+        $this->sqlReadOnly = $sqlReadOnly;
+        $this->crud = $crud;
         $this->modelsNamespace = $modelsNamespace;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->identityMap = new IdentityMap;
+        $this->unitOfWork = new UnitOfWork;
     }
     protected function getFinder($className) {
         if (!isset($this->finders[$className])) {
@@ -35,7 +32,7 @@ abstract class Manager implements ManagerInterface {
             $fullCollectionClassName = '\\' . $this->modelsNamespace . '\\' . $className . 'Collection';
             $this->finders[$className] = new $fullFinderClassName($this->eventDispatcher,
                     $this->unitOfWork, $this->identityMap,
-                    $this->sqlReadConnection, $this->getMapper($className),
+                    $this->sqlReadOnly, $this->crud, $this->getMapper($className),
                     $className, $fullClassName, $fullCollectionClassName);
         }
         return $this->finders[$className];
@@ -57,10 +54,7 @@ abstract class Manager implements ManagerInterface {
             $className = $this->trimFullClassName($record);
             $changes = $this->getMapper($className)
                 ->convertRecordArrayToDbRow($record->asArray());
-            $this->crudConnection->getSQLBuilder()
-                ->insert($className)
-                ->values($changes)
-                ->execute();
+            $this->crud->insertById($className, $record->getId(), $changes);
         }
         foreach ($this->unitOfWork->getChangedRecords() as $record) {
             $className = $this->trimFullClassName($record);
@@ -68,21 +62,12 @@ abstract class Manager implements ManagerInterface {
                 ->getRecordChanges($record->asArray(),
                 $record->getDefaultFields());
             if (count($changes) > 0) {
-                $this->crudConnection->getSQLBuilder()
-                    ->update($className)
-                    ->values($changes)
-                    //TODO 'id' - magic string
-                    ->eq('id', $record->getId())
-                    ->execute();
+                $this->crud->updateById($className, $record->getId(), $changes);
             }
         }
         foreach ($this->unitOfWork->getDeletedRecords() as $record) {
             $className = $this->trimFullClassName($record);
-            $this->crudConnection->getSQLBuilder()
-                ->delete($className)
-                //TODO 'id' - magic string
-                ->eq('id', $record->getId())
-                ->execute();
+            $this->crud->deleteById($className, $record->getId());
         }
     }
     private function trimFullClassName(Record $record) {

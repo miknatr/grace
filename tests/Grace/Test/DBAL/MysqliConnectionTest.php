@@ -26,8 +26,8 @@ class MysqliConnectionTest extends AbstractConnectionTest {
         unset($this->connection);
         $this->setExpectedException('Grace\DBAL\ExceptionConnection');
         $this->connection = new MysqliConnection(array(
-                'host' => 'not exists',
-                'port' => 'not exists',
+                'host' => 'locahost', //real server - immediately bad response
+                'port' => 3306,       //if non-exists server - we'll wait timeout
                 'user' => 'not exists',
                 'password' => 'not exists',
                 'database' => 'not exists',

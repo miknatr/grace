@@ -6,6 +6,7 @@ use Grace\ORM\EventDispatcher;
 use Grace\ORM\UnitOfWork;
 use Grace\ORM\IdentityMap;
 use Grace\DBAL\MysqliConnection;
+use Grace\CRUD\DBMasterDriver;
 use Grace\ORM\ExceptionNotFoundById;
 
 class ManagerTest extends \PHPUnit_Framework_TestCase {
@@ -13,12 +14,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
     protected $manager;
     /** @var EventDispatcher */
     protected $dispatcher;
-    /** @var UnitOfWork */
-    protected $unitOfWork;
-    /** @var IdentityMap */
-    protected $identityMap;
     /** @var MysqliConnection */
     protected $connection;
+    /** @var DBMasterDriver */
+    protected $crud;
 
     protected function setUp() {
         $this->establishConnection();
@@ -37,12 +36,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
                 'password' => TEST_MYSQLI_PASSWORD,
                 'database' => TEST_MYSQLI_DATABASE,
             ));
+        $this->crud = new DBMasterDriver($this->connection);
         $this->dispatcher = new EventDispatcher;
-        $this->unitOfWork = new UnitOfWork;
-        $this->identityMap = new IdentityMap;
 
-        $this->manager = new RealManager('Grace\Test\ORM', $this->dispatcher,
-                $this->identityMap, $this->unitOfWork, $this->connection, $this->connection);
+        $this->manager = new RealManager($this->dispatcher, 'Grace\Test\ORM',
+                $this->connection, $this->crud);
     }
     protected function tearDown() {
         $this->connection->execute('DROP TABLE IF EXISTS `Order`');

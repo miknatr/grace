@@ -1,6 +1,7 @@
 <?php
 namespace Grace\CRUD;
 
+//TODO Do and test all methods below
 class MemcacheProxy implements CRUDInterface {
     private $memcache;
     private $subject;

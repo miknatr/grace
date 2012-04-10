@@ -3,6 +3,7 @@
 namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
+use Grace\CRUD\CRUDInterface;
 use Grace\DBAL\InterfaceExecutable;
 use Grace\DBAL\InterfaceResult;
 use Grace\SQLBuilder\SelectBuilder;
@@ -13,7 +14,8 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
     private $eventDispatcher;
     private $unitOfWork;
     private $identityMap;
-    private $readConnection;
+    private $sqlReadOnly;
+    private $crud;
     private $mapper;
     private $className;
     private $idCounter = null;
@@ -22,15 +24,17 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
 
     final public function __construct(EventDispatcher $eventDispatcher,
         UnitOfWork $unitOfWork, IdentityMap $identityMap,
-        InterfaceConnection $readConnection, MapperInterface $mapper,
-        $className, $fullClassName, $fullCollectionClassName) {
+        InterfaceConnection $sqlReadOnly, CRUDInterface $crud,
+        MapperInterface $mapper, $className, $fullClassName,
+        $fullCollectionClassName) {
 
         $this->fullClassName = $fullClassName;
         $this->fullCollectionClassName = $fullCollectionClassName;
         $this->eventDispatcher = $eventDispatcher;
         $this->unitOfWork = $unitOfWork;
         $this->identityMap = $identityMap;
-        $this->readConnection = $readConnection;
+        $this->sqlReadOnly = $sqlReadOnly;
+        $this->crud = $crud;
         $this->mapper = $mapper;
         $this->className = $className;
     }
@@ -38,6 +42,7 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
         return $this->eventDispatcher;
     }
     protected function generateNewId() {
+        //TODO многопоточность мертва
         if ($this->idCounter === null) {
             $this->idCounter = $this->getSelectBuilder()
                 ->fields('id')
@@ -45,29 +50,33 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
                 ->limit(0, 1)
                 ->fetchResult();
         }
-        return ++$this->idCounter;
+        return++$this->idCounter;
     }
     final public function create() {
         $id = $this->generateNewId();
         //TODO magic string 'id'
-        $recordArray = $this->mapper->convertDbRowToRecordArray(array('id' => $id));
-        $recordClass = $this->fullClassName;
-        //TODO magic string 'id'
-        $record = new $recordClass($this->eventDispatcher, $this->unitOfWork,
-                $recordArray['id'], $recordArray, true);
-        $this->identityMap->setRecord($this->className, $record->getId(),
-            $record);
-        return $record;
+        return $this->convertRowToRecord(array('id' => $id), true);
     }
     final public function getById($id) {
         if ($this->identityMap->issetRecord($this->className, $id)) {
             return $this->identityMap->getRecord($this->className, $id);
         }
 
-        $record = $this->getSelectBuilder()->eq('id', $id)->fetchOne();
-        if (!is_object($record)) {
+        $row = $this->crud->selectById($this->className, $id);
+        if (!is_array($row)) {
             throw new ExceptionNotFoundById('Row ' . $id . ' in ' . $this->className . ' is not found by id');
         }
+        $record = $this->convertRowToRecord($row, false);
+        return $record;
+    }
+    private function convertRowToRecord(array $row, $isNew) {
+        $recordArray = $this->mapper->convertDbRowToRecordArray($row);
+        $recordClass = $this->fullClassName;
+        //TODO magic string 'id'
+        $record = new $recordClass($this->eventDispatcher, $this->unitOfWork,
+                $recordArray['id'], $recordArray, $isNew);
+        $this->identityMap->setRecord($this->className, $record->getId(),
+            $record);
         return $record;
     }
     final public function fetchOne() {
@@ -75,14 +84,7 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
         if (!is_array($row)) {
             return false;
         }
-        $recordArray = $this->mapper->convertDbRowToRecordArray($row);
-        $recordClass = $this->fullClassName;
-        //TODO magic string 'id'
-        $record = new $recordClass($this->eventDispatcher, $this->unitOfWork,
-                $recordArray['id'], $recordArray, false);
-        $this->identityMap->setRecord($this->className, $record->getId(),
-            $record);
-        return $record;
+        return $this->convertRowToRecord($row, false);
     }
     final public function fetchAll() {
         $records = array();
@@ -99,7 +101,7 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
         return $this->queryResult->fetchColumn();
     }
     final public function execute($query, array $arguments = array()) {
-        $this->queryResult = $this->readConnection->execute($query, $arguments);
+        $this->queryResult = $this->sqlReadOnly->execute($query, $arguments);
         return $this;
     }
     final protected function getSelectBuilder() {
