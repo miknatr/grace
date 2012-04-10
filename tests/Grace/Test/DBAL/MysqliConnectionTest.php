@@ -2,6 +2,7 @@
 
 namespace Grace\Test\DBAL;
 
+use Grace\EventDispatcher\Dispatcher;
 use Grace\DBAL\MysqliConnection;
 use Grace\DBAL\ExceptionConnection;
 use Grace\DBAL\ExceptionQuery;
@@ -17,7 +18,7 @@ class MysqliConnectionTest extends AbstractConnectionTest {
                 'user' => TEST_MYSQLI_NAME,
                 'password' => TEST_MYSQLI_PASSWORD,
                 'database' => TEST_MYSQLI_DATABASE,
-            ));
+            ), new Dispatcher);
     }
     protected function tearDown() {
         unset($this->connection);
@@ -31,7 +32,7 @@ class MysqliConnectionTest extends AbstractConnectionTest {
                 'user' => 'not exists',
                 'password' => 'not exists',
                 'database' => 'not exists',
-            ));
+            ), new Dispatcher);
         //Lazy conniction, only if we really use database
         $r = $this->connection->execute('SELECT 1');
     }

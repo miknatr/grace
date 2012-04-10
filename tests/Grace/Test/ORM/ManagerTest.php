@@ -29,15 +29,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
         $this->connection->execute('INSERT INTO `Order` VALUES (3, "Bill", "1234567")');
     }
     protected function establishConnection() {
+        $this->dispatcher = new Dispatcher;
         $this->connection = new MysqliConnection(array(
                 'host' => TEST_MYSQLI_HOST,
                 'port' => TEST_MYSQLI_PORT,
                 'user' => TEST_MYSQLI_NAME,
                 'password' => TEST_MYSQLI_PASSWORD,
                 'database' => TEST_MYSQLI_DATABASE,
-            ));
+            ), $this->dispatcher);
         $this->crud = new DBMasterDriver($this->connection);
-        $this->dispatcher = new Dispatcher;
 
         $this->manager = new RealManager($this->dispatcher, 'Grace\Test\ORM',
                 $this->connection, $this->crud);

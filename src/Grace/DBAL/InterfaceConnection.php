@@ -2,10 +2,13 @@
 
 namespace Grace\DBAL;
 
+use Grace\EventDispatcher\Dispatcher;
 use Grace\SQLBuilder\Factory;
 
 interface InterfaceConnection extends InterfaceExecutable {
-    public function __construct(array $config);
+    const EVENT_DB_QUERY = 'eventDBQuery';
+    const EVENT_DB_CONNECT = 'eventDBConnect';
+    public function __construct(array $config, Dispatcher $dispatcher);
     public function escape($value);
     public function replacePlaceholders($query, array $arguments);
     public function getLastInsertId();
