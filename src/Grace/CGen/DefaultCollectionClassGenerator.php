@@ -1,5 +1,6 @@
 <?php
 namespace Grace\CGen;
+//define ('GENERATE_NAMESPACE', 'Grace\TestNamespace');
 /**
  * Description of DefaultCollectionClassGenerator
  *
@@ -99,7 +100,7 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
         if (count($reflectionResult)>0){
             $result = array();
             for ($i=0;$i<count($reflectionResult);$i++){
-                array_push(&$result, "\$".$reflectionResult[$i]->name);
+                array_push($result, "\$".$reflectionResult[$i]->name);
             }
             $args->str = implode(", ", $result);
             if ((strpos(lcfirst($method), "get")===false)AND(true)){
@@ -151,22 +152,22 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
         //TODO Delete duplicate methods and fields - diff classes?
         foreach ($methodsSelf as $key => $value){
             foreach ($methodsSelf[$key] as $methodId => $method){
-                 array_push(&$result["methods"][$key], $method);
+                 array_push($result["methods"][$key], $method);
             }
         }
         foreach ($methodsParent as $key => $value){
             foreach ($methodsParent[$key] as $methodId => $method){
-                 array_push(&$result["methods"][$key], $method);
+                 array_push($result["methods"][$key], $method);
             }
         }
         foreach ($fieldsSelf as $key => $value){
             foreach ($fieldsSelf[$key] as $methodId => $method){
-                 array_push(&$result["fields"][$key], $method);
+                 array_push($result["fields"][$key], $method);
             }
         }
         foreach ($fieldsParent as $key => $value){
             foreach ($fieldsParent[$key] as $methodId => $method){
-                 array_push(&$result["fields"][$key], $method);
+                 array_push($result["fields"][$key], $method);
             }
         }
         

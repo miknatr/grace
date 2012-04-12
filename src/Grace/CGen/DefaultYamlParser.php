@@ -4,6 +4,7 @@
  *
  * @author darthvader
  * @return array
+ * @var array
  */
 namespace Grace\CGen;
 class DefaultYamlParser extends YamlParserAbstract {

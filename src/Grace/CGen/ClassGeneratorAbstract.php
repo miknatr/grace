@@ -4,9 +4,7 @@
  */
 namespace Grace\CGen;
 
-define(GENERATE_NAMESPACE, "Grace\TestNamespace");
-
-abstract class ClassGeneratorAbstract implements ClassGeneratorInterface {
+abstract class ClassGeneratorAbstract implements ClassGeneratorInterface{
     private $config = array(
             "dirYaml" => "../yaml",
             "dirClasses" => "../classes",
@@ -16,7 +14,7 @@ abstract class ClassGeneratorAbstract implements ClassGeneratorInterface {
     private $class = null;
     private $parsedFile = null;
     
-    public function __construct($config){
+    public function __construct($dirYaml, $classesDir, $className){
         $this->setConfig($config);
     }
     

@@ -1,0 +1,9 @@
+## Example YAML Template
+#1 A
+yaml:
+  fooClass: 
+    implements: TestInterface
+    fields: {fieldName, field2}
+  barClass:
+    implements: TestingInterface
+    fields: {fieldFoo, fieldBar}

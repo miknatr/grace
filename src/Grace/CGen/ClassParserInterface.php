@@ -3,7 +3,7 @@ namespace Grace\CGen;
 
 interface ClassParserInterface {
     //put your code here
-    function __construct($classname);
+    function __construct($classname, $outputDir, $additionalClass);
     function getClassName();
     function getClassFields();
     function getClassMethods();

@@ -19,4 +19,4 @@ yaml:
 #3 Manager.  return Finder for entities
 yaml:
   nameClass:
-    entity: {fooEntity, barEntity}    
+    entity: {fooEntity, barEntity}

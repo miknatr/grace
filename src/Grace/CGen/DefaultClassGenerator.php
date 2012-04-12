@@ -79,17 +79,17 @@ class DefaultClassGenerator extends ClassGeneratorAbstract{
         return $outputFile;
     }
 
-    private function getVar($var){
+    public function getVar($var){
         return "\tprivate ".$var."= null;\r\n";
     }
 
-    private function getGetter($fieldname){
+    public function getGetter($fieldname){
         $str = "\tpublic function get".ucfirst($fieldname)."(\$value) {\r\n";
         $str .= "\t\t\$this->".$fieldname." = \$value;\r\n";
         $str .= "\t}\r\n";
     }
     
-    private function getSetter($fieldname){
+    public function getSetter($fieldname){
         $str = "\tpublic function set".ucfirst($fieldname)."() {\r\n";
         $str .= "\t\t\return $this->".$fieldname.";\r\n";
         $str .= "\t}\r\n";
@@ -103,5 +103,9 @@ class DefaultClassGenerator extends ClassGeneratorAbstract{
         }else{
             return true;
         }
+    }
+
+    public function generate() {
+        
     }
 }
