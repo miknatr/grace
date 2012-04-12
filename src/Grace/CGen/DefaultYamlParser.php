@@ -9,7 +9,6 @@
 namespace Grace\CGen;
 class DefaultYamlParser extends YamlParserAbstract {
 
-    //@Override
     public function getParseFile($filepath,$classname){
         if ($classname!="*"){
             $file =  $filepath."/".$classname.".yml";

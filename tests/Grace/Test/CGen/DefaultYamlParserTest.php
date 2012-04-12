@@ -51,6 +51,7 @@ class DefaultYamlParserTest extends \PHPUnit_Framework_TestCase {
                 )
             )
         );
+        print_r(__DIR__);
         $actual = $this->object->getParseFile(".","YamlTestDefault");
         $this->assertEquals($exp, $actual);
     }
