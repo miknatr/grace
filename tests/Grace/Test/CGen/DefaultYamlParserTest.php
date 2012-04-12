@@ -43,16 +43,19 @@ class DefaultYamlParserTest extends \PHPUnit_Framework_TestCase {
             "yaml" => array(
                 "fooClass" => array(
                     "implements" => "TestInterface",
-                    "fields" => array("fieldName", "fieldName")
+                    "fields" => array(
+                        0 => "fieldName",
+                        1 => "fieldName")
                 ),
                 "barClass" => array(
                     "implements" => "TestingInterface",
-                    "fields" => array("fieldFoo", "fieldBar")
+                    "fields" => array(
+                        0 => "fieldFoo",
+                        1 => "fieldBar")
                 )
             )
         );
-        print_r(__DIR__);
-        $actual = $this->object->getParseFile(".","YamlTestDefault");
+        $actual = $this->object->getParseFile("/home/darthvader/grace/tests/Grace/Test/CGen","YamlTestDefault");
         $this->assertEquals($exp, $actual);
     }
 
