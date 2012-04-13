@@ -19,7 +19,7 @@ abstract class ClassParserAbstract implements ClassParserInterface {
             $this->setAdditionalClass ($additionalClass);
         }
         $this->instanceClass = new \ReflectionClass($classname);
-        $this->instanceParentClass = new \ReflectionClass($this->instanceClass->getName());
+        $this->instanceParentClass = new \ReflectionClass($this->instanceClass->getParentClass()->getName());
     }
     
     public function getOutputDir(){
@@ -42,18 +42,18 @@ abstract class ClassParserAbstract implements ClassParserInterface {
         if ($modifier!= NULL){
             switch ($modifier){
             case "public":
-                $modifier = '\ReflectionMethod::IS_PUBLIC';
+                $modifier = \ReflectionMethod::IS_PUBLIC;// '\\ReflectionMethod::IS_PUBLIC';
                 break;
             case "private":
-                $modifier = '\ReflectionMethod::IS_PRIVATE';
+                $modifier = \ReflectionMethod::IS_PRIVATE;//'\\ReflectionMethod::IS_PRIVATE';
                 break;
             case "protected":
-                $modifier = '\ReflectionMethod::IS_PROTECTED';
+                $modifier = \ReflectionMethod::IS_PROTECTED;//'\\ReflectionMethod::IS_PROTECTED';
                 break;
             case "static":
-                $modifier = '\ReflectionMethod::IS_STATIC';
+                $modifier = \ReflectionMethod::IS_STATIC;//'\\ReflectionMethod::IS_STATIC';
                 break;
-            default: 
+            default:
                 $modifier = NULL;
                 break;
             }
@@ -69,16 +69,16 @@ abstract class ClassParserAbstract implements ClassParserInterface {
         if ($modifier!= NULL){
             switch ($modifier){
             case "public":
-                $modifier = '\ReflectionProperty::IS_PUBLIC';
+                $modifier = \ReflectionMethod::IS_PUBLIC;
                 break;
             case "private":
-                $modifier = '\ReflectionProperty::IS_PRIVATE';
+                $modifier = \ReflectionMethod::IS_PRIVATE;
                 break;
             case "protected":
-                $modifier = '\ReflectionProperty::IS_PROTECTED';
+                $modifier = \ReflectionMethod::IS_PROTECTED;
                 break;
             case "static":
-                $modifier = 'ReflectionProperty::IS_STATIC';
+                $modifier = \ReflectionMethod::IS_STATIC;
                 break;
             default: 
                 $modifier = NULL;
@@ -97,16 +97,16 @@ abstract class ClassParserAbstract implements ClassParserInterface {
         if ($modifier!= NULL){
             switch ($modifier){
             case "public":
-                $modifier = '\ReflectionMethod::IS_PUBLIC';
+                $modifier = \ReflectionMethod::IS_PUBLIC;
                 break;
             case "private":
-                $modifier = '\ReflectionMethod::IS_PRIVATE';
+                $modifier = \ReflectionMethod::IS_PRIVATE;
                 break;
             case "protected":
-                $modifier = '\ReflectionMethod::IS_PROTECTED';
+                $modifier = \ReflectionMethod::IS_PROTECTED;
                 break;
             case "static":
-                $modifier = '\ReflectionMethod::IS_STATIC';
+                $modifier = \ReflectionMethod::IS_STATIC;
                 break;
             default: 
                 $modifier = NULL;
@@ -120,22 +120,30 @@ abstract class ClassParserAbstract implements ClassParserInterface {
         if ($modifier!= NULL){
             switch ($modifier){
             case "public":
-                $modifier = '\ReflectionProperty::IS_PUBLIC';
+                $modifier = \ReflectionMethod::IS_PUBLIC;
                 break;
             case "private":
-                $modifier = '\ReflectionProperty::IS_PRIVATE';
+                $modifier = \ReflectionMethod::IS_PRIVATE;
                 break;
             case "protected":
-                $modifier = '\ReflectionProperty::IS_PROTECTED';
+                $modifier = \ReflectionMethod::IS_PROTECTED;
                 break;
             case "static":
-                $modifier = 'ReflectionProperty::IS_STATIC';
+                $modifier = \ReflectionMethod::IS_STATIC;
                 break;
             default: 
                 $modifier = NULL;
                 break;
             }
         }
-        return $this->instanceParentClass->getMethods($modifier);        
+        /*
+        $tmpInstance = $this->instanceClass->getParentClass();
+        $fields = $tmpInstance->getProperties($modifier);
+        print_r("---------------------------------\n\n\n\n\n");
+        print_r($this->instanceParentClass->getProperties($modifier));
+        print_r("---------------------------------\n\n\n\n\n");
+        */
+        return $this->instanceParentClass->getProperties($modifier);
+        //return $fields;
     }
 }

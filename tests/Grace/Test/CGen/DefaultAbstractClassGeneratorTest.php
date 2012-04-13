@@ -20,7 +20,7 @@ class DefaultAbstractClassGeneratorTest extends \PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->object = new DefaultAbstractClassGenerator;
+        $this->object = new DefaultAbstractClassGenerator(".","./YamlTestDefault","YamlTestDefault");
     }
 
     /**
@@ -37,9 +37,7 @@ class DefaultAbstractClassGeneratorTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGenerate() {
         // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        
     }
 
 }

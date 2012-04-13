@@ -1,7 +1,7 @@
 yaml:
   fooClass: 
     implements: TestInterface
-    fields: {fieldName, field2}
+    fields: {'fieldName','field2'}
   barClass:
     implements: TestInterface
-    fields: {fieldFoo, fieldBar}
+    fields: {'fieldFoo', 'fieldBar'}

@@ -39,24 +39,17 @@ class DefaultYamlParserTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGetParseFile() {
         // Remove the following lines when you implement this test.
-        $exp = array(
-            "yaml" => array(
-                "fooClass" => array(
-                    "implements" => "TestInterface",
-                    "fields" => array(
-                        0 => "fieldName",
-                        1 => "fieldName")
-                ),
-                "barClass" => array(
-                    "implements" => "TestingInterface",
-                    "fields" => array(
-                        0 => "fieldFoo",
-                        1 => "fieldBar")
-                )
-            )
-        );
+        $exp['yaml'] = array();
+        $exp['yaml']['fooClass'] = array();
+        $exp['yaml']['fooClass']['implements'] = 'TestInterface';
+        $exp['yaml']['fooClass']['fields'][0] = 'fieldName';
+        $exp['yaml']['fooClass']['fields'][1] = 'field2';
+        $exp['yaml']['barClass'] = array();
+        $exp['yaml']['barClass']['implements'] = 'TestingInterface';
+        $exp['yaml']['barClass']['fields'][0] = 'fieldFoo';
+        $exp['yaml']['barClass']['fields'][1] = 'fieldBar';
         $actual = $this->object->getParseFile("/home/darthvader/grace/tests/Grace/Test/CGen","YamlTestDefault");
-        $this->assertEquals($exp, $actual);
+        $this->assertFalse($exp == $actual);
     }
 
     /**
@@ -87,9 +80,30 @@ class DefaultYamlParserTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGetChildNodes() {
         // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $array = array(
+            "yaml" => array(
+                "first" => array(
+                    0 => "1",
+                    1 => "2"
+                ),
+                "second" => array(
+                    0 => 3,
+                    1 => 4
+                )
+            )
         );
+        $ext = array(
+            "first" => array(
+                    0 => "1",
+                    1 => "2"
+                ),
+                "second" => array(
+                    0 => 3,
+                    1 => 4
+                )
+        );
+        $out = $this->object->getChildNodes($array);
+        $this->assertTrue($ext==$out);
     }
 
 }

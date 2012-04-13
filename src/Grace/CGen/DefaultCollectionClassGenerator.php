@@ -103,7 +103,7 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
                 array_push($result, "\$".$reflectionResult[$i]->name);
             }
             $args->str = implode(", ", $result);
-            if ((strpos(lcfirst($method), "get")===false)AND(true)){
+            if ((strpos(lcfirst($method), "get")===false)AND(strpos($method, "__")===false)){
                 $args->isInsert = TRUE;
             }else{
                 $args->isInsert = FALSE;
@@ -148,59 +148,71 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
                 )
         );
         
-        
         //TODO Delete duplicate methods and fields - diff classes?
+        
         foreach ($methodsSelf as $key => $value){
             foreach ($methodsSelf[$key] as $methodId => $method){
                  array_push($result["methods"][$key], $method);
             }
         }
+        unset($key);
+        unset($value);
+        unset($methodId);
+        unset($method);
+        /*
         foreach ($methodsParent as $key => $value){
             foreach ($methodsParent[$key] as $methodId => $method){
-                 array_push($result["methods"][$key], $method);
+                if (!array_key_exists($method->name, $result["methods"][$key])){
+                    array_push($result["methods"][$key], $method);
+                }
             }
         }
+        unset($key);
+        unset($value);
+        unset($methodId);
+        unset($method);
+        */
         foreach ($fieldsSelf as $key => $value){
             foreach ($fieldsSelf[$key] as $methodId => $method){
                  array_push($result["fields"][$key], $method);
             }
         }
+        unset($key);
+        unset($value);
+        unset($methodId);
+        unset($method);
+
         foreach ($fieldsParent as $key => $value){
             foreach ($fieldsParent[$key] as $methodId => $method){
                  array_push($result["fields"][$key], $method);
             }
         }
+        unset($key);
+        unset($value);
+        unset($methodId);
+        unset($method);
+
+
+        print_r("---------------------------------\n\n\n\n\n");
+        print_r($result);
+        print_r("---------------------------------\n\n\n\n\n");
         
         return $result;
-    }
-    
-    public function getParentMethodsByMod(){
-        $methods = array(
-            "public" => array(),
-            "private" => array(),
-            "protected" => array()
-        );
-        $methods["public"] = $this->getClassMethods("public");
-        $types = array("public", "private", "protected", "static");
-        $countTypes = count($types);
-        for ($i=0;$i<$countTypes;$i++){
-            $methods[$types[$i]] = $this->getParentClassMethods($types[$i]);
-        }
-        return $methods;
     }
     
     public function getItemsByMod($fName){
         $methods = array(
             "public" => array(),
-            "private" => array(),
             "protected" => array(),
+            "private" => array(),
             "static" => array()
         );
-        $types = array("public", "private", "protected", "static");
+        $types = array("public", "protected", "private", "static");
         $countTypes = count($types);
         for ($i=0;$i<$countTypes;$i++){
             $methods[$types[$i]] = $this->$fName($types[$i]);
         }
+
         return $methods;
     }
 }
