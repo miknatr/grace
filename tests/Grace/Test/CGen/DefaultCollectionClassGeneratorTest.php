@@ -77,7 +77,8 @@ class DefaultCollectionClassGeneratorTest extends \PHPUnit_Framework_TestCase {
         "<?php\nnamespace Grace\TestNamespace\nclass TestClass extends TestClassAbstract {\n}";
         //$this->assertEquals($ext, $this->object->getClassBody());
         $this->object = new DefaultCollectionClassGenerator("\Grace\CGen\TestClass","./forClasses","additionalClass");
-        print_r($this->object->getParentClassBody());
+        //print_r($this->object->getParentClassBody());
+        $this->assertEquals($ext, $this->object->getClassBody());
     }
 
     /**

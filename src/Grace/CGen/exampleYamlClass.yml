@@ -1,9 +1,13 @@
 ## Example YAML Template
 #1 defaultClassGenerator (yamlDir, toDir, YamlClass)
+config:
+  namespace: 'Model'
 yaml:
   fooClass: 
     implements: none
-    fields: {fieldName, field2}
+    fields:
+      fieldName: {}
+      field2: {}
   barClass:
     implements: none
     fields: {fieldFoo, fieldBar}

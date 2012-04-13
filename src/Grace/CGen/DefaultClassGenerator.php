@@ -18,8 +18,6 @@ class DefaultClassGenerator extends ClassGeneratorAbstract{
         $this->config['dirClasses'] = $classesDir;
         $this->config['className'] = $className;
     }
-
-    
     
     public function genYamlClass() {
         $this->parseYamlClass();

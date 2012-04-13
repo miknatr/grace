@@ -99,8 +99,7 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
     }
     
     private function getMethodArgs($method){
-        print_r($this->getLongParentClassName());
-        @$reflectionResult = $this->getOneMethodArgs($this->getLongParentClassName(), $method);
+        $reflectionResult = $this->getOneMethodArgs($this->getLongParentClassName(), $method);
         if ($reflectionResult==NULL){
            $reflectionResult = $this->getOneMethodArgs($this->getClassName(), $method); 
         }
