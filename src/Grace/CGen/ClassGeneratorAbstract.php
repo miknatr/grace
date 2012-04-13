@@ -15,7 +15,6 @@ abstract class ClassGeneratorAbstract implements ClassGeneratorInterface{
     private $parsedFile = null;
     
     public function __construct($dirYaml, $classesDir, $className){
-        $this->setConfig($config);
     }
     
     public function getParsedFile(){

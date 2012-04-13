@@ -1,5 +1,5 @@
 ## Example YAML Template
-#1 A
+#1 defaultClassGenerator (yamlDir, toDir, YamlClass)
 yaml:
   fooClass: 
     implements: none
@@ -7,7 +7,7 @@ yaml:
   barClass:
     implements: none
     fields: {fieldFoo, fieldBar}
-#2 Record
+#2 Record - DefaultConcreteClassGenerator
 yaml:
   fooClass:
     extends: abstractDefaultClass

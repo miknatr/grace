@@ -1,16 +1,23 @@
 <?php
 namespace Grace\CGen;
+
+use ReflectionClass;
+use ReflectionMethod;
+
 //define ('GENERATE_NAMESPACE', 'Grace\TestNamespace');
 /**
  * Description of DefaultCollectionClassGenerator
  *
- * @author darthvader
  *
  *@return boolean
  */
 class DefaultCollectionClassGenerator extends ClassParserAbstract{
     
+    
+    
     public function generate() {
+        $arr = get_included_files();
+        print_r($arr);
         //TODO add implnts
         try{
             $fileClass = $this->getClassBody();
@@ -41,7 +48,7 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
         $classBody = "<?php\n";
         $classBody .= "namespace ".GENERATE_NAMESPACE."\n";
         $className = ucfirst($this->getClassName());
-        $classBody .= "class ".$className." extends ".$className."Abstract {\n\n}";
+        $classBody .= "class ".$className." extends ".$className."Abstract {\n}";
         return $classBody;
     }
     
@@ -92,11 +99,21 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
     }
     
     private function getMethodArgs($method){
-        try{
-            $reflectionResult = $this->getOneMethodArgs($this->getClassName(), $method);
-        } catch (Grace\CGen\ClassGeneratorException $ex){
-            $reflectionResult = $this->getOneMethodArgs($this->getParentClassName(), $method);
+        print_r($this->getLongParentClassName());
+        @$reflectionResult = $this->getOneMethodArgs($this->getLongParentClassName(), $method);
+        if ($reflectionResult==NULL){
+           $reflectionResult = $this->getOneMethodArgs($this->getClassName(), $method); 
         }
+        /*
+        try{
+            $reflectionResult = $this->getOneMethodArgs($this->getParentClassName(), $method); 
+            
+        } catch (Grace\CGen\ClassGeneratorException $ex){
+           $reflectionResult = $this->getOneMethodArgs($this->getClassName(), $method);
+        }
+         * 
+         */
+
         if (count($reflectionResult)>0){
             $result = array();
             for ($i=0;$i<count($reflectionResult);$i++){
@@ -115,6 +132,7 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
     
     private function getOneMethodArgs($className, $classMethod){
         $reflection = new ReflectionClass($className);
+        print_r($reflection->getEndLine());
         $method = $reflection->getMethods();
         $data = new ReflectionMethod($reflection->getName(), $classMethod);
         if (count($data)>0){
@@ -192,11 +210,6 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
         unset($methodId);
         unset($method);
 
-
-        print_r("---------------------------------\n\n\n\n\n");
-        print_r($result);
-        print_r("---------------------------------\n\n\n\n\n");
-        
         return $result;
     }
     
