@@ -5,11 +5,10 @@
  * @author darthvader
  */
 namespace Grace\CGen;
-require_once  '/home/darthvader/grace/vendors/symfony/src/Symfony/Component/Yaml/Yaml.php';
-require_once  '/home/darthvader/grace/vendors/symfony/src/Symfony/Component/Yaml/Parser.php';
-require_once  '/home/darthvader/grace/vendors/symfony/src/Symfony/Component/Yaml/Inline.php';
+
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
+
 //TODO Add exceptions to all classes
 abstract class YamlParserAbstract implements YamlParserInterface{
     public $parser = null;
