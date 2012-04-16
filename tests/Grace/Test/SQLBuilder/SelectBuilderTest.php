@@ -15,7 +15,6 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase {
         $this->builder = new SelectBuilder('TestTable', $this->plug);
     }
     protected function tearDown() {
-        
     }
 
     public function testSelectWithoutParams() {
