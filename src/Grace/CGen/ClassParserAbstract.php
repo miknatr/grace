@@ -6,7 +6,9 @@ namespace Grace\CGen;
  * @author darthvader
  */
 use ReflectionClass;
-define('GENERATE_NAMESPACE', "Grace\TestNamespace");
+if (!defined('GENERATE_NAMESPACE')){
+    define('GENERATE_NAMESPACE', "Grace\TestNamespace");
+}
 abstract class ClassParserAbstract implements ClassParserInterface {
     //put your code here
     private $instanceClass = null;

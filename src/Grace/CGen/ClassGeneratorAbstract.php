@@ -30,7 +30,7 @@ abstract class ClassGeneratorAbstract implements ClassGeneratorInterface{
     }
     
     public function setConfig($config){
-        $this->config = $config;
+        $this->config= $config;
     }
 
 

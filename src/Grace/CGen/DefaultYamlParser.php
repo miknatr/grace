@@ -13,7 +13,7 @@ class DefaultYamlParser extends YamlParserAbstract {
         if ($classname!="*"){
             $file =  $filepath."/".$classname.".yml";
             if (!file_exists($file)) {
-                throw new YamlParserExeption("File does not excist!");
+                throw new YamlParserExeption("File does not exist!");
             }
             try {
                 $parsedFile = $this->parser->parse(file_get_contents($file));
@@ -31,11 +31,12 @@ class DefaultYamlParser extends YamlParserAbstract {
                 throw new YamlParserExeption("Current directory is empty");
             }else{
                 //aggregate from all YAML to one array
-                $validFiles = $this->getYmlFiles($filepath);
+                $validFiles = $this->getYmlFiles($scanDir);
                 for ($i=0; $i<count($validFiles); $i++){
-                    $tmpArray = $this->parser->parse(file_get_contents($filepath."/".$validFiles));
+                    $tmpArray = $this->parser->parse(file_get_contents($filepath."/".$validFiles[$i]));
                     $parsedFile = $this->appendToArray($parsedFile, $this->getChildNodes($tmpArray));
                 }
+                print_r($parsedFile);
                 return $parsedFile;
             }
         }
@@ -54,11 +55,10 @@ class DefaultYamlParser extends YamlParserAbstract {
     //gets .yml files from directory
     public function getYmlFiles($dirContent){
         $validFiles = array();
-        $count = 0;
         for ($i=0; $i<count($dirContent); $i++){
             $tmpFile = explode(".", $dirContent[$i]);
             if ($tmpFile[(count($tmpFile)-1)]=="yml"){
-                $validFiles[$count] = $tmpFile[(count($tmpFile)-2)].".yml";
+                array_push($validFiles, $tmpFile[(count($tmpFile)-2)].".yml");
             }
         }
         return $validFiles;
@@ -66,11 +66,14 @@ class DefaultYamlParser extends YamlParserAbstract {
     
     //gets data of classes from array
     public function getChildNodes($YamlArray){
+        print_r("\n\n");
+        print_r(count($YamlArray));
+        print_r("\n\n");
         foreach ($YamlArray as $key => $value){
             if (count($YamlArray)>0){
                 $tmpArray = array();
                 foreach($value as $classBlock => $classContent){
-                    $tmpArray[$classBlock] = $value[$classBlock];
+                    $tmpArray[$classBlock] = $classContent;
                 }
                 return $tmpArray;
             }

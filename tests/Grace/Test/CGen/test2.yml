@@ -1,0 +1,319 @@
+'config':
+    'namespace': 'Models'
+'models':
+    'Account':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'holderId': { 'dbtype': 'int(10) unsigned' }
+            'typeId': { 'dbtype': 'enum("system","region","admin","rpartner","company","driver","partner","contractor","client")' }
+            'balance': { 'dbtype': 'decimal(9,2)' }
+    'Admin':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'regionId': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Регион', 'input': 'select' } }
+            'role': { 'dbtype': 'enum("root","admin","rpartner")', 'form': { 'title': 'Доступ', 'input': 'select' } }
+            'name': { 'dbtype': 'varchar(100)', 'form': { 'title': 'ФИО', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '100']] } }
+            'phone': { 'dbtype': 'varchar(50)', 'form': { 'title': 'Телефон', 'input': 'text' } }
+            'password': { 'dbtype': 'char(32)', 'form': { 'title': 'Пароль', 'input': 'password', 'validators': [['minlen', '4'], ['maxlen', '40']] } }
+            'register': { 'dbtype': 'datetime' }
+            'lastVisit': { 'dbtype': 'datetime' }
+            'lastIp': { 'dbtype': 'varchar(255)' }
+            'countFailedLogins': { 'dbtype': 'tinyint(2) unsigned' }
+            'isBlocked': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Блокирован', 'input': 'checkbox' } }
+    'BlackPhone':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'companyId': { 'dbtype': 'int(10) unsigned' }
+            'operatorId': { 'dbtype': 'int(10) unsigned' }
+            'phone': { 'dbtype': 'varchar(11)', 'form': { 'title': 'Телефон', 'input': 'text', 'validators': [['int'], ['minlen', '4'], ['maxlen', '11']] } }
+            'comment': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Причина', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '255']] } }
+            'addedAt': { 'dbtype': 'datetime' }
+    'Company':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Айди компании', 'input': 'text', 'validators': [['int']] } }
+            'intaxiId': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Айди компании', 'input': 'text', 'validators': [['int']] } }
+            'name': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Название', 'input': 'text', 'validators': [['minlen', '4'], ['maxlen', '100']] } }
+            'phone': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Контактный телефон', 'input': 'text', 'validators': [['minlen', '4'], ['maxlen', '20']] } }
+            'accountPhone': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Мобильный телефон для qiwi-кошелька и др. сервисов', 'input': 'mobile', 'validators': [['int'], ['minlen', '11'], ['maxlen', '11']] } }
+            'email': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Контактный e-mail', 'input': 'text', 'validators': [['email'], ['maxlen', '100']] } }
+            'emailNews': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Подписка на новости', 'input': 'checkbox' } }
+            'regionId': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Регион', 'input': 'select', 'validators': [['int']] } }
+            'description': { 'dbtype': 'text', 'form': { 'title': 'Описание компании', 'input': 'textarea', 'validators': [['maxlen', '10000']] } }
+            'register': { 'dbtype': 'datetime' }
+            'countAdded': { 'dbtype': 'int(10) unsigned' }
+            'countPerformed': { 'dbtype': 'int(10) unsigned' }
+            'isActivated': { 'dbtype': 'tinyint(1) unsigned' }
+            'isBlocked': { 'dbtype': 'tinyint(1) unsigned' }
+            'lastVisit': { 'dbtype': 'datetime' }
+            'apiKey': { 'dbtype': 'char(32)' }
+            'apiSignature': { 'dbtype': 'char(32)' }
+            'fixedOwnerPercent': { 'dbtype': 'decimal(3,1)', 'form': { 'title': 'Процент с заказов компании как автору по ереванской схеме', 'input': 'text', 'validators': [['float']] } }
+            'fixedSystemPercent': { 'dbtype': 'decimal(3,1)', 'form': { 'title': 'Процент с заказов системе по ереванской схеме', 'input': 'text', 'validators': [['float']] } }
+            'onlyInsideCompany': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Заказы только внутри компании', 'input': 'checkbox' } }
+            'stakeOwnDriverOwnOrder': { 'dbtype': 'decimal(3,1) unsigned', 'form': { 'title': 'Процент с заказов со своих водителей', 'input': 'text', 'validators': [['float']] } }
+            'stakeOwnDriverAuctOrder': { 'dbtype': 'decimal(3,1) unsigned', 'form': { 'title': 'Процент с чужих заказов со своих водителей', 'input': 'text', 'validators': [['float']] } }
+            'timeForOperators': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Для заказов не из банка, за сколько времени до исполнения заказ виден другим диспетчерам, мин', 'input': 'text', 'validators': [['int']] } }
+            'timeForAllDrivers': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Для заказов не из банка, за сколько времени до исполнения заказ виден чужим водителям, мин', 'input': 'text', 'validators': [['int']] } }
+            'delayAuctOrdersForOwnDrivers': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Задержка чужих заказов для своих водителей, мин', 'input': 'text', 'validators': [['int']] } }
+            'sendSmsOnOrderTaken': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Отправлять смс при взятии заказа', 'input': 'checkbox', 'filters': [['bool']] } }
+            'sendSmsOnCarDroveUp': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Отправлять смс при подаче машины', 'input': 'checkbox', 'filters': [['bool']] } }
+            'sendSmsOnClientDelivered': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Отправлять смс после выполнения заказа', 'input': 'checkbox', 'filters': [['bool']] } }
+            'filterJson': { 'dbtype': 'text' }
+            'bankJson': { 'dbtype': 'text' }
+            'countNewCancelsMsgs': { 'dbtype': 'int(10) unsigned' }
+            'countNewProblemsMsgs': { 'dbtype': 'int(10) unsigned' }
+            'payOutAmount': { 'dbtype': 'decimal(9,2) unsigned' }
+            'payOutComment': { 'dbtype': 'text' }
+    'Company_MassEmail':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'subject': { 'dbtype': 'varchar(255)' }
+            'text': { 'dbtype': 'text' }
+            'counter': { 'dbtype': 'int(10) unsigned' }
+            'dt': { 'dbtype': 'datetime' }
+    'Contractor':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'companyId': { 'dbtype': 'int(10) unsigned' }
+            'name': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Название', 'input': 'text', 'validators': [['minlen', '4'], ['maxlen', '100']] } }
+            'contactName': { 'dbtype': 'varchar(255)', 'form': { 'title': 'ФИО', 'input': 'text', 'validators': [['minlen', '4'], ['maxlen', '100']] } }
+            'contactPhone': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Контактный телефон', 'input': 'text', 'validators': [['minlen', '4'], ['maxlen', '11']] } }
+            'contactEmail': { 'dbtype': 'varchar(255)', 'form': { 'title': 'E-mail', 'input': 'text', 'validators': [['email'], ['maxlen', '100']] } }
+            'overdraft': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Допустимый овердрафт', 'input': 'text', 'validators': [['float']] } }
+            'isBlocked': { 'dbtype': 'tinyint(1) unsigned' }
+    'Driver':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'companyId': { 'dbtype': 'int(10) unsigned' }
+            'regionId': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Регион', 'input': 'select', 'validators': [['int']] } }
+            'phone': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Мобильный телефон', 'input': 'mobile', 'validators': [['int'], ['minlen', '11'], ['maxlen', '13']] } }
+            'email': { 'dbtype': 'varchar(100)', 'form': { 'title': 'email', 'input': 'text', 'validators': [['email']] } }
+            'password': { 'dbtype': 'char(32)', 'form': { 'title': 'Пароль', 'input': 'password', 'validators': [['minlen', '4'], ['maxlen', '40']] } }
+            'name': { 'dbtype': 'varchar(100)', 'form': { 'title': 'ФИО (Номера/позывные писать в специальное поле)', 'input': 'text', 'validators': [['minlen', '4'], ['maxlen', '100'], 'onlyRusLetters'] } }
+            'callsign': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Внутренний позывной в компании', 'input': 'text' } }
+            'autoTypeId': { 'dbtype': 'tinyint(2) unsigned', 'form': { 'title': 'Тип авто', 'input': 'select' } }
+            'carModel': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Модель авто', 'input': 'text', 'validators': [['minlen', '3'], ['maxlen', '20']] } }
+            'carNumber': { 'dbtype': 'varchar(14)', 'form': { 'title': 'Номер авто', 'input': 'text', 'validators': ['carNumber'] } }
+            'carColor': { 'dbtype': 'varchar(6)', 'form': { 'title': 'Цвет', 'input': 'color', 'validators': [['minlen', '6'], ['maxlen', '6']] } }
+            'register': { 'dbtype': 'datetime' }
+            'countPerformed': { 'dbtype': 'int(10) unsigned' }
+            'isBlocked': { 'dbtype': 'tinyint(1) unsigned' }
+            'lastIp': { 'dbtype': 'varchar(255)' }
+            'lastVisit': { 'dbtype': 'datetime' }
+            'countFailedLogins': { 'dbtype': 'tinyint(2) unsigned' }
+            'isBusy': { 'dbtype': 'tinyint(1) unsigned' }
+            'comment': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Комментарий (только внутри компании)', 'input': 'text' } }
+    'Log':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'dt': { 'dbtype': 'datetime' }
+            'type': { 'dbtype': 'varchar(255)' }
+            'msg': { 'dbtype': 'text' }
+    'News':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'dt': { 'dbtype': 'datetime', 'form': { 'title': 'Дата', 'input': 'text', 'validators': [['datetime']] } }
+            'subject': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Тема', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '255']] } }
+            'message': { 'dbtype': 'text', 'form': { 'title': 'Текст', 'input': 'wysiwyg', 'validators': [['notEmpty']] } }
+            'public': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Публиковать', 'input': 'checkbox', 'filters': [['bool']] } }
+    'Notify':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'text': { 'dbtype': 'varchar(255)' }
+            'link': { 'dbtype': 'varchar(255)' }
+            'dt': { 'dbtype': 'datetime' }
+            'orderId': { 'dbtype': 'int(10) unsigned' }
+            'companyId': { 'dbtype': 'int(10) unsigned' }
+            'class': { 'dbtype': 'varchar(255)' }
+    'Operator':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'companyId': { 'dbtype': 'int(10) unsigned' }
+            'role': { 'dbtype': 'enum("owner","bookkeeper","dispatcher")', 'form': { 'title': 'Доступ', 'input': 'select' } }
+            'name': { 'dbtype': 'varchar(100)', 'form': { 'title': 'ФИО оператора', 'input': 'text', 'validators': [['minlen', '3'], ['maxlen', '100']] } }
+            'phone': { 'dbtype': 'varchar(50)', 'form': { 'title': 'Мобильный телефон', 'input': 'mobile', 'validators': [['int'], ['minlen', '11'], ['maxlen', '13']] } }
+            'password': { 'dbtype': 'char(32)', 'form': { 'title': 'Пароль', 'input': 'password', 'validators': [['minlen', '4'], ['maxlen', '40']] } }
+            'register': { 'dbtype': 'datetime' }
+            'lastVisit': { 'dbtype': 'datetime' }
+            'lastIp': { 'dbtype': 'varchar(255)' }
+            'countFailedLogins': { 'dbtype': 'tinyint(2) unsigned' }
+            'isBlocked': { 'dbtype': 'tinyint(1) unsigned' }
+    'Order':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'contractorId': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Контрагент', 'input': 'select', 'validators': [['int']] } }
+            'intaxiId': { 'dbtype': 'int(10) unsigned' }
+            'intaxiOffers': { 'dbtype': 'text' }
+            'ownerOperatorId': { 'dbtype': 'int(10) unsigned' }
+            'ownerId': { 'dbtype': 'int(10) unsigned' }
+            'partnerId': { 'dbtype': 'int(10) unsigned' }
+            'stakerOperatorId': { 'dbtype': 'int(10) unsigned' }
+            'stakerId': { 'dbtype': 'int(10) unsigned' }
+            'executerOperatorId': { 'dbtype': 'int(10) unsigned' }
+            'executerId': { 'dbtype': 'int(10) unsigned' }
+            'driverId': { 'dbtype': 'int(10) unsigned' }
+            'regionId': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Регион', 'input': 'select', 'validators': [['int']] } }
+            'addedAt': { 'dbtype': 'datetime' }
+            'auctionAt': { 'dbtype': 'datetime' }
+            'firstStakeAt': { 'dbtype': 'datetime' }
+            'lastStakeAt': { 'dbtype': 'datetime' }
+            'takenByOperatorAt': { 'dbtype': 'datetime' }
+            'takenByDriverAt': { 'dbtype': 'datetime' }
+            'wentToClientAt': { 'dbtype': 'datetime' }
+            'waitingForClientAt': { 'dbtype': 'datetime' }
+            'wentToDestinationAt': { 'dbtype': 'datetime' }
+            'canceledAt': { 'dbtype': 'datetime' }
+            'deliveredAt': { 'dbtype': 'datetime' }
+            'insideOwnerCompany': { 'dbtype': 'tinyint(1) unsigned' }
+            'visibleForAllOperators': { 'dbtype': 'tinyint(1) unsigned' }
+            'visibleForAllDrivers': { 'dbtype': 'tinyint(1) unsigned' }
+            'category': { 'dbtype': 'enum("bank","auction","execution","cancelation","problem","moderating")' }
+            'status': { 'dbtype': 'enum("added","auction","staked","needCarAssigment","takenByOperator","takenByDriver","wentToClient","waitingForClient","wentToDestination","canceling","changeFixedPrice","delivered","canceled")' }
+            'bankCategory': { 'dbtype': 'smallint(4) unsigned', 'form': { 'title': 'Банк', 'input': 'select', 'validators': [['int']] } }
+            'stake': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Ставка', 'input': 'text', 'validators': [['int']] } }
+            'stakePlus': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Доп. номинал', 'input': 'text', 'validators': [['int'], ['min', '0'], ['max', '100']] } }
+            'price': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Цена поездки', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'executerSuggestedPrice': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Цена поездки', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'ownerSuggestedPrice': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Цена поездки', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'time': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Время поездки', 'input': 'text', 'validators': [['int']] } }
+            'expectedPrice': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Рассчетная цена', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'expectedTime': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Рассчетное время', 'input': 'text', 'validators': [['float']] } }
+            'expectedDistance': { 'dbtype': 'float', 'form': { 'title': 'Рассчетное расстояние', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'fixedPrice': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Фиксированная цена', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'tarifMinPrice': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Мин. цена', 'input': 'text', 'validators': [['int'], ['min', '0']] } }
+            'tarifUnitsInMinPrice': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Включено в мин. цену', 'input': 'text', 'validators': [['int']] } }
+            'tarifUnitPrice': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Цена за единцу сверху мин. цены', 'input': 'text', 'validators': [['int'], ['min', '0']] } }
+            'tarifUnit': { 'dbtype': 'enum("min","km")', 'form': { 'title': 'Единица измерения', 'input': 'select', 'validators': [['inArray', 'min,km']] } }
+            'clientName': { 'dbtype': 'varchar(50)', 'form': { 'title': 'Имя клиента', 'input': 'text', 'validators': [['minlen', '2'], ['maxlen', '50']] } }
+            'clientPhone': { 'dbtype': 'varchar(11)', 'form': { 'title': 'Телефон клиента', 'input': 'text', 'validators': [['minlen', '4'], ['maxlen', '13']] } }
+            'autoTypeId': { 'dbtype': 'varchar(25)', 'form': { 'title': 'Тип авто', 'input': 'select', 'validators': [['alnum']] } }
+            'needAt': { 'dbtype': 'datetime', 'form': { 'title': 'Время подачи', 'input': 'text', 'validators': [['datetime']] } }
+            'clientAdressObject': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Откуда', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '100']] } }
+            'clientAdressDom': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Дом', 'input': 'text', 'validators': [['maxlen', '20']] } }
+            'clientAdressKorpus': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Корпус', 'input': 'text', 'validators': [['maxlen', '20']] } }
+            'clientAdressStroenie': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Строение', 'input': 'text', 'validators': [['maxlen', '20']] } }
+            'clientAdressPodezd': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Подъезд', 'input': 'text', 'validators': [['maxlen', '20']] } }
+            'clientAdressLatitude': { 'dbtype': 'float', 'form': { 'title': 'Широта', 'input': 'text', 'validators': [['float']], 'filters': [['float']] } }
+            'clientAdressLongitude': { 'dbtype': 'float', 'form': { 'title': 'Долгота', 'input': 'text', 'validators': [['float']], 'filters': [['float']] } }
+            'clientAdressMetro': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Метро', 'input': 'text', 'validators': [['maxlen', '100']] } }
+            'destinationAdress': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Куда', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '100']] } }
+            'needCCardReader': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Кредитные карты', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needNoSmoking': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Водитель не курит', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needSmoking': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Можно курить в салоне', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needChildChair': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Детское кресло', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needPet': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Животное', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needSober': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Трезвый водитель', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needEnglish': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Водитель говорит по-английски', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needNoAds': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Без рекламы', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needConditioner': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Кондиционер', 'input': 'checkbox', 'filters': [['bool']] } }
+            'needBaggage': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Много багажа', 'input': 'checkbox', 'filters': [['bool']] } }
+            'comment': { 'dbtype': 'varchar(250)', 'form': { 'title': 'Откуда', 'input': 'text', 'validators': [['maxlen', '250']] } }
+            'callWaiting': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Нужен звонок клиенту', 'input': 'checkbox', 'filters': [['bool']] } }
+            'isAirport': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Аэропорт', 'input': 'checkbox', 'filters': [['bool']] } }
+            'isPrivateBeforeWaitClient': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Не показывать телефон до подачи', 'input': 'checkbox', 'filters': [['bool']] } }
+    'Partner':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'companyId': { 'dbtype': 'int(10) unsigned' }
+            'name': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Название', 'input': 'text', 'validators': ['notEmpty', ['maxlen', 50]] } }
+            'phone': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Мобильный телефон', 'input': 'text', 'validators': [['maxlen', 20]] } }
+            'email': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Контактный email', 'input': 'text', 'validators': ['email'] } }
+            'password': { 'dbtype': 'char(32)', 'form': { 'title': 'Пароль', 'input': 'password', 'validators': [['minlen', '4'], ['maxlen', '40']] } }
+            'isBlocked': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Блокирован', 'input': 'checkbox' } }
+            'percent': { 'dbtype': 'tinyint(3) unsigned', 'form': { 'title': 'Процент с заказа', 'input': 'text', 'validators': ['float', ['max', '99']] } }
+            'register': { 'dbtype': 'datetime' }
+            'lastIp': { 'dbtype': 'varchar(255)' }
+            'lastVisit': { 'dbtype': 'datetime' }
+    'ProblemMsg':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'companyId': { 'dbtype': 'int(10) unsigned' }
+            'operatorId': { 'dbtype': 'int(10) unsigned' }
+            'driverId': { 'dbtype': 'int(10) unsigned' }
+            'orderId': { 'dbtype': 'int(10) unsigned' }
+            'dt': { 'dbtype': 'datetime' }
+            'message': { 'dbtype': 'varchar(250)', 'form': { 'title': 'Откуда', 'input': 'textarea', 'validators': [['maxlen', '250']] } }
+    'Region':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Регион', 'input': 'select' } }
+            'name': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Название', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '100']] } }
+            'priority': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Приоритет', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '1']] } }
+            'isActivated': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Активирован', 'input': 'checkbox' } }
+            'stakeInit': { 'dbtype': 'tinyint(2) unsigned', 'form': { 'title': 'Начальная ставка', 'input': 'text', 'validators': [['notEmpty']] } }
+            'stakeInitOthersDriver': { 'dbtype': 'tinyint(2) unsigned', 'form': { 'title': 'Ставка для водителей', 'input': 'text', 'validators': [['notEmpty']] } }
+            'stakeStep': { 'dbtype': 'tinyint(2) unsigned', 'form': { 'title': 'Шаг на аукционе', 'input': 'text', 'validators': [['notEmpty']] } }
+            'stepTimelimit': { 'dbtype': 'int(10) unsigned', 'form': { 'title': 'Минут после ставки до взятия', 'input': 'text', 'validators': [['notEmpty']] } }
+            'expectedCompanyPrice': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Предпологаемая сумма заказа для нефиксированных заказов для заморозке на счети компании', 'input': 'text', 'validators': [['notEmpty']] } }
+            'fixedDriverFrozenPrice': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Замораживаемая сумма для нефиксированных заказов для водителей', 'input': 'text', 'validators': [['notEmpty']] } }
+            'feeOrderExecuter': { 'dbtype': 'decimal(3,1)', 'form': { 'title': 'Процент за заказ с исполнителя', 'input': 'text', 'validators': [['notEmpty']] } }
+            'feeOrderOwnDriver': { 'dbtype': 'decimal(3,1)', 'form': { 'title': 'Процент за заказ с водителя его компании', 'input': 'text', 'validators': [['notEmpty']] } }
+            'driverMinBalance': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Минимальный баланс для водителей', 'input': 'text', 'validators': [['notEmpty']] } }
+            'companyMinBalance': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Минимальный баланс для компаний', 'input': 'text', 'validators': [['notEmpty']] } }
+            'cancelFineFast': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Штраф за отказ до 5 мин', 'input': 'text', 'validators': [['notEmpty']] } }
+            'cancelFineMiddle': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Штраф за отказ до 2 часов', 'input': 'text', 'validators': [['notEmpty']] } }
+            'cancelFineSlow': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Штраф за отказ больше 2 часов', 'input': 'text', 'validators': [['notEmpty']] } }
+            'cancelFineSlowAirport': { 'dbtype': 'decimal(9,2)', 'form': { 'title': 'Штраф за отказ больше 2 часов аэропорт', 'input': 'text', 'validators': [['notEmpty']] } }
+    'Service_Qiwi_Bill':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'ownerId': { 'dbtype': 'int(10) unsigned' }
+            'ownerType': { 'dbtype': 'varchar(255)' }
+            'price': { 'dbtype': 'decimal(9,2)' }
+            'status': { 'dbtype': 'varchar(255)' }
+    'Service_Qiwi_BillStatus':
+        'fields':
+            'id': { 'dbtype': 'int(10)' }
+            'billId': { 'dbtype': 'int(10)' }
+            'status': { 'dbtype': 'varchar(255)' }
+            'dt': { 'dbtype': 'datetime' }
+    'Settings':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'siteTitle': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Название сайта', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '255']] } }
+            'contactEmail': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Контактный e-mail', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '255']] } }
+            'contactPhone': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Контактный телефон', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '255']] } }
+            'shortNews': { 'dbtype': 'text', 'form': { 'title': 'Короткая новость', 'input': 'text' } }
+            'shortNewsDrivers': { 'dbtype': 'text', 'form': { 'title': 'Короткая новость для водителей', 'input': 'text' } }
+    'Tarif':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'intaxiId': { 'dbtype': 'int(10) unsigned' }
+            'companyId': { 'dbtype': 'int(10) unsigned' }
+            'atWeekend': { 'dbtype': 'tinyint(1) unsigned' }
+            'atNight': { 'dbtype': 'tinyint(1) unsigned' }
+            'startTime': { 'dbtype': 'time' }
+            'endTime': { 'dbtype': 'time' }
+            'autoTypeId': { 'dbtype': 'varchar(25)', 'form': { 'title': 'Тип авто', 'input': 'select', 'validators': [['alnum']] } }
+            'unit': { 'dbtype': 'enum("min","km")', 'form': { 'title': 'Единица измерения', 'input': 'select', 'validators': [['inArray', 'min,km']] } }
+            'minPrice': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Мин. цена', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'unitsInMinPrice': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Включено в мин. цену', 'input': 'text', 'validators': [['int']] } }
+            'unitPrice': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Цена за единцу сверху мин. цены', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'minsWaitFree': { 'dbtype': 'mediumint(8) unsigned', 'form': { 'title': 'Минут ожидания, бесплатно', 'input': 'text', 'validators': [['int']] } }
+            'priceMinWait': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Стоимость минуты ожидания при превышении', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'priceChildChair': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Детское кресло, руб', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'pricePet': { 'dbtype': 'mediumint(5) unsigned', 'form': { 'title': 'Перевозка животного, руб', 'input': 'text', 'validators': [['float'], ['min', '0']] } }
+            'comment': { 'dbtype': 'text', 'form': { 'title': 'Доплнительная информация', 'input': 'textarea' } }
+    'Transaction':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'senderTypeId': { 'dbtype': 'enum("system","region","admin","rpartner","company","driver","partner","contractor","client")' }
+            'senderId': { 'dbtype': 'int(10) unsigned' }
+            'payeeTypeId': { 'dbtype': 'enum("system","region","admin","rpartner","company","driver","partner","contractor","client")' }
+            'payeeId': { 'dbtype': 'int(10) unsigned' }
+            'amount': { 'dbtype': 'decimal(9,2)' }
+            'dt': { 'dbtype': 'datetime' }
+            'orderId': { 'dbtype': 'int(10) unsigned' }
+            'regionId': { 'dbtype': 'int(10) unsigned' }
+            'comment': { 'dbtype': 'varchar(255)' }
+    'Transaction_Old':
+        'fields':
+            'id': { 'dbtype': 'int(10) unsigned' }
+            'contractorId': { 'dbtype': 'mediumint(8) unsigned' }
+            'companyId': { 'dbtype': 'mediumint(8) unsigned' }
+            'driverId': { 'dbtype': 'mediumint(8) unsigned' }
+            'at': { 'dbtype': 'datetime' }
+            'paymentTypeId': { 'dbtype': 'tinyint(3) unsigned' }
+            'orderId': { 'dbtype': 'int(10) unsigned' }
+            'price': { 'dbtype': 'decimal(9,2)' }
+            'balanceAfter': { 'dbtype': 'decimal(9,2)' }
+            'comment': { 'dbtype': 'text' }

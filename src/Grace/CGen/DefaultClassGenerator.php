@@ -1,5 +1,6 @@
 <?php
 /**
+ * TRASH - old version with all fields
  * Description of DefaultCGenerator
  *
  * @author darthvader

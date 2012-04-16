@@ -1,10 +1,5 @@
 <?php
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
+namespace Grace\CGen;
 /**
  * Description of DefaultConcreteClassGenerator
  * 
@@ -15,8 +10,18 @@
  * @author gabushev@gmail.com
  * @return boolean true if all methods is fine, else return false
  */
-class DefaultConcreteClassGenerator {
-
+class DefaultConcreteClassGenerator extends ClassGeneratorAbstract {
+    public $yaml = "";
+    public $classes = "";
+    public $classname = "";
+    
+    
+    public function __construct($dirYaml, $classesDir, $className){
+        $this->config['dirYaml'] = $dirYaml;
+        $this->config['dirClasses'] = $classesDir;
+        $this->config['className'] = $className;
+    }
+    
     public function generate(){
         if ($this->getClassName()=="*"){
             $this->genManyYamlClass();
@@ -74,7 +79,7 @@ class DefaultConcreteClassGenerator {
     private function generateClass($Yaml,$class){
         $outputFile = "<?php\n";
         $outputFile .= "abstract class ".$class;
-        if (isset($Yaml[$class]['extends']) && ($Yaml[$class]['extends']!="")) {
+        if (isset($Yaml[$class]['extends']) && ($Yaml[$class]['extends']!="") && ($Yaml[$class]['extends']!="none")) {
             $outputFile .= " extends ".$Yaml[$class]['extends'];
         }
         $outputFile .= " {"."\n";

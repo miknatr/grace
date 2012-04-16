@@ -4,7 +4,9 @@ namespace Grace\CGen;
 use ReflectionClass;
 use ReflectionMethod;
 
-//define ('GENERATE_NAMESPACE', 'Grace\TestNamespace');
+if (!defined('GENERATE_NAMESPACE')){
+    define ('GENERATE_NAMESPACE', 'Grace\TestNamespace');
+}
 /**
  * Description of DefaultCollectionClassGenerator
  *
@@ -16,9 +18,6 @@ class DefaultCollectionClassGenerator extends ClassParserAbstract{
     
     
     public function generate() {
-        $arr = get_included_files();
-        print_r($arr);
-        //TODO add implnts
         try{
             $fileClass = $this->getClassBody();
             if (!$this->writeClass($fileClass, $this->getOutputDir(), ucfirst($this->getClassName()))){
