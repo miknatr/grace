@@ -2,9 +2,9 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\Manager;
+use Grace\ORM\ManagerAbstract;
 
-class RealManager extends Manager {
+class RealManager extends ManagerAbstract {
     
     /**
      * @return OrderFinder 

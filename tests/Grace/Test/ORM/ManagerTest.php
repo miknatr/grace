@@ -31,16 +31,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
     protected function establishConnection() {
         $this->dispatcher = new Dispatcher;
         $this->connection = new MysqliConnection(array(
-                'host' => TEST_MYSQLI_HOST,
-                'port' => TEST_MYSQLI_PORT,
-                'user' => TEST_MYSQLI_NAME,
-                'password' => TEST_MYSQLI_PASSWORD,
-                'database' => TEST_MYSQLI_DATABASE,
-            ), $this->dispatcher);
-        $this->crud = new DBMasterDriver($this->connection);
+            'host'     => TEST_MYSQLI_HOST,
+            'port'     => TEST_MYSQLI_PORT,
+            'user'     => TEST_MYSQLI_NAME,
+            'password' => TEST_MYSQLI_PASSWORD,
+            'database' => TEST_MYSQLI_DATABASE,
+        ), $this->dispatcher);
+        $this->crud       = new DBMasterDriver($this->connection);
 
-        $this->manager = new RealManager($this->dispatcher, 'Grace\Test\ORM',
-                $this->connection, $this->crud);
+        $this->manager = new RealManager($this->connection, $this->crud, $this->dispatcher, new RealClassNameProvider);
     }
     protected function tearDown() {
         $this->connection->execute('DROP TABLE IF EXISTS `Order`');
@@ -56,25 +55,23 @@ class ManagerTest extends \PHPUnit_Framework_TestCase {
     public function testCommit() {
         //test insert
         $inserted = $this->manager->getOrderFinder()->create();
-        $inserted
-            ->setName('Arnold')
-            ->setPhone('+1-123-123');
-        
+        $inserted->setName('Arnold')->setPhone('+1-123-123');
+
         //test delete
         $this->manager->getOrderFinder()->getById(3)->delete();
-        
+
         //test update
         $this->manager->getOrderFinder()->getById(2)->setName('Jack')->save();
-        
+
         $this->manager->commit();
-        
-        
+
+
         //clean objects and see changes
         $this->establishConnection();
         $this->assertEquals('Mike', $this->manager->getOrderFinder()->getById(1)->getName());
         $this->assertEquals('Jack', $this->manager->getOrderFinder()->getById(2)->getName());
         $this->assertEquals('Arnold', $this->manager->getOrderFinder()->getById(4)->getName());
-        
+
         try {
             $this->manager->getOrderFinder()->getById(3)->getName();
             $this->fail('Row was deleted');
