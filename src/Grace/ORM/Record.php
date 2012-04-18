@@ -22,8 +22,12 @@ abstract class Record implements RecordInterface, MapperRecordInterface {
         $this->fields = $fields;
 
         if ($isNew) { //if it is a new object
+            $this->fields = $this->getNewFields();
             $this->unitOfWork->markAsNew($this);
         }
+    }
+    protected function getNewFields() {
+        return array();
     }
     final public function asArray() {
         return $this->fields;

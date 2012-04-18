@@ -72,7 +72,7 @@ class DefaultAbstractClassGenerator extends ClassGeneratorAbstract {
     private function generateClass($Yaml,$class){
         $outputFile = "<?php\n";
         $outputFile .= "abstract class ".$class;
-        if (isset($Yaml[$class]['implements']) && ($Yaml[$class]['implements']!="")) {
+        if (isset($Yaml[$class]['implements']) && ($Yaml[$class]['implements']!="") && ($Yaml[$class]['implements']!="none")) {
             $outputFile .= " implements ".$Yaml[$class]['interface'];
         }
         $outputFile .= " {"."\n";
@@ -83,7 +83,8 @@ class DefaultAbstractClassGenerator extends ClassGeneratorAbstract {
          */
         if (isset($key)) unset($key);
         foreach ($vars as $key){
-            $outputFile .= $this->getVar($vars[$key]);
+            //$outputFile .= $this->getVar($vars[$key]);
+            $outputFile .= $this->getVar($key);
         }
         unset($vars);
         unset($key);

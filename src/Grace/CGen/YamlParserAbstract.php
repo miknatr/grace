@@ -5,7 +5,9 @@
  * @author darthvader
  */
 namespace Grace\CGen;
-
+require_once  './../../grace/vendors/symfony/src/Symfony/Component/Yaml/Yaml.php';
+require_once  './../../grace/vendors/symfony/src/Symfony/Component/Yaml/Parser.php';
+require_once  './../../grace/vendors/symfony/src/Symfony/Component/Yaml/Inline.php';
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 

@@ -60,9 +60,9 @@ class DefaultCollectionClassGeneratorTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGetClassBody() {
         // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $ext = 
+        "<?php\nnamespace Grace\TestNamespace\nclass TestClass extends TestClassAbstract {\n}";
+        $this->assertEquals($ext, $this->object->getClassBody());
     }
 
     /**
@@ -71,9 +71,14 @@ class DefaultCollectionClassGeneratorTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGetParentClassBody() {
         // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        //include_once dirname(__FILE__) .'/classSource/TestClass.php';
+        //include_once dirname(__FILE__) .'/classSource/ParentTestConstruct.php';
+        $ext = 
+        "<?php\nnamespace Grace\TestNamespace\nclass TestClass extends TestClassAbstract {\n}";
+        //$this->assertEquals($ext, $this->object->getClassBody());
+        $this->object = new DefaultCollectionClassGenerator("\Grace\CGen\TestClass","./forClasses","additionalClass");
+        //print_r($this->object->getParentClassBody());
+        $this->assertEquals($ext, $this->object->getClassBody());
     }
 
     /**
@@ -81,17 +86,6 @@ class DefaultCollectionClassGeneratorTest extends \PHPUnit_Framework_TestCase {
      * @todo Implement testGetPreparedData().
      */
     public function testGetPreparedData() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers Grace\CGen\DefaultCollectionClassGenerator::getParentMethodsByMod
-     * @todo Implement testGetParentMethodsByMod().
-     */
-    public function testGetParentMethodsByMod() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
                 'This test has not been implemented yet.'
@@ -116,8 +110,7 @@ class DefaultCollectionClassGeneratorTest extends \PHPUnit_Framework_TestCase {
                 "private" => array
                     (
                         0 => new \ReflectionMethod("Grace\CGen\TestClass", "setChildPublicInnerMethod"),
-                        1 => new \ReflectionMethod("Grace\CGen\ParentTestConstruct", "setParentPublicInnerMethod"),
-                        2 => new \ReflectionMethod("Grace\CGen\TestClass", "setChildPublicInnerMethod")
+                        1 => new \ReflectionMethod("Grace\CGen\ParentTestConstruct", "setParentPrivateInnerMethod")
                     ),
                 "protected" => array
                     (

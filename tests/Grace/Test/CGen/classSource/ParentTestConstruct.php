@@ -11,7 +11,7 @@ class ParentTestConstruct {
         //todo djigurdu
     }
     
-    private function setParentPublicInnerMethod($inpVar1,$inpVar2){
+    private function setParentPrivateInnerMethod($inpVar1,$inpVar2){
         //todo djigurdu
     }
 }

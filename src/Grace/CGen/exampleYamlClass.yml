@@ -1,13 +1,17 @@
 ## Example YAML Template
-#1 A
+#1 defaultClassGenerator (yamlDir, toDir, YamlClass)
+config:
+  namespace: 'Model'
 yaml:
   fooClass: 
     implements: none
-    fields: {fieldName, field2}
+    fields:
+      fieldName: {}
+      field2: {}
   barClass:
     implements: none
     fields: {fieldFoo, fieldBar}
-#2 Record
+#2 Record - DefaultConcreteClassGenerator
 yaml:
   fooClass:
     extends: abstractDefaultClass

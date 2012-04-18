@@ -1,7 +1,7 @@
 <?php
 namespace Grace\CGen;
 //require './ParentTestConstruct.php';
-include 'ParentTestConstruct.php';
+include dirname(__FILE__) .'/ParentTestConstruct.php';
 
 class TestClass extends ParentTestConstruct{
     public $childVar = "";

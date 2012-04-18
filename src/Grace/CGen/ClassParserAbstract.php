@@ -5,7 +5,10 @@ namespace Grace\CGen;
  *
  * @author darthvader
  */
-define('GENERATE_NAMESPACE', "Grace\TestNamespace");
+use ReflectionClass;
+if (!defined('GENERATE_NAMESPACE')){
+    define('GENERATE_NAMESPACE', "Grace\TestNamespace");
+}
 abstract class ClassParserAbstract implements ClassParserInterface {
     //put your code here
     private $instanceClass = null;
@@ -62,9 +65,17 @@ abstract class ClassParserAbstract implements ClassParserInterface {
     }
     
     public function getClassName() {
-        return $this->instanceClass->getName();
+        return $this->instanceClass->getShortName();
     }
     
+    public function getLongClassName(){
+        print_r("\n\n\n\n\n\n======================");
+        print_r($this->instanceClass->getName());
+        print_r("======================\n\n\n\n\n\n");
+        return $this->instanceClass->getName();
+    }
+
+
     public function getClassFields($modifier = NULL) {
         if ($modifier!= NULL){
             switch ($modifier){
@@ -90,6 +101,13 @@ abstract class ClassParserAbstract implements ClassParserInterface {
     
     //parents
     public function getParentClassName() {
+        return $this->instanceParentClass->getShortName();
+    }
+    
+    public function getLongParentClassName() {
+        print_r("\n\n\n\n\n\n======================");
+        print_r($this->instanceParentClass->getName());
+        print_r("======================\n\n\n\n\n\n");
         return $this->instanceParentClass->getName();
     }
     
