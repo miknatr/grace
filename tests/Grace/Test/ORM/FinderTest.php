@@ -28,13 +28,8 @@ class FinderTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->dispatcher  = new Dispatcher;
-        $this->connection  = new MysqliConnection(array(
-                                                       'host'     => TEST_MYSQLI_HOST,
-                                                       'port'     => TEST_MYSQLI_PORT,
-                                                       'user'     => TEST_MYSQLI_NAME,
-                                                       'password' => TEST_MYSQLI_PASSWORD,
-                                                       'database' => TEST_MYSQLI_DATABASE,
-                                                  ), $this->dispatcher);
+        $this->connection  =
+            new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud        = new DBMasterDriver($this->connection);
         $this->unitOfWork  = new UnitOfWork;
         $this->identityMap = new IdentityMap;

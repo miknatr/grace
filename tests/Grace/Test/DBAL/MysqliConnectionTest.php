@@ -14,13 +14,8 @@ class MysqliConnectionTest extends AbstractConnectionTest
 
     protected function setUp()
     {
-        $this->connection = new MysqliConnection(array(
-                                                      'host'     => TEST_MYSQLI_HOST,
-                                                      'port'     => TEST_MYSQLI_PORT,
-                                                      'user'     => TEST_MYSQLI_NAME,
-                                                      'password' => TEST_MYSQLI_PASSWORD,
-                                                      'database' => TEST_MYSQLI_DATABASE,
-                                                 ), new Dispatcher);
+        $this->connection =
+            new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
     }
     protected function tearDown()
     {
@@ -30,13 +25,8 @@ class MysqliConnectionTest extends AbstractConnectionTest
     {
         unset($this->connection);
         $this->setExpectedException('Grace\DBAL\ExceptionConnection');
-        $this->connection = new MysqliConnection(array(
-                                                      'host'     => 'locahost', //real server - immediately bad response
-                                                      'port'     => 3306, //if non-exists server - we'll wait timeout
-                                                      'user'     => 'not exists',
-                                                      'password' => 'not exists',
-                                                      'database' => 'not exists',
-                                                 ), new Dispatcher);
+        $this->connection =
+            new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, 'SOME BAD NAME', TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         //Lazy conniction, only if we really use database
         $r = $this->connection->execute('SELECT 1');
     }
