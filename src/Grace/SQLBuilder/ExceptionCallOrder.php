@@ -2,6 +2,7 @@
 
 namespace Grace\SQLBuilder;
 
-class ExceptionCallOrder extends \Exception implements ExceptionInterface {
-    
+class ExceptionCallOrder extends \Exception implements ExceptionInterface
+{
+
 }

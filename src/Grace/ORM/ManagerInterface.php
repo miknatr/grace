@@ -2,6 +2,7 @@
 
 namespace Grace\ORM;
 
-interface ManagerInterface {
+interface ManagerInterface
+{
     public function commit();
 }

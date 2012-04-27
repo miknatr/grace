@@ -4,15 +4,19 @@ namespace Grace\Test\SQLBuilder;
 
 use Grace\SQLBuilder\AbstractWhereBuilder;
 
-class AbstractWhereBuilderChild extends AbstractWhereBuilder {
-    public function getQueryString() {
+class AbstractWhereBuilderChild extends AbstractWhereBuilder
+{
+    public function getQueryString()
+    {
         //It's plug
         ;
     }
-    public function getWhereSql() {
+    public function getWhereSql()
+    {
         return parent::getWhereSql();
     }
-    public function getQueryArguments() {
+    public function getQueryArguments()
+    {
         return parent::getQueryArguments();
     }
 }

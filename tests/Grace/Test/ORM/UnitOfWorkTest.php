@@ -4,19 +4,23 @@ namespace Grace\Test\ORM;
 
 use Grace\ORM\UnitOfWork;
 
-class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
+class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
+{
     /** @var UnitOfWork */
     protected $unitOfWork;
 
-    protected function setUp() {
+    protected function setUp()
+    {
         $this->unitOfWork = new UnitOfWork;
     }
-    public function testEmptyReturn() {
+    public function testEmptyReturn()
+    {
         $this->assertEquals(array(), $this->unitOfWork->getNewRecords());
         $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
         $this->assertEquals(array(), $this->unitOfWork->getDeletedRecords());
     }
-    public function testNewMarkers() {
+    public function testNewMarkers()
+    {
         $record1 = new \stdClass;
         $record2 = new \stdClass;
         $record3 = $record2;
@@ -28,7 +32,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
         $this->assertEquals(array(), $this->unitOfWork->getDeletedRecords());
     }
-    public function testChangedMarkers() {
+    public function testChangedMarkers()
+    {
         $record1 = new \stdClass;
         $record2 = new \stdClass;
         $record3 = $record2;
@@ -40,7 +45,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(array($record1, $record2), array_values($this->unitOfWork->getChangedRecords()));
         $this->assertEquals(array(), $this->unitOfWork->getDeletedRecords());
     }
-    public function testDeleteMarkers() {
+    public function testDeleteMarkers()
+    {
         $record1 = new \stdClass;
         $record2 = new \stdClass;
         $record3 = $record2;

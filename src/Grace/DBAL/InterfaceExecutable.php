@@ -2,12 +2,12 @@
 
 namespace Grace\DBAL;
 
-interface InterfaceExecutable {
+interface InterfaceExecutable
+{
     /**
-     *
      * @param string $query
-     * @param array $arguments
-     * @return InterfaceResult 
+     * @param array  $arguments
+     * @return InterfaceResult
      */
     public function execute($query, array $arguments = array());
 }

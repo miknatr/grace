@@ -2,6 +2,7 @@
 
 namespace Grace\DBAL;
 
-interface ExceptionInterface {
-    
+interface ExceptionInterface
+{
+
 }

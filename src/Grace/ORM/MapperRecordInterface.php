@@ -2,7 +2,8 @@
 
 namespace Grace\ORM;
 
-interface MapperRecordInterface {
+interface MapperRecordInterface
+{
     public function asArray();
     public function getDefaultFields();
 }

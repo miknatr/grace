@@ -2,10 +2,12 @@
 
 namespace Grace\ORM;
 
-abstract class Mapper implements MapperInterface {
+abstract class Mapper implements MapperInterface
+{
     protected $fields = array();
 
-    public function convertDbRowToRecordArray(array $row) {
+    public function convertDbRowToRecordArray(array $row)
+    {
         $recordArray = array();
         foreach ($this->fields as $field) {
             if (isset($row[$field])) {
@@ -16,7 +18,8 @@ abstract class Mapper implements MapperInterface {
         }
         return $recordArray;
     }
-    public function convertRecordArrayToDbRow(array $recordArray) {
+    public function convertRecordArrayToDbRow(array $recordArray)
+    {
         $row = array();
         foreach ($this->fields as $field) {
             if (isset($recordArray[$field])) {
@@ -27,13 +30,15 @@ abstract class Mapper implements MapperInterface {
         }
         return $row;
     }
-    public function getRecordChanges(array $recordArray, array $defaults) {
+    public function getRecordChanges(array $recordArray, array $defaults)
+    {
         $changes = array();
         foreach ($this->fields as $field) {
             if (isset($recordArray[$field])
                 and isset($defaults[$field])
-                and $recordArray[$field] != $defaults[$field]) {
-                
+                    and $recordArray[$field] != $defaults[$field]
+            ) {
+
                 $changes[$field] = $recordArray[$field];
             }
         }

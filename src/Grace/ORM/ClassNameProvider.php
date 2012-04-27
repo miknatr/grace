@@ -2,7 +2,8 @@
 
 namespace Grace\ORM;
 
-class ClassNameProvider implements ClassNameProviderInterface {
+class ClassNameProvider implements ClassNameProviderInterface
+{
     protected $modelNamespace = 'Model';
     protected $modelPrefix = '';
     protected $modelPostfix = '';
@@ -16,12 +17,13 @@ class ClassNameProvider implements ClassNameProviderInterface {
     protected $collectionPrefix = '';
     protected $collectionPostfix = 'Collection';
 
-    protected function getClass($baseClass, $type) {
-        return '\\' . ($this->{$type . 'Namespace'} == '' ? '' : $this->{$type . 'Namespace'} . '\\')
-            . $this->{$type . 'Prefix'} . $baseClass . $this->{$type . 'Postfix'};
+    protected function getClass($baseClass, $type)
+    {
+        return '\\' . ($this->{$type . 'Namespace'} == '' ? '' : $this->{$type . 'Namespace'} . '\\') .
+            $this->{$type . 'Prefix'} . $baseClass . $this->{$type . 'Postfix'};
     }
-    public function getBaseClass($modelClass) {
-        echo $modelClass;
+    public function getBaseClass($modelClass)
+    {
         $type = 'model';
         if ($this->{$type . 'Namespace'} != '') {
             $namespaceLen = strlen($this->{$type . 'Namespace'}) + 1;
@@ -38,16 +40,20 @@ class ClassNameProvider implements ClassNameProviderInterface {
         }
         return $baseClass;
     }
-    public function getModelClass($baseClass) {
+    public function getModelClass($baseClass)
+    {
         return $this->getClass($baseClass, 'model');
     }
-    public function getFinderClass($baseClass) {
+    public function getFinderClass($baseClass)
+    {
         return $this->getClass($baseClass, 'finder');
     }
-    public function getMapperClass($baseClass) {
+    public function getMapperClass($baseClass)
+    {
         return $this->getClass($baseClass, 'mapper');
     }
-    public function getCollectionClass($baseClass) {
+    public function getCollectionClass($baseClass)
+    {
         return $this->getClass($baseClass, 'collection');
     }
 }

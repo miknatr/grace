@@ -5,8 +5,9 @@ namespace Grace\DBAL;
 use Grace\EventDispatcher\Dispatcher;
 use Grace\SQLBuilder\Factory;
 
-interface InterfaceConnection extends InterfaceExecutable {
-    const EVENT_DB_QUERY = 'eventDBQuery';
+interface InterfaceConnection extends InterfaceExecutable
+{
+    const EVENT_DB_QUERY   = 'eventDBQuery';
     const EVENT_DB_CONNECT = 'eventDBConnect';
     public function __construct(array $config, Dispatcher $dispatcher);
     public function escape($value);
@@ -14,19 +15,19 @@ interface InterfaceConnection extends InterfaceExecutable {
     public function getLastInsertId();
     public function getAffectedRows();
     /**
-     * Starts transaction if it haven't started before 
+     * Starts transaction if it haven't started before
      */
     public function start();
     /**
-     * Commit transaction 
+     * Commit transaction
      */
     public function commit();
     /**
-     * Rollback transaction if it have started 
+     * Rollback transaction if it have started
      */
     public function rollback();
     /**
-     * @return Factory; 
+     * @return Factory;
      */
     public function getSQLBuilder();
 }

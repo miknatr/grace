@@ -2,29 +2,34 @@
 
 namespace Grace\Test\SQLBuilder;
 
-class AbstractWhereBuilderTest extends \PHPUnit_Framework_TestCase {
+class AbstractWhereBuilderTest extends \PHPUnit_Framework_TestCase
+{
     /** @var AbstractWhereBuilderChild */
     protected $builder;
     /** @var ExecutablePlug */
     protected $plug;
 
-    protected function setUp() {
-        $this->plug = new ExecutablePlug;
+    protected function setUp()
+    {
+        $this->plug    = new ExecutablePlug;
         $this->builder = new AbstractWhereBuilderChild('TestTable', $this->plug);
     }
-    protected function tearDown() {
-        
+    protected function tearDown()
+    {
     }
-    public function testWithoutConditions() {
+    public function testWithoutConditions()
+    {
         $this->assertEquals('', $this->builder->getWhereSql());
         $this->assertEquals(array(), $this->builder->getQueryArguments());
     }
-    public function testOneCondition() {
+    public function testOneCondition()
+    {
         $this->builder->eq('id', 123);
         $this->assertEquals(' WHERE id=?q', $this->builder->getWhereSql());
         $this->assertEquals(array(123), $this->builder->getQueryArguments());
     }
-    public function testAllConditions() {
+    public function testAllConditions()
+    {
         $this->builder
             ->eq('id', 1)
             ->notEq('id', 2)
@@ -40,22 +45,40 @@ class AbstractWhereBuilderTest extends \PHPUnit_Framework_TestCase {
             ->notIn('category', array(6, 7, 8, 9, 0))
             ->between('id', 7, 8)
             ->notBetween('id', 9, 10)
-            ->sql('(id > ?q OR id < ?q)', array(100, 200))
-            ;
-        $this->assertEquals(' WHERE id=?q AND id!=?q'
-            . ' AND id>?q AND id>=?q AND id<?q AND id<=?q'
-            . ' AND name LIKE ?q AND name NOT LIKE ?q'
-            . ' AND lastname LIKE ?q AND lastname NOT LIKE ?q'
-            . ' AND category IN (?q,?q,?q,?q,?q)'
-            . ' AND category NOT IN (?q,?q,?q,?q,?q)'
-            . ' AND id BETWEEN ?q AND ?q AND id NOT BETWEEN ?q AND ?q'
-            . ' AND (id > ?q OR id < ?q)'
-            , $this->builder->getWhereSql());
+            ->sql('(id > ?q OR id < ?q)', array(100, 200));
+        $this->assertEquals(' WHERE id=?q AND id!=?q' . ' AND id>?q AND id>=?q AND id<?q AND id<=?q' .
+                                ' AND name LIKE ?q AND name NOT LIKE ?q' .
+                                ' AND lastname LIKE ?q AND lastname NOT LIKE ?q' . ' AND category IN (?q,?q,?q,?q,?q)' .
+                                ' AND category NOT IN (?q,?q,?q,?q,?q)' .
+                                ' AND id BETWEEN ?q AND ?q AND id NOT BETWEEN ?q AND ?q' . ' AND (id > ?q OR id < ?q)',
+                            $this->builder->getWhereSql());
         $this->assertEquals(array(
-                1, 2, 3, 4, 5, 6, 'Mike', 'John', '%Li%', '%Fu%',
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 0,
-                7, 8, 9, 10,
-                100, 200
-            ), $this->builder->getQueryArguments());
+                                 1,
+                                 2,
+                                 3,
+                                 4,
+                                 5,
+                                 6,
+                                 'Mike',
+                                 'John',
+                                 '%Li%',
+                                 '%Fu%',
+                                 1,
+                                 2,
+                                 3,
+                                 4,
+                                 5,
+                                 6,
+                                 7,
+                                 8,
+                                 9,
+                                 0,
+                                 7,
+                                 8,
+                                 9,
+                                 10,
+                                 100,
+                                 200
+                            ), $this->builder->getQueryArguments());
     }
 }

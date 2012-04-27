@@ -1,7 +1,8 @@
 <?php
 namespace Grace\CGen;
 
-interface ClassParserInterface {
+interface ClassParserInterface
+{
     //put your code here
     function __construct($classname, $outputDir, $additionalClass);
     function getClassName();

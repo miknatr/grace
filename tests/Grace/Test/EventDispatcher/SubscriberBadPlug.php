@@ -2,6 +2,9 @@
 
 namespace Grace\Test\EventDispatcher;
 
-class SubscriberBadPlug {
-    public function badEvent() {}
+class SubscriberBadPlug
+{
+    public function badEvent()
+    {
+    }
 }

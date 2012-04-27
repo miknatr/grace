@@ -2,6 +2,7 @@
 
 namespace Grace\ORM;
 
-interface ExceptionInterface {
-    
+interface ExceptionInterface
+{
+
 }

@@ -4,9 +4,9 @@ namespace Grace\DBAL;
 
 /**
  * Description of Connection
- *
  * @author miknatr
  */
-class ExceptionConnection extends \Exception implements ExceptionInterface {
-    
+class ExceptionConnection extends \Exception implements ExceptionInterface
+{
+
 }

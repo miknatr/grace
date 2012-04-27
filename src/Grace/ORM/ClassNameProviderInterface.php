@@ -2,7 +2,8 @@
 
 namespace Grace\ORM;
 
-interface ClassNameProviderInterface {
+interface ClassNameProviderInterface
+{
     public function getBaseClass($modelClass);
     public function getModelClass($baseClass);
     public function getFinderClass($baseClass);

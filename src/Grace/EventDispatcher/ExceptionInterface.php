@@ -2,6 +2,7 @@
 
 namespace Grace\EventDispatcher;
 
-interface ExceptionInterface {
-    
+interface ExceptionInterface
+{
+
 }

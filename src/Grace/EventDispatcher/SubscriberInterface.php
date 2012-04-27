@@ -2,5 +2,6 @@
 
 namespace Grace\EventDispatcher;
 
-interface SubscriberInterface {
+interface SubscriberInterface
+{
 }

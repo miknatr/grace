@@ -2,27 +2,30 @@
 
 namespace Grace\SQLBuilder;
 
-class UpdateBuilder extends AbstractWhereBuilder {
+class UpdateBuilder extends AbstractWhereBuilder
+{
     private $fieldsSql = '';
     private $fieldValues = array();
-    
-    public function values(array $values) {
+
+    public function values(array $values)
+    {
         $fieldQueryParts = array();
         foreach ($values as $k => $v) {
-            $fieldQueryParts[] = '`' . $k . '`=?q'; 
+            $fieldQueryParts[] = '`' . $k . '`=?q';
         }
-        $this->fieldsSql = implode(', ', $fieldQueryParts);
-        $this->fieldValues= array_values($values);
+        $this->fieldsSql   = implode(', ', $fieldQueryParts);
+        $this->fieldValues = array_values($values);
         return $this;
     }
-    protected function getQueryString() {
+    protected function getQueryString()
+    {
         if (count($this->fieldValues) == 0) {
             throw new ExceptionCallOrder('Set values for update before execute');
         }
-        return 'UPDATE `' . $this->from . '` SET ' . $this->fieldsSql
-            . $this->getWhereSql();
+        return 'UPDATE `' . $this->from . '` SET ' . $this->fieldsSql . $this->getWhereSql();
     }
-    protected function getQueryArguments() {
+    protected function getQueryArguments()
+    {
         return array_merge($this->fieldValues, parent::getQueryArguments());
     }
 }

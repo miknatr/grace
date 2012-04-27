@@ -1,26 +1,27 @@
 <?php
 namespace Grace\CGen;
-## CodeGenerator
+    ## CodeGenerator
 
-#* Имеются две папки include_generatet и include.
-#* Обе будут в include_path или аналоге для auto-loader'а.
-#* В первую пишутся классы созданые генератором.
-#* Во второй находятся классы, созданые руками (однако она используется генератором для некоторого анализа перед генерацией)
+    #* Имеются две папки include_generatet и include.
+    #* Обе будут в include_path или аналоге для auto-loader'а.
+    #* В первую пишутся классы созданые генератором.
+    #* Во второй находятся классы, созданые руками (однако она используется генератором для некоторого анализа перед генерацией)
 
 
-#Описано на примере сущности заказа Order:
+    #Описано на примере сущности заказа Order:
 
-### Абстрактные классы Record (домен)
+    ### Абстрактные классы Record (домен)
 
-#* Для каждой сущности в yaml создает и записывает абстрактный класс.
+    #* Для каждой сущности в yaml создает и записывает абстрактный класс.
 #* В абстрактных классах есть сеттеры, геттеры на поля в массиве fields (свойство Record).
 
-$dirYaml = "./yaml"; //каталог с yml-файлами
+$dirYaml    = "./yaml"; //каталог с yml-файлами
 $classesDir = "./classes"; //каталог, куда сохранятся все сгенерированные классы
-$className = "someClass"; // Имя класса (2 уровень вложенности). Если значение переменной "*", то обрабатывает все имена.
+$className  =
+    "someClass"; // Имя класса (2 уровень вложенности). Если значение переменной "*", то обрабатывает все имена.
 
 $abstractGenerator = new DefaultAbstractClassGenerator($dirYaml, $classesDir, $className);
-$abstractGenerator->generate();//return true if no errors
+$abstractGenerator->generate(); //return true if no errors
 $abstractGenerator = null;
 
 
@@ -29,14 +30,14 @@ $abstractGenerator = null;
 #* Пишутся в ту же папку для генерации, если не создан класс в папке с классами написаными руками.
 
 
-$dirYaml = "./yaml"; //каталог с yml-файлами
+$dirYaml    = "./yaml"; //каталог с yml-файлами
 $classesDir = "./classes"; //каталог, куда сохранятся все сгенерированные классы
-$className = "someClass"; // Имя класса (2 уровень вложенности). Если значение переменной "*", то обрабатывает все имена.
+$className  =
+    "someClass"; // Имя класса (2 уровень вложенности). Если значение переменной "*", то обрабатывает все имена.
 
 $concreteGenerator = new DefaultConcreteClassGenerator($dirYaml, $classesDir, $className);
 $concreteGenerator->generate();
 $concreteGenerator = null;
-
 
 
 ### Классы коллекций для каждой сущности
@@ -49,14 +50,15 @@ $concreteGenerator = null;
 #<?php
 #public closeOrder($price, $notifyClient = false) {
 #    foreach ($this as $item) {
- #       $item->closeOrder($price, $notifyClient);
- #   }
+#       $item->closeOrder($price, $notifyClient);
+#   }
 #}
 #```
-$className = "testClass"; //имя класса, который мы обозреваем и из которого (и предка которого) собираем новый класс (два новых класса - пустого потомка и абстрактный класс предка)
-$outputDir = "./forClasses"; //директория, куда пишем классы
-$additionalClass = "Fooclass";// дополнительный клас, для extended
-$classGenerator = new DefaultCollectionClassGenerator($classname, $outputDir, $additionalClass);
+$className       =
+    "testClass"; //имя класса, который мы обозреваем и из которого (и предка которого) собираем новый класс (два новых класса - пустого потомка и абстрактный класс предка)
+$outputDir       = "./forClasses"; //директория, куда пишем классы
+$additionalClass = "Fooclass"; // дополнительный клас, для extended
+$classGenerator  = new DefaultCollectionClassGenerator($classname, $outputDir, $additionalClass);
 /*
  * alternate:
  * $classGenerator->getClassBody(); // gets contents of generated class

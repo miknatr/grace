@@ -2,6 +2,7 @@
 
 namespace Grace\SQLBuilder;
 
-interface ExceptionInterface {
-    
+interface ExceptionInterface
+{
+
 }

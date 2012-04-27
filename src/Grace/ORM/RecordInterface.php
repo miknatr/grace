@@ -2,7 +2,8 @@
 
 namespace Grace\ORM;
 
-interface RecordInterface {
+interface RecordInterface
+{
     public function delete();
     public function edit(array $fields);
     public function save();

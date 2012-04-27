@@ -2,6 +2,7 @@
 
 namespace Grace\EventDispatcher;
 
-class ExceptionBadSubscriberBuilder extends \Exception implements ExceptionInterface {
-    
+class ExceptionBadSubscriberBuilder extends \Exception implements ExceptionInterface
+{
+
 }

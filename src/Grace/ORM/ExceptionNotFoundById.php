@@ -2,6 +2,7 @@
 
 namespace Grace\ORM;
 
-class ExceptionNotFoundById extends \Exception implements ExceptionInterface {
-    
+class ExceptionNotFoundById extends \Exception implements ExceptionInterface
+{
+
 }

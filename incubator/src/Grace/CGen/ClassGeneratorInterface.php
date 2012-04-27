@@ -1,7 +1,8 @@
 <?php
 
 namespace Grace\CGen;
-interface ClassGeneratorInterface {
+interface ClassGeneratorInterface
+{
     /*
      * @param array $config
      * @param string $array

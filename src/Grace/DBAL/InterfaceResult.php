@@ -2,7 +2,8 @@
 
 namespace Grace\DBAL;
 
-interface InterfaceResult {
+interface InterfaceResult
+{
     public function fetchOne();
     public function fetchAll();
     public function fetchResult();

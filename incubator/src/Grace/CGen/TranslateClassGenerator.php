@@ -6,23 +6,27 @@ namespace Grace\CGen;
  * from parent of ClassParserAbsctract class
  * @author darthvader
  */
-class TranslateClassGenerator extends ClassGeneratorAbstract{
+class TranslateClassGenerator extends ClassGeneratorAbstract
+{
     //put your code here
     private $outputClassName = null;
-    
-    public function __construct(string $classDir, $sourceClassName, $outputClassDir, $outputClassName){
-              
+
+    public function __construct(string $classDir, $sourceClassName, $outputClassDir, $outputClassName)
+    {
     }
 
-    public function setOutputClassName($name){
+    public function setOutputClassName($name)
+    {
         $this->outputClassName = $name;
     }
 
-    public function getOutputClassName(){
+    public function getOutputClassName()
+    {
         return $this->outputClassName;
     }
 
-    public function generate() {
+    public function generate()
+    {
         //TODO put logic
     }
 }
