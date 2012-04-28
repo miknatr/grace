@@ -28,17 +28,9 @@ class MysqliConnection extends AbstractConnection
             $this->connect();
         }
 
-        $timer  = time() + microtime(false);
+        $this->getLogger()->startQuery($query);
         $result = $this->dbh->query($query);
-        $timer  = (time() + microtime(false) - $timer);
-        //TODO implement logging
-        //        $this
-        //            ->getEventDispatcher()
-        //            ->notify(InterfaceConnection::EVENT_DB_QUERY, array(
-        //                                                               //TODO magic strings
-        //                                                               'time'  => $timer,
-        //                                                               'query' => $query,
-        //                                                          ));
+        $this->getLogger()->stopQuery();
 
         if ($result === false) {
             if ($this->transactionProcess) {
@@ -108,25 +100,20 @@ class MysqliConnection extends AbstractConnection
         $timer = time() + microtime(false);
         //Can throw warning, if have incorrect connection params
         //So we need '@'
+        $this->getLogger()->startQuery('Mysqli connection');
         $this->dbh = @mysqli_connect($this->host, $this->user, $this->password, $this->database, (int)$this->port);
-        $timer     = (time() + microtime(false) - $timer);
-        //TODO implement logging
-        //        $this
-        //            ->getEventDispatcher()
-        //            ->notify(InterfaceConnection::EVENT_DB_CONNECT, array(
-        //                                                                 //TODO magic strings
-        //                                                                 'time'  => $timer,
-        //                                                                 'query' => 'CONNECT',
-        //                                                            ));
+        $this->getLogger()->stopQuery();
 
         if (mysqli_connect_error()) {
             throw new ExceptionConnection('Error ' . mysqli_connect_errno() . ' - ' . mysqli_connect_error());
         }
 
+        $this->getLogger()->startQuery('Setting utf8 charset');
         $this->dbh->query("SET character SET 'utf8'");
         $this->dbh->query('SET character_set_client = utf8');
         $this->dbh->query('SET character_set_results = utf8');
         $this->dbh->query('SET character_set_connection = utf8');
         $this->dbh->query("SET SESSION collation_connection = 'utf8_general_ci'");
+        $this->getLogger()->stopQuery();
     }
 }

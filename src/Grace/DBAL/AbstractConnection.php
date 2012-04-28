@@ -7,6 +7,22 @@ use Grace\SQLBuilder\Factory;
 abstract class AbstractConnection implements InterfaceConnection
 {
 
+    /**
+     * @var QueryLogger
+     */
+    private $logger;
+    public function setLogger(QueryLogger $logger)
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+    public function getLogger()
+    {
+        if (!is_object($this->logger)) {
+            $this->setLogger(new QueryLogger());
+        }
+        return $this->logger;
+    }
     public function getSQLBuilder()
     {
         return new Factory($this);

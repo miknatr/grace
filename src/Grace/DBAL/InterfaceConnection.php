@@ -28,4 +28,8 @@ interface InterfaceConnection extends InterfaceExecutable
      * @return Factory;
      */
     public function getSQLBuilder();
+    /**
+     * @return QueryLogger;
+     */
+    public function getLogger();
 }
