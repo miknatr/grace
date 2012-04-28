@@ -21,13 +21,13 @@ abstract class Record implements RecordInterface, MapperRecordInterface
         $this->fields        = $fields;
 
         if ($isNew) { //if it is a new object
-            $this->fields = $this->getNewFields();
+            $this->fields = $this->prepareNewFields($this->fields);
             $this->unitOfWork->markAsNew($this);
         }
     }
-    protected function getNewFields()
+    protected function prepareNewFields(array $fields)
     {
-        return array();
+        return $fields;
     }
     final public function asArray()
     {
