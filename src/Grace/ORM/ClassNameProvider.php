@@ -4,6 +4,7 @@ namespace Grace\ORM;
 
 class ClassNameProvider implements ClassNameProviderInterface
 {
+    protected $commonNamespace;
     protected $modelNamespace = 'Model';
     protected $modelPrefix = '';
     protected $modelPostfix = '';
@@ -17,18 +18,24 @@ class ClassNameProvider implements ClassNameProviderInterface
     protected $collectionPrefix = '';
     protected $collectionPostfix = 'Collection';
 
+    public function __construct($commonNamespace = '') {
+        $this->commonNamespace = $commonNamespace;
+    }
     protected function getClass($baseClass, $type)
     {
-        return '\\' . ($this->{$type . 'Namespace'} == '' ? '' : $this->{$type . 'Namespace'} . '\\') .
-            $this->{$type . 'Prefix'} . $baseClass . $this->{$type . 'Postfix'};
+        return '\\' . ($this->commonNamespace == '' ? '' : $this->commonNamespace . '\\')
+            . ($this->{$type . 'Namespace'} == '' ? '' : $this->{$type . 'Namespace'} . '\\')
+            . $this->{$type . 'Prefix'} . $baseClass . $this->{$type . 'Postfix'};
     }
     public function getBaseClass($modelClass)
     {
         $type = 'model';
+        $namespaceLen = 0;
+        if ($this->commonNamespace != '') {
+            $namespaceLen += strlen($this->commonNamespace) + 1;
+        }
         if ($this->{$type . 'Namespace'} != '') {
-            $namespaceLen = strlen($this->{$type . 'Namespace'}) + 1;
-        } else {
-            $namespaceLen = 0;
+            $namespaceLen += strlen($this->{$type . 'Namespace'}) + 1;
         }
         $baseClass = trim($modelClass, '\\');
         $baseClass = substr($baseClass, $namespaceLen);
