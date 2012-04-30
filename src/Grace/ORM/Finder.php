@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Grace package.
+ *
+ * (c) Mikhail Natrov <miknatr@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Grace\ORM;
 
@@ -24,8 +32,8 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
     private $queryResult;
 
     final public function __construct($eventDispatcher, UnitOfWork $unitOfWork, IdentityMap $identityMap,
-                                      InterfaceConnection $sqlReadOnly, CRUDInterface $crud, MapperInterface $mapper,
-                                      $className, $fullClassName, $fullCollectionClassName)
+                                      MapperInterface $mapper, $className, $fullClassName, $fullCollectionClassName,
+                                      InterfaceConnection $sqlReadOnly = null, CRUDInterface $crud = null)
     {
 
         $this->fullClassName           = $fullClassName;
@@ -63,6 +71,10 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
     }
     final public function getById($id)
     {
+        if (empty($this->crud)) {
+            throw new ExceptionUndefinedConnection('CRUD connection is not defined');
+        }
+
         if ($this->identityMap->issetRecord($this->className, $id)) {
             return $this->identityMap->getRecord($this->className, $id);
         }
@@ -72,15 +84,6 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
             throw new ExceptionNotFoundById('Row ' . $id . ' in ' . $this->className . ' is not found by id');
         }
         $record = $this->convertRowToRecord($row, false);
-        return $record;
-    }
-    private function convertRowToRecord(array $row, $isNew)
-    {
-        $recordArray = $this->mapper->convertDbRowToRecordArray($row);
-        $recordClass = $this->fullClassName;
-        //TODO magic string 'id'
-        $record = new $recordClass($this->eventDispatcher, $this->unitOfWork, $recordArray['id'], $recordArray, $isNew);
-        $this->identityMap->setRecord($this->className, $record->getId(), $record);
         return $record;
     }
     final public function fetchOne()
@@ -110,11 +113,23 @@ abstract class Finder implements FinderInterface, InterfaceExecutable, Interface
     }
     final public function execute($query, array $arguments = array())
     {
+        if (empty($this->sqlReadOnly)) {
+            throw new ExceptionUndefinedConnection('SQLReadOnly connection is not defined');
+        }
         $this->queryResult = $this->sqlReadOnly->execute($query, $arguments);
         return $this;
     }
     final protected function getSelectBuilder()
     {
         return new SelectBuilder($this->className, $this);
+    }
+    private function convertRowToRecord(array $row, $isNew)
+    {
+        $recordArray = $this->mapper->convertDbRowToRecordArray($row);
+        $recordClass = $this->fullClassName;
+        //TODO magic string 'id'
+        $record = new $recordClass($this->eventDispatcher, $this->unitOfWork, $recordArray['id'], $recordArray, $isNew);
+        $this->identityMap->setRecord($this->className, $record->getId(), $record);
+        return $record;
     }
 }

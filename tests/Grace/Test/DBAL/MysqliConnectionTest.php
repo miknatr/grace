@@ -2,7 +2,6 @@
 
 namespace Grace\Test\DBAL;
 
-use Grace\EventDispatcher\Dispatcher;
 use Grace\DBAL\MysqliConnection;
 use Grace\DBAL\ExceptionConnection;
 use Grace\DBAL\ExceptionQuery;

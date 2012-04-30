@@ -2,7 +2,6 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\EventDispatcher\Dispatcher;
 use Grace\ORM\UnitOfWork;
 use Grace\ORM\IdentityMap;
 use Grace\DBAL\MysqliConnection;
@@ -12,7 +11,6 @@ class FinderTest extends \PHPUnit_Framework_TestCase
 {
     /** @var OrderFinder */
     protected $finder;
-    /** @var Dispatcher */
     protected $dispatcher;
     /** @var UnitOfWork */
     protected $unitOfWork;
@@ -27,7 +25,7 @@ class FinderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->dispatcher  = new Dispatcher;
+        $this->dispatcher  = new \stdClass();
         $this->connection  =
             new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud        = new DBMasterDriver($this->connection);
@@ -35,7 +33,7 @@ class FinderTest extends \PHPUnit_Framework_TestCase
         $this->identityMap = new IdentityMap;
         $this->mapper      = new OrderMapper;
         $this->finder      =
-            new OrderFinder($this->dispatcher, $this->unitOfWork, $this->identityMap, $this->connection, $this->crud, $this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection');
+            new OrderFinder($this->dispatcher, $this->unitOfWork, $this->identityMap, $this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection', $this->connection, $this->crud);
 
 
         $this->connection->execute('DROP TABLE IF EXISTS `Order`');

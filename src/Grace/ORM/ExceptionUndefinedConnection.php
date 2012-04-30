@@ -10,8 +10,7 @@
 
 namespace Grace\ORM;
 
-interface FinderInterface
+class ExceptionUndefinedConnection extends \Exception implements ExceptionInterface
 {
-    public function create();
-    public function getById($id);
+
 }
