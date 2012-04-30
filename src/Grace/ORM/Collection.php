@@ -10,8 +10,27 @@
 
 namespace Grace\ORM;
 
-abstract class Collection extends \ArrayObject implements RecordInterface
+/**
+ * Collection of record objects
+ * Iterator
+ */
+abstract class Collection extends \ArrayObject
 {
+    /**
+     * Inserts all new records
+     * @return Collection
+     */
+    public function insert()
+    {
+        foreach ($this as $record) {
+            $record->insert();
+        }
+        return $this;
+    }
+    /**
+     * Saves all changes in collection records
+     * @return Collection
+     */
     public function save()
     {
         foreach ($this as $record) {
@@ -19,6 +38,11 @@ abstract class Collection extends \ArrayObject implements RecordInterface
         }
         return $this;
     }
+    /**
+     * Edits all records in collection
+     * @param array $fields
+     * @return Collection
+     */
     public function edit(array $fields)
     {
         foreach ($this as $record) {
@@ -26,6 +50,10 @@ abstract class Collection extends \ArrayObject implements RecordInterface
         }
         return $this;
     }
+    /**
+     * Marks as delete all records in collection
+     * @return Collection
+     */
     public function delete()
     {
         foreach ($this as $record) {

@@ -14,6 +14,10 @@ use Grace\DBAL\InterfaceConnection;
 use Grace\CRUD\CRUDInterface;
 use Grace\CRUD\DBMasterDriver;
 
+/**
+ * Orm manager
+ * Gets finders and manages db connections
+ */
 abstract class ManagerAbstract
 {
     const DEFAULT_CONNECTION_NAME = 'default';
@@ -27,16 +31,29 @@ abstract class ManagerAbstract
     private $mappers = array();
     private $finders = array();
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->identityMap = new IdentityMap;
         $this->unitOfWork  = new UnitOfWork;
     }
+    /**
+     * Sets class name provider
+     * @param ClassNameProviderInterface $nameProvider
+     * @return ManagerAbstract
+     */
     public function setClassNameProvider(ClassNameProviderInterface $nameProvider)
     {
         $this->nameProvider = $nameProvider;
         return $this;
     }
+    /**
+     * Gets class name provider
+     * Make new instance of ClassNameProvider if provider is not set
+     * @return ClassNameProviderInterface
+     */
     protected function getClassNameProvider()
     {
         if (empty($this->nameProvider)) {
@@ -44,15 +61,31 @@ abstract class ManagerAbstract
         }
         return $this->nameProvider;
     }
+    /**
+     * Sets event dispatcher
+     * Any object is allowed, you can set any specific dispatcher which you need
+     * @param $eventDispatcher
+     * @return ManagerAbstract
+     */
     public function setEventDispatcher($eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
         return $this;
     }
+    /**
+     * @return mixed
+     */
     protected function getEventDispatcher()
     {
         return $this->eventDispatcher;
     }
+    /**
+     * Sets crud connection
+     * If $name is not provided, sets default connection
+     * @param \Grace\CRUD\CRUDInterface $crud
+     * @param string                    $name
+     * @return ManagerAbstract
+     */
     public function setCrudConnection(CRUDInterface $crud, $name = '')
     {
         if ($name == '') {
@@ -61,6 +94,14 @@ abstract class ManagerAbstract
         $this->crudConnections[$name] = $crud;
         return $this;
     }
+    /**
+     * Gets crud connection by name
+     * If $name is not provided, gets default connection
+     * If connection for this $name is not defined tries to create new CRUD\DBMasterDriver
+     * from sql connection which associated with this name
+     * @param string $name
+     * @return CRUDInterface
+     */
     protected function getCrudConnection($name)
     {
         if (!isset($this->crudConnections[$name]) and isset($this->sqlReadOnlyConnections[$name])) {
@@ -71,10 +112,22 @@ abstract class ManagerAbstract
         }
         return $this->crudConnections[$name];
     }
+    /**
+     * Checks if crud connection with this name is set
+     * @param string $name
+     * @return bool
+     */
     protected function hasCrudConnection($name)
     {
         return isset($this->crudConnections[$name]);
     }
+    /**
+     * Sets sql connection by name
+     * If $name is not provided, sets default connection
+     * @param \Grace\DBAL\InterfaceConnection $sqlReadOnly
+     * @param string                          $name
+     * @return ManagerAbstract
+     */
     public function setSqlReadOnlyConnection(InterfaceConnection $sqlReadOnly, $name = '')
     {
         if ($name == '') {
@@ -83,6 +136,12 @@ abstract class ManagerAbstract
         $this->sqlReadOnlyConnections[$name] = $sqlReadOnly;
         return $this;
     }
+    /**
+     * Gets sql connection by name
+     * If $name is not provided, gets default connection
+     * @param string $name
+     * @return InterfaceConnection
+     */
     protected function getSqlReadOnlyConnection($name)
     {
         if (!isset($this->sqlReadOnlyConnections[$name])) {
@@ -90,10 +149,20 @@ abstract class ManagerAbstract
         }
         return $this->sqlReadOnlyConnections[$name];
     }
+    /**
+     * Checks if sql connection with this name is set
+     * @param string $name
+     * @return bool
+     */
     protected function hasSqlReadOnlyConnection($name)
     {
         return isset($this->sqlReadOnlyConnections[$name]);
     }
+    /**
+     * Gets connection name which associated with model $className
+     * @param string $className
+     * @return string
+     */
     protected function getConnectionNameByClass($className)
     {
         if (isset($this->connectionNames[$className])) {
@@ -101,6 +170,11 @@ abstract class ManagerAbstract
         }
         return self::DEFAULT_CONNECTION_NAME;
     }
+    /**
+     * Gets finder which associated with model $className
+     * @param $className
+     * @return Finder
+     */
     protected function getFinder($className)
     {
         if (!isset($this->finders[$className])) {
@@ -115,6 +189,7 @@ abstract class ManagerAbstract
         return $this->finders[$className];
     }
     /**
+     * Gets mapper which associated with model $className
      * @param string $className
      * @return MapperInterface
      */
@@ -128,6 +203,9 @@ abstract class ManagerAbstract
         }
         return $this->mappers[$className];
     }
+    /**
+     * Commit all changer from unit of work into database
+     */
     public function commit()
     {
         foreach ($this->unitOfWork->getNewRecords() as $record) {

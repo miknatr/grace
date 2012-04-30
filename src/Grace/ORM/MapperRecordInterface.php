@@ -10,8 +10,19 @@
 
 namespace Grace\ORM;
 
+/**
+ * Record interface for mapper
+ */
 interface MapperRecordInterface
 {
+    /**
+     * @abstract
+     * @return array
+     */
     public function asArray();
+    /**
+     * @abstract
+     * @return array
+     */
     public function getDefaultFields();
 }

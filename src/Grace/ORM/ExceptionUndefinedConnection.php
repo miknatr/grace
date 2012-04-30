@@ -10,6 +10,9 @@
 
 namespace Grace\ORM;
 
+/**
+ * Undefined connection exception
+ */
 class ExceptionUndefinedConnection extends \Exception implements ExceptionInterface
 {
 

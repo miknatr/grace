@@ -10,6 +10,9 @@
 
 namespace Grace\ORM;
 
+/**
+ * Common exception interface for ORM layer
+ */
 interface ExceptionInterface
 {
 

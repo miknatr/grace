@@ -10,6 +10,9 @@
 
 namespace Grace\ORM;
 
+/**
+ * @inheritdoc
+ */
 class ClassNameProvider implements ClassNameProviderInterface
 {
     protected $commonNamespace;
@@ -26,16 +29,16 @@ class ClassNameProvider implements ClassNameProviderInterface
     protected $collectionPrefix = '';
     protected $collectionPostfix = 'Collection';
 
+    /**
+     * @param string $commonNamespace common namespace prefix
+     */
     public function __construct($commonNamespace = '')
     {
         $this->commonNamespace = $commonNamespace;
     }
-    protected function getClass($baseClass, $type)
-    {
-        return '\\' . ($this->commonNamespace == '' ? '' : $this->commonNamespace . '\\') .
-            ($this->{$type . 'Namespace'} == '' ? '' : $this->{$type . 'Namespace'} . '\\') .
-            $this->{$type . 'Prefix'} . $baseClass . $this->{$type . 'Postfix'};
-    }
+    /**
+     * @inheritdoc
+     */
     public function getBaseClass($modelClass)
     {
         $type         = 'model';
@@ -56,20 +59,44 @@ class ClassNameProvider implements ClassNameProviderInterface
         }
         return $baseClass;
     }
+    /**
+     * @inheritdoc
+     */
     public function getModelClass($baseClass)
     {
         return $this->getClass($baseClass, 'model');
     }
+    /**
+     * @inheritdoc
+     */
     public function getFinderClass($baseClass)
     {
         return $this->getClass($baseClass, 'finder');
     }
+    /**
+     * @inheritdoc
+     */
     public function getMapperClass($baseClass)
     {
         return $this->getClass($baseClass, 'mapper');
     }
+    /**
+     * @inheritdoc
+     */
     public function getCollectionClass($baseClass)
     {
         return $this->getClass($baseClass, 'collection');
+    }
+    /**
+     * Gets full class name
+     * @param $baseClass base model class
+     * @param $type      finder, mapper, collection, record
+     * @return string
+     */
+    protected function getClass($baseClass, $type)
+    {
+        return '\\' . ($this->commonNamespace == '' ? '' : $this->commonNamespace . '\\') .
+            ($this->{$type . 'Namespace'} == '' ? '' : $this->{$type . 'Namespace'} . '\\') .
+            $this->{$type . 'Prefix'} . $baseClass . $this->{$type . 'Postfix'};
     }
 }

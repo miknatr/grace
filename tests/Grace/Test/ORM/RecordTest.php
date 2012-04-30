@@ -86,6 +86,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
             'phone' => '+79991234567',
         );
         $this->order = new Order($this->dispatcher, $this->unitOfWork, 123, $fields, true);
+        $this->order->insert();
         $this->assertEquals(array($this->order), array_values($this->unitOfWork->getNewRecords()));
     }
 }
