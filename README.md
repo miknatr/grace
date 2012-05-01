@@ -32,6 +32,7 @@ nosql storages to cache access to db. Uses DBAL and SQLBuilder in case with sql-
 Work with DBAL:
 
 ```php
+<?php
 //Creating new connection
 $connection = new \Grace\DBAL\MysqliConnection('localhost', 3306, 'root', 'password', 'your_db');
 
@@ -63,6 +64,7 @@ $r = $connection
 Do things above with SQLBuilder:
 
 ```php
+<?php
 $connection
     ->getSQLBuilder()
     ->update('Post')
@@ -107,6 +109,8 @@ It needs some preparations:
 Create config file for your models:
 
 ```yaml
+%YAML 1.2
+---
 namespace:
   record: Your\AppNamespace\Model
   finder: Your\AppNamespace\Finder
@@ -139,6 +143,7 @@ TODO описать скрипты из ямла в базу и абстракт
 ### Operation by id:
 
 ```php
+<?php
 //getting by id
 $company = $this
     ->getOrm()
@@ -203,6 +208,7 @@ $this
 You can define your own selects from db in collection class
 
 ```php
+<?php
 //CompanyCollection.php
 //...
 public function getNewActiveCompanies()
@@ -219,6 +225,7 @@ public function getNewActiveCompanies()
 After that you can get this collection and make all operations with it as one record
 
 ```php
+<?php
 $companies = $this
     ->getOrm()
     ->getCompanyFinder()
