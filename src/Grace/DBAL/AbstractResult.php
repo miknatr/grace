@@ -24,6 +24,10 @@ abstract class AbstractResult implements InterfaceResult
     public function fetchResult()
     {
         $row = $this->fetchOne();
-        return array_shift($row);
+        if (is_array($row)) {
+            return array_shift($row);
+        } else {
+            return false;
+        }
     }
 }
