@@ -2,12 +2,10 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\EventDispatcher\Dispatcher;
 use Grace\ORM\UnitOfWork;
 
 class RecordTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var Dispatcher */
     protected $dispatcher;
     /** @var UnitOfWork */
     protected $unitOfWork;
@@ -16,7 +14,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->dispatcher = new Dispatcher;
+        $this->dispatcher = new \stdClass();
         $this->unitOfWork = new UnitOfWork;
         $fields           = array(
             'name'  => 'Mike',
@@ -88,6 +86,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
             'phone' => '+79991234567',
         );
         $this->order = new Order($this->dispatcher, $this->unitOfWork, 123, $fields, true);
+        $this->order->insert();
         $this->assertEquals(array($this->order), array_values($this->unitOfWork->getNewRecords()));
     }
 }

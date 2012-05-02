@@ -1,11 +1,25 @@
 <?php
+/*
+ * This file is part of the Grace package.
+ *
+ * (c) Mikhail Natrov <miknatr@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Grace\ORM;
 
+/**
+ * @inheritdoc
+ */
 abstract class Mapper implements MapperInterface
 {
     protected $fields = array();
 
+    /**
+     * @inheritdoc
+     */
     public function convertDbRowToRecordArray(array $row)
     {
         $recordArray = array();
@@ -18,6 +32,9 @@ abstract class Mapper implements MapperInterface
         }
         return $recordArray;
     }
+    /**
+     * @inheritdoc
+     */
     public function convertRecordArrayToDbRow(array $recordArray)
     {
         $row = array();
@@ -30,6 +47,9 @@ abstract class Mapper implements MapperInterface
         }
         return $row;
     }
+    /**
+     * @inheritdoc
+     */
     public function getRecordChanges(array $recordArray, array $defaults)
     {
         $changes = array();

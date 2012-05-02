@@ -1,9 +1,20 @@
 <?php
+/*
+ * This file is part of the Grace package.
+ *
+ * (c) Mikhail Natrov <miknatr@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Grace\DBAL;
 
 use Grace\SQLBuilder\Factory;
 
+/**
+ * Provides some base functions for concrete connection classes
+ */
 abstract class AbstractConnection implements InterfaceConnection
 {
 
@@ -11,11 +22,17 @@ abstract class AbstractConnection implements InterfaceConnection
      * @var QueryLogger
      */
     private $logger;
+    /**
+     * @inheritdoc
+     */
     public function setLogger(QueryLogger $logger)
     {
         $this->logger = $logger;
         return $this;
     }
+    /**
+     * @inheritdoc
+     */
     public function getLogger()
     {
         if (!is_object($this->logger)) {
@@ -23,10 +40,16 @@ abstract class AbstractConnection implements InterfaceConnection
         }
         return $this->logger;
     }
+    /**
+     * @inheritdoc
+     */
     public function getSQLBuilder()
     {
         return new Factory($this);
     }
+    /**
+     * @inheritdoc
+     */
     public function replacePlaceholders($query, array $arguments)
     {
         $position = 0;
@@ -34,14 +57,20 @@ abstract class AbstractConnection implements InterfaceConnection
             $position = strpos($query, '?', $position);
             if ($position !== false) {
                 $bindType    = $query[$position + 1];
-                $replacement = $this->getEscapedValueByType($value, $bindType);
+                $replacement = $this->escapeValueByType($value, $bindType);
                 $query       = substr_replace($query, $replacement, $position, 2);
                 $position    = $position + strlen($value);
             }
         }
         return $query;
     }
-    private function getEscapedValueByType($value, $type)
+    /**
+     * Escapes value in compliance with type
+     * @param mixed $value
+     * @param char  $type
+     * @return string
+     */
+    private function escapeValueByType($value, $type)
     {
         switch ($type) {
             case 'p':

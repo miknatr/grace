@@ -8,12 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Grace\DBAL;
+namespace Grace\ORM;
 
 /**
- * Connection error
+ * Undefined connection exception
  */
-class ExceptionConnection extends \Exception implements ExceptionInterface
+class ExceptionUndefinedConnection extends \Exception implements ExceptionInterface
 {
 
 }

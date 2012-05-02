@@ -1,157 +1,259 @@
 # Grace ORM
 
+## Features
 
-## TODO
+* Event dispatcher is provided inside every record object (any event dispatcher acceptable)
 
-Вынести EventDispatcher в отдельный пакет и использовать его в DBAL (логгирование запросов и тд)
-Тесты CRUD компонента
+* Generation of abstract records, mappers, finders and collections (getters, setters, cycles in collections etc.)
 
+* Generation doesn't touch you manual written code.
 
-## Стандарт кодирования
+* Provides saving objects in different db at the same time (and caching if necessary).
 
-Имена
-
-* Все имена, кроме имен костант пишутся в CamelCase
-* Имена классов и интерфейсов начинаются с большой буквы
-* Имена переменных, свойств, методов, функций начинаются с маленькой буквы
-* Дополняющие слова (Interface, Abstract, Factory etc.) должны быть в конце имени класса (e.g. MapperInterface)
-* Имена методов и функций должны начинаться с глагола (getSomeValue)
-* Имена констатн пишуться в верхнем регистре, подчеркивание как разделит (SOME_CONSTANT)
-* Сокращения не допускаются за исплючение общепринятых аббревиатур (DB, SQL, ORM)
+* Provides working with collection as record object.
 
 
-Оформление
+## Structure
 
-* Закрывающая фигурная скобка всегда ставиться на той же строке (if {)
-* Закрывающий php тэг не использутся в файлых содержащих только php-код
-* ...
+Package contains 4 stable layers
 
+* DBAL - db abstract layer, provides sql access to databases
 
+* SQLBuilder - helps to write sql queries, uses DBAL
 
-## Exceptions
+* CRUD - provides crud access to record in sql-db or nosql storage (memcache, redis). Or you can combine sql and
+nosql storages to cache access to db. Uses DBAL and SQLBuilder in case with sql-db.
 
-Каждый подпакет (DBAL, SQLBuilder etc.) должен иметь свои классы исключений.
-
-Необходима возможность:
-
-* наследовать разные исключения от разных базовых исключений (например BadMethodCallException)
-* ловить исключения по подпакетам (например все исплючения DBAL)
-
-Для этого в каждом подпакете определяется интерфейс ExceptionInterface (пример Grace\DBAL\ExceptionInterface).
-Все остальные исключения подпакета его реализуют и наследуют один из базовых типов исключений включая Exception.
+* ORM - provides object to db mapping. Depends on all layers above.
 
 
+## Examples - work with DBAL and SQLBuilder
 
-## SQLBuilder
-
-* При составлении сложных запросов из различных частей (where, group, having 
-части sql запроса), нужно делать один пробел вначале выражения и осталять
-без пробела после. Пример:
-
-```php
-$this->orderSql = ' ORDER BY ' . $sql;
-```
-
-* ...
-
-
-## CodeGenerator
-
-* Имеются две папки include_generatet и include.
-* Обе будут в include_path или аналоге для auto-loader'а.
-* В первую пишутся классы созданые генератором.
-* Во второй находятся классы, созданые руками (однако она используется генератором для некоторого анализа перед генерацией)
-
-
-Описано на примере сущности заказа Order:
-
-### Абстрактные классы Record (домен)
-
-* Для каждой сущности в yaml создает и записывает абстрактный класс.
-* В абстрактных классах есть сеттеры, геттеры на поля в массиве fields (свойство Record).
+Work with DBAL:
 
 ```php
 <?php
-public function setName($name) {
-    $this->fields['name'] = $name;
-    return $this;
-}
-public function getName($name) {
-    return $this->fields['name'];
-}
+//Creating new connection
+$connection = new \Grace\DBAL\MysqliConnection('localhost', 3306, 'root', 'password', 'your_db');
+
+//Update query - will return bool as like as delete query, insert query and etc.
+$connection->execute('UPDATE Post SET published=?q WHERE id=?q', array(1, 123));
+
+//Select query - will return MysqliResult which has methods to fetch information
+//Fetching all posts from Post table
+$r = $connection
+    ->execute('SELECT * FROM Post')
+    ->fetchAll();
+
+//Fetching one post
+$r = $connection
+    ->execute('SELECT * FROM Post WHERE id=?q', array(123))
+    ->fetchOne();
+
+//Fetching column with post titles
+$r = $connection
+    ->execute('SELECT title FROM Post')
+    ->fetchColumn();
+
+//Fetching one value result
+$r = $connection
+    ->execute('SELECT COUNT(id) FROM Post')
+    ->fetchResult();
 ```
-* Абстрактные поля унаследованы от Record (OrderAbstract extends Record)
 
-
-### Конкретные классы Record (домен)
-
-* Создает и записывает по конкретному классу унаследованому от абстрактного (Order extends OrderAbstract)
-* Пишутся в ту же папку для генерации, если не создан класс в папке с классами написаными руками.
-
-
-### Классы коллекций для каждой сущности
-
-* Запоминает все методы абстрастного класса и написаного руками наследника (Record).
-* Генерирует абстрактный и конкретный классы OrderCollection extends OrderCollectionAbstract extends Grace\ORM\Collection.
-* В созданном классе OrderCollectionAbstract для каждого метода Record (кроме начинающихся с get) создает метод с такой же сигнатурой и циклом foreach внутри:
+Do things above with SQLBuilder:
 
 ```php
 <?php
-public closeOrder($price, $notifyClient = false) {
-    foreach ($this as $item) {
-        $item->closeOrder($price, $notifyClient);
-    }
-}
+$connection
+    ->getSQLBuilder()
+    ->update('Post')
+    ->values(array('published' => 1))
+    ->eq('id', 123)
+    ->execute();
+
+$r = $connection
+    ->getSQLBuilder()
+    ->select('Post')
+    ->fetchAll();
+
+$r = $connection
+    ->getSQLBuilder()
+    ->select('Post')
+    ->eq('id', 123)
+    ->fetchOne();
+
+$r = $connection
+    ->getSQLBuilder()
+    ->select('Post')
+    ->fields('title')
+    ->fetchColumn();
+
+$r = $connection
+    ->getSQLBuilder()
+    ->select('Post')
+    ->fields('COUNT("id")')
+    ->fetchResult();
 ```
 
+Yes, SQLBuilder takes more space but in some cases it provides more flexible syntax and gets auto-completion in your
+IDE
 
-### Класс-наследник класса Manager
 
-* Это только один класс для всех сущностей.
-* Для каждой сущности в нем есть метод получения Finder'а - getOrderFinder
+## ORM layer
+
+### Configuration
+
+It needs some preparations:
+
+Create config file for your models:
+
+```yaml
+%YAML 1.2
+---
+namespace:
+  record: Your\AppNamespace\Model
+  finder: Your\AppNamespace\Finder
+  mapper: Your\AppNamespace\Mapper
+  collection: Your\AppNamespace\Collection
+models:
+  User:
+    properties:
+      id:
+        dbtype: 'int(10) unsigned'
+      name:
+        dbtype: 'varchar(255)'
+  Post:
+    properties:
+      id:
+        dbtype: 'int(10) unsigned'
+      userId:
+        dbtype: 'int(10) unsigned'
+      title:
+        dbtype: 'varchar(255)'
+      text:
+        dbtype: 'text'
+      published:
+        dbtype: 'tinyint(1)'
+```
+
+TODO описать скрипты из ямла в базу и абстрактный классы и параметры для всего этого
+
+
+### Operation by id:
 
 ```php
 <?php
-/**
-    * @return OrderFinder
-    */
-public function getOrderFinder() {
-    return $this->getFinder('Order');
-}
+//getting by id
+$company = $this
+    ->getOrm()
+    ->getCompanyFinder()
+    ->getById(123);
+
+//creation
+$this
+    ->getOrm()
+    ->getCompanyFinder()
+    ->create()
+    ->setName('Company One')
+    ->setEmail('qwe@asd.zxc')
+    ->insert();
+//or
+$this
+    ->getOrm()
+    ->getCompanyFinder()
+    ->create()
+    ->edit(array(
+        'name' => 'Company One',
+        'email' => 'qwe@asd.zxc',
+    ))
+    ->insert();
+
+
+//editing
+$this
+    ->getOrm()
+    ->getCompanyFinder()
+    ->getById(123)
+    ->setName('Company One')
+    ->setEmail('qwe@asd.zxc')
+    ->save();
+//or
+$this
+    ->getOrm()
+    ->getCompanyFinder()
+    ->getById(123)
+    ->edit(array(
+        'name' => 'Company One',
+        'email' => 'qwe@asd.zxc',
+    ))
+    ->save();
+
+//deleting
+$this
+    ->getOrm()
+    ->getCompanyFinder()
+    ->getById(123)
+    ->delete();
+
+//save all changes
+$this
+    ->getOrm()
+    ->commit();
 ```
 
-* Php-doc с тегом @return обязателен (для автодополнения)
 
+### Collections
 
-### Mapper'ы
-
-* Так же, как и выше, генерируются два mapper'а на каждую сущность (OrderMapper и OrderMapperAbstract)
+You can define your own selects from db in collection class
 
 ```php
 <?php
-OrderMapper extends OrderMapperAbstract {}
-OrderMapperAbstract extends \Grace\ORM\Mapper {
-    protected $fields = array(
-        'id',
-        'name',
-        'phone',
-        ...
-    );
+//CompanyCollection.php
+//...
+public function getNewActiveCompanies()
+{
+    return $this
+        ->getSQLBuilder()
+        ->eq('isPublic', 1)
+        ->gt('addedAt', 'NOW() - INTERVAL 10 DAY')
+        ->fetchAll();
 }
+//...
 ```
 
-
-### Finder'ы
-
-* Так же, как и выше, генерируются два Finder'а на каждую сущность (OrderFinder и OrderFinderAbstract)
+After that you can get this collection and make all operations with it as one record
 
 ```php
 <?php
-OrderFinder extends OrderFinderAbstract {}
-/**
- * @method Order getById($id)
- * @method Order fetchOne()
- * @method OrderCollection fetchAll()
- */
-OrderFinderAbstract extends \Grace\ORM\Finder {}
+$companies = $this
+    ->getOrm()
+    ->getCompanyFinder()
+    ->getNewActiveCompanies();
+
+//updates
+$companies
+    ->setName('Company One')
+    ->setEmail('qwe@asd.zxc')
+    ->save();
+//or alternate syntax
+$companies
+    ->edit(array(
+        'name' => 'Company One',
+        'email' => 'qwe@asd.zxc',
+    ))
+    ->save();
+
+//deletion all collection
+$companies->delete();
+
+//or calls some specific methods of your records
+//collection calls same method for every record object inside
+$companies->deactivate();
+$companies->setType('gold', $periodInDays = 30);
+
+//don't forget to commit changes
+$this
+    ->getOrm()
+    ->commit();
 ```

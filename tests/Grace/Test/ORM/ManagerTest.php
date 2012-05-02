@@ -2,7 +2,6 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\EventDispatcher\Dispatcher;
 use Grace\ORM\UnitOfWork;
 use Grace\ORM\IdentityMap;
 use Grace\DBAL\MysqliConnection;
@@ -13,7 +12,6 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 {
     /** @var RealManager */
     protected $manager;
-    /** @var Dispatcher */
     protected $dispatcher;
     /** @var MysqliConnection */
     protected $connection;
@@ -32,12 +30,17 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
     protected function establishConnection()
     {
-        $this->dispatcher = new Dispatcher;
+        $this->dispatcher = new \stdClass();
         $this->connection =
             new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud       = new DBMasterDriver($this->connection);
 
-        $this->manager = new RealManager($this->connection, $this->crud, $this->dispatcher, new RealClassNameProvider);
+        $this->manager = new RealManager();
+        $this->manager
+            ->setClassNameProvider(new RealClassNameProvider())
+            ->setEventDispatcher($this->dispatcher)
+            ->setSqlReadOnlyConnection($this->connection)
+            ->setCrudConnection($this->crud);
     }
     protected function tearDown()
     {
@@ -57,7 +60,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         //test insert
         $inserted = $this->manager
             ->getOrderFinder()
-            ->create();
+            ->create()->insert();
         $inserted
             ->setName('Arnold')
             ->setPhone('+1-123-123');

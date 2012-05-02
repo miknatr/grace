@@ -9,16 +9,22 @@ class ClassNameProviderTest extends \PHPUnit_Framework_TestCase
     /** @var ClassNameProvider */
     protected $provider;
 
-    protected function setUp()
-    {
-        $this->provider = new ClassNameProvider;
-    }
     public function testDefaultNames()
     {
-        $this->assertEquals('Post', $this->provider->getBaseClass('\\Model\\Post'));
-        $this->assertEquals('\\Model\\Post', $this->provider->getModelClass('Post'));
-        $this->assertEquals('\\Finder\\PostFinder', $this->provider->getFinderClass('Post'));
-        $this->assertEquals('\\Mapper\\PostMapper', $this->provider->getMapperClass('Post'));
-        $this->assertEquals('\\Collection\\PostCollection', $this->provider->getCollectionClass('Post'));
+        $provider = new ClassNameProvider();
+        $this->assertEquals('Post', $provider->getBaseClass('\\Model\\Post'));
+        $this->assertEquals('\\Model\\Post', $provider->getModelClass('Post'));
+        $this->assertEquals('\\Finder\\PostFinder', $provider->getFinderClass('Post'));
+        $this->assertEquals('\\Mapper\\PostMapper', $provider->getMapperClass('Post'));
+        $this->assertEquals('\\Collection\\PostCollection', $provider->getCollectionClass('Post'));
+    }
+    public function testCommonNamespace()
+    {
+        $provider = new ClassNameProvider('Some\\AppBundle');
+        $this->assertEquals('Post', $provider->getBaseClass('\\Some\\AppBundle\\Model\\Post'));
+        $this->assertEquals('\\Some\\AppBundle\\Model\\Post', $provider->getModelClass('Post'));
+        $this->assertEquals('\\Some\\AppBundle\\Finder\\PostFinder', $provider->getFinderClass('Post'));
+        $this->assertEquals('\\Some\\AppBundle\\Mapper\\PostMapper', $provider->getMapperClass('Post'));
+        $this->assertEquals('\\Some\\AppBundle\\Collection\\PostCollection', $provider->getCollectionClass('Post'));
     }
 }

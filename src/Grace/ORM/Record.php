@@ -1,8 +1,19 @@
 <?php
+/*
+ * This file is part of the Grace package.
+ *
+ * (c) Mikhail Natrov <miknatr@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Grace\ORM;
 
-abstract class Record implements RecordInterface, MapperRecordInterface
+/**
+ * Base model class
+ */
+abstract class Record implements MapperRecordInterface
 {
     private $eventDispatcher;
     private $unitOfWork;
@@ -10,6 +21,13 @@ abstract class Record implements RecordInterface, MapperRecordInterface
     private $defaultFields = array();
     protected $fields = array();
 
+    /**
+     * @param            $eventDispatcher
+     * @param UnitOfWork $unitOfWork
+     * @param            $id
+     * @param array      $fields
+     * @param            $isNew
+     */
     final public function __construct($eventDispatcher, UnitOfWork $unitOfWork, $id, array $fields, $isNew)
     {
 
@@ -21,27 +39,48 @@ abstract class Record implements RecordInterface, MapperRecordInterface
         $this->fields        = $fields;
 
         if ($isNew) { //if it is a new object
-            $this->fields = $this->getNewFields();
-            $this->unitOfWork->markAsNew($this);
+            $this->fields = $this->prepareNewFields($this->fields);
         }
     }
-    protected function getNewFields()
+    /**
+     * Prepares fields for new record
+     * @param array $fields
+     * @return array
+     */
+    protected function prepareNewFields(array $fields)
     {
-        return array();
+        return $fields;
     }
+    /**
+     * @inheritdoc
+     */
     final public function asArray()
     {
         return $this->fields;
     }
+    /**
+     * @inheritdoc
+     */
     final public function getDefaultFields()
     {
         return $this->defaultFields;
     }
+    /**
+     * Marks record as delete
+     * @return Record
+     */
     final public function delete()
     {
         $this->unitOfWork->markAsDeleted($this);
+
         return $this;
     }
+    /**
+     * Edits fields
+     * Calls setters
+     * @param array $fields
+     * @return Record
+     */
     final public function edit(array $fields)
     {
         foreach ($fields as $k => $v) {
@@ -52,15 +91,36 @@ abstract class Record implements RecordInterface, MapperRecordInterface
         }
         return $this;
     }
+    /**
+     * Marks record as changed
+     * @return Record
+     */
     final public function save()
     {
         $this->unitOfWork->markAsChanged($this);
         return $this;
     }
+    /**
+     * Marks record as new
+     * @return Record
+     */
+    final public function insert()
+    {
+        $this->unitOfWork->markAsNew($this);
+        return $this;
+    }
+    /**
+     * Gets id of record
+     * @return string
+     */
     final public function getId()
     {
         return $this->id;
     }
+    /**
+     * Gets event dispatcher
+     * @return mixed
+     */
     final protected function getEventDispatcher()
     {
         return $this->eventDispatcher;
