@@ -24,7 +24,7 @@ abstract class ManagerAbstract
     private $connectionNames = array();
     private $sqlReadOnlyConnections = array();
     private $crudConnections = array();
-    private $eventDispatcher;
+    private $container;
     private $nameProvider;
     private $identityMap;
     private $unitOfWork;
@@ -67,17 +67,20 @@ abstract class ManagerAbstract
      * @param $eventDispatcher
      * @return ManagerAbstract
      */
-    public function setEventDispatcher($eventDispatcher)
+    public function setContainer(ServiceContainerInterface $container)
     {
-        $this->eventDispatcher = $eventDispatcher;
+        $this->container = $container;
         return $this;
     }
     /**
      * @return mixed
      */
-    protected function getEventDispatcher()
+    protected function getContainer()
     {
-        return $this->eventDispatcher;
+        if (empty($this->container)) {
+            $this->container = new ServiceContainer();
+        }
+        return $this->container;
     }
     /**
      * Sets crud connection
@@ -183,7 +186,8 @@ abstract class ManagerAbstract
             $nameProvider              = $this->getClassNameProvider();
             $fullFinderClassName       = $nameProvider->getFinderClass($className);
             $this->finders[$className] =
-                new $fullFinderClassName($this->eventDispatcher, $this->unitOfWork, $this->identityMap, $this->getMapper($className), $className, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className), $this->getSqlReadOnlyConnection($connectionName), $this->getCrudConnection($connectionName));
+                new $fullFinderClassName($this, $this->container, $this->unitOfWork, $this->identityMap,
+                                         $this->getMapper($className), $className, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className), $this->getSqlReadOnlyConnection($connectionName), $this->getCrudConnection($connectionName));
         }
 
         return $this->finders[$className];

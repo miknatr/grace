@@ -15,23 +15,28 @@ namespace Grace\ORM;
  */
 abstract class Record implements MapperRecordInterface
 {
-    private $eventDispatcher;
+    private $orm;
+    private $container;
     private $unitOfWork;
     private $id;
     private $defaultFields = array();
     protected $fields = array();
 
     /**
-     * @param            $eventDispatcher
+     * @param ManagerAbstract           $orm
+     * @param ServiceContainerInterface           $services
      * @param UnitOfWork $unitOfWork
      * @param            $id
      * @param array      $fields
      * @param            $isNew
      */
-    final public function __construct($eventDispatcher, UnitOfWork $unitOfWork, $id, array $fields, $isNew)
+    final public function __construct(ManagerAbstract $orm, ServiceContainerInterface $container,
+                                      UnitOfWork $unitOfWork,
+                                      $id, array $fields, $isNew)
     {
 
-        $this->eventDispatcher = $eventDispatcher;
+        $this->container = $container;
+        $this->orm = $orm;
         $this->unitOfWork      = $unitOfWork;
 
         $this->id            = $id;
@@ -118,11 +123,19 @@ abstract class Record implements MapperRecordInterface
         return $this->id;
     }
     /**
-     * Gets event dispatcher
-     * @return mixed
+     * Gets service container
+     * @return ServiceContainerInterface
      */
-    final protected function getEventDispatcher()
+    final protected function getContainer()
     {
-        return $this->eventDispatcher;
+        return $this->container;
+    }
+    /**
+     * Gets orm manager
+     * @return ManagerAbstract
+     */
+    final protected function getOrm()
+    {
+        return $this->orm;
     }
 }

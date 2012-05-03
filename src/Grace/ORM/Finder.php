@@ -25,7 +25,6 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
 {
     private $fullCollectionClassName;
     private $fullClassName;
-    private $eventDispatcher;
     private $unitOfWork;
     private $identityMap;
     private $sqlReadOnly;
@@ -36,25 +35,33 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
     /** @var InterfaceResult */
     private $queryResult;
 
+    //Fields to provide in record objects
+    private $orm;
+    private $container;
+
     /**
-     * @param                                      $eventDispatcher
-     * @param UnitOfWork                           $unitOfWork
-     * @param IdentityMap                          $identityMap
-     * @param MapperInterface                      $mapper
-     * @param                                      $className
-     * @param                                      $fullClassName
-     * @param                                      $fullCollectionClassName
-     * @param \Grace\DBAL\InterfaceConnection|null $sqlReadOnly
-     * @param \Grace\CRUD\CRUDInterface|null       $crud
+     * @param ManagerAbstract                                               $orm
+     * @param ServiceContainerInterface                                     $cacheService
+     * @param UnitOfWork                                                    $unitOfWork
+     * @param IdentityMap                                                   $identityMap
+     * @param MapperInterface                                               $mapper
+     * @param                                                               $className
+     * @param                                                               $fullClassName
+     * @param                                                               $fullCollectionClassName
+     * @param \Grace\DBAL\InterfaceConnection|null                          $sqlReadOnly
+     * @param \Grace\CRUD\CRUDInterface|null                                $crud
      */
-    final public function __construct($eventDispatcher, UnitOfWork $unitOfWork, IdentityMap $identityMap,
-                                      MapperInterface $mapper, $className, $fullClassName, $fullCollectionClassName,
+    final public function __construct(ManagerAbstract $orm, ServiceContainerInterface $container,
+                                      UnitOfWork $unitOfWork, IdentityMap $identityMap, MapperInterface $mapper,
+                                      $className, $fullClassName, $fullCollectionClassName,
                                       InterfaceConnection $sqlReadOnly = null, CRUDInterface $crud = null)
     {
 
+        $this->orm       = $orm;
+        $this->container = $container;
+
         $this->fullClassName           = $fullClassName;
         $this->fullCollectionClassName = $fullCollectionClassName;
-        $this->eventDispatcher         = $eventDispatcher;
         $this->unitOfWork              = $unitOfWork;
         $this->identityMap             = $identityMap;
         $this->sqlReadOnly             = $sqlReadOnly;
@@ -154,12 +161,20 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
         return $this;
     }
     /**
-     * Gets event dispatcher object
-     * @return mixed
+     * Gets service container
+     * @return ServiceContainerInterface
      */
-    final protected function getEventDispatcher()
+    final protected function getContainer()
     {
-        return $this->eventDispatcher;
+        return $this->container;
+    }
+    /**
+     * Gets orm manager
+     * @return ManagerAbstract
+     */
+    final protected function getOrm()
+    {
+        return $this->orm;
     }
     /**
      * New instance of SelectBuilder
@@ -197,7 +212,8 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
         $recordArray = $this->mapper->convertDbRowToRecordArray($row);
         $recordClass = $this->fullClassName;
         //TODO magic string 'id'
-        $record = new $recordClass($this->eventDispatcher, $this->unitOfWork, $recordArray['id'], $recordArray, $isNew);
+        $record =
+            new $recordClass($this->getOrm(), $this->getContainer(), $this->$this->unitOfWork, $recordArray['id'], $recordArray, $isNew);
         $this->identityMap->setRecord($this->className, $record->getId(), $record);
         return $record;
     }

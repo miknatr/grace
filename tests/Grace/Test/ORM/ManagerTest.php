@@ -38,7 +38,6 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager = new RealManager();
         $this->manager
             ->setClassNameProvider(new RealClassNameProvider())
-            ->setEventDispatcher($this->dispatcher)
             ->setSqlReadOnlyConnection($this->connection)
             ->setCrudConnection($this->crud);
     }
