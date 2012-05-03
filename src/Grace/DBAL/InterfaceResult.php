@@ -39,4 +39,10 @@ interface InterfaceResult
      * @return array first values
      */
     public function fetchColumn();
+    /**
+     * Fetches first value from all rows as a key and second as a value
+     * @abstract
+     * @return array key-value
+     */
+    public function fetchHash();
 }

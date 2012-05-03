@@ -18,6 +18,10 @@ class ExecutableAndResultPlug extends ExecutablePlug implements InterfaceResult
     {
         return 'column';
     }
+    public function fetchHash()
+    {
+        return 'hash';
+    }
     public function fetchOne()
     {
         return 'one';

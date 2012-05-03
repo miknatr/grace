@@ -29,6 +29,18 @@ abstract class AbstractResult implements InterfaceResult
     /**
      * @inheritdoc
      */
+    public function fetchResult()
+    {
+        $row = $this->fetchOne();
+        if (is_array($row)) {
+            return array_shift($row);
+        } else {
+            return false;
+        }
+    }
+    /**
+     * @inheritdoc
+     */
     public function fetchColumn()
     {
         $r = array();
@@ -41,13 +53,16 @@ abstract class AbstractResult implements InterfaceResult
     /**
      * @inheritdoc
      */
-    public function fetchResult()
+    public function fetchHash()
     {
-        $row = $this->fetchOne();
-        if (is_array($row)) {
-            return array_shift($row);
-        } else {
-            return false;
+        $r = array();
+        while ($row = $this->fetchOne()) {
+            if (count($row) >= 2) {
+                $key     = array_shift($row);
+                $value   = array_shift($row);
+                $r[$key] = $value;
+            }
         }
+        return $r;
     }
 }

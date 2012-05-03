@@ -75,6 +75,15 @@ abstract class AbstractBuilder implements InterfaceResult
             ->fetchColumn();
     }
     /**
+     * @inheritdoc
+     */
+    public function fetchHash()
+    {
+        return $this
+            ->execute()
+            ->fetchHash();
+    }
+    /**
      * @abstract
      * @return string sql query string
      */

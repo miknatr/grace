@@ -70,6 +70,13 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
             ->fetchColumn();
         $this->assertEquals(array('1'), $r);
     }
+    public function testFetchingHash()
+    {
+        $r = $this->connection
+            ->execute('SELECT "kkk", "vvv" FROM DUAL')
+            ->fetchHash();
+        $this->assertEquals(array('kkk' => "vvv"), $r);
+    }
     public function testGettingLastInsertIdBeforeConnectionEsbablished()
     {
         $this->assertEquals(false, $this->connection->getLastInsertId());

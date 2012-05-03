@@ -138,6 +138,13 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
     /**
      * @inheritdoc
      */
+    final public function fetchHash()
+    {
+        return $this->queryResult->fetchHash();
+    }
+    /**
+     * @inheritdoc
+     */
     final public function execute($query, array $arguments = array())
     {
         if (empty($this->sqlReadOnly)) {
