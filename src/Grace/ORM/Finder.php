@@ -66,7 +66,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
      * Creates new record instance
      * @return Record
      */
-    final public function create()
+    public function create()
     {
         $id = $this->generateNewId();
         //TODO magic string 'id'
@@ -79,7 +79,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
      * @throws ExceptionUndefinedConnection
      * @throws ExceptionNotFoundById
      */
-    final public function getById($id)
+    public function getById($id)
     {
         if (empty($this->crud)) {
             throw new ExceptionUndefinedConnection('CRUD connection is not defined');
@@ -100,7 +100,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
      * Fetches record object
      * @return bool|Record
      */
-    final public function fetchOne()
+    public function fetchOne()
     {
         $row = $this->queryResult->fetchOne();
         if (!is_array($row)) {
@@ -112,7 +112,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
      * Fetches collection of records
      * @return Collection
      */
-    final public function fetchAll()
+    public function fetchAll()
     {
         $records = array();
         while ($record = $this->fetchOne()) {
