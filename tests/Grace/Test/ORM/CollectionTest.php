@@ -3,10 +3,12 @@
 namespace Grace\Test\ORM;
 
 use Grace\ORM\UnitOfWork;
+use Grace\ORM\ServiceContainer;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
 {
-    protected $dispatcher;
+    /** @var ServiceContainer */
+    protected $container;
     /** @var UnitOfWork */
     protected $unitOfWork;
     /** @var OrderCollection */
@@ -14,20 +16,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->dispatcher = new \stdClass();
+        $orm              = new RealManager();
+        $this->container  = new ServiceContainer();
         $this->unitOfWork = new UnitOfWork;
 
         $fields = array(
             'name'  => 'Mike',
             'phone' => '+79991234567',
         );
-        $r1     = new Order($this->dispatcher, $this->unitOfWork, 1, $fields, false);
+        $r1     = new Order($orm, $this->container, $this->unitOfWork, 1, $fields, false);
 
         $fields = array(
             'name'  => 'John',
             'phone' => '+79991234567',
         );
-        $r2     = new Order($this->dispatcher, $this->unitOfWork, 2, $fields, false);
+        $r2     = new Order($orm, $this->container, $this->unitOfWork, 2, $fields, false);
 
         $this->collection = new OrderCollection(array($r1, $r2));
     }

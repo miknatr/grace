@@ -186,7 +186,7 @@ abstract class ManagerAbstract
             $nameProvider              = $this->getClassNameProvider();
             $fullFinderClassName       = $nameProvider->getFinderClass($className);
             $this->finders[$className] =
-                new $fullFinderClassName($this, $this->container, $this->unitOfWork, $this->identityMap,
+                new $fullFinderClassName($this, $this->getContainer(), $this->unitOfWork, $this->identityMap,
                                          $this->getMapper($className), $className, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className), $this->getSqlReadOnlyConnection($connectionName), $this->getCrudConnection($connectionName));
         }
 

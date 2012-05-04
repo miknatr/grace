@@ -3,10 +3,14 @@
 namespace Grace\Test\ORM;
 
 use Grace\ORM\UnitOfWork;
+use Grace\ORM\ServiceContainer;
 
 class RecordTest extends \PHPUnit_Framework_TestCase
 {
-    protected $dispatcher;
+    /** @var RealManager */
+    protected $orm;
+    /** @var ServiceContainer */
+    protected $container;
     /** @var UnitOfWork */
     protected $unitOfWork;
     /** @var Order */
@@ -14,17 +18,18 @@ class RecordTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->dispatcher = new \stdClass();
+        $this->orm = new RealManager();
+        $this->container = new ServiceContainer();
         $this->unitOfWork = new UnitOfWork;
         $fields           = array(
             'name'  => 'Mike',
             'phone' => '+79991234567',
         );
-        $this->order      = new Order($this->dispatcher, $this->unitOfWork, 123, $fields, false);
+        $this->order      = new Order($this->orm, $this->container, $this->unitOfWork, 123, $fields, false);
     }
-    public function testGettingEventDispatcher()
+    public function testGettingContainer()
     {
-        $this->assertEquals($this->dispatcher, $this->order->getEventDispatcherPublic());
+        $this->assertEquals($this->container, $this->order->getContainerPublic());
     }
     public function testGettingIdAndFields()
     {
@@ -85,7 +90,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
             'name'  => 'Mike',
             'phone' => '+79991234567',
         );
-        $this->order = new Order($this->dispatcher, $this->unitOfWork, 123, $fields, true);
+        $this->order = new Order($this->orm, $this->container, $this->unitOfWork, 123, $fields, true);
         $this->order->insert();
         $this->assertEquals(array($this->order), array_values($this->unitOfWork->getNewRecords()));
     }

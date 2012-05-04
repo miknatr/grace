@@ -4,6 +4,7 @@ namespace Grace\Test\ORM;
 
 use Grace\ORM\UnitOfWork;
 use Grace\ORM\IdentityMap;
+use Grace\ORM\ServiceContainer;
 use Grace\DBAL\MysqliConnection;
 use Grace\CRUD\DBMasterDriver;
 
@@ -11,7 +12,8 @@ class FinderTest extends \PHPUnit_Framework_TestCase
 {
     /** @var OrderFinder */
     protected $finder;
-    protected $dispatcher;
+    /** @var ServiceContainer */
+    protected $container;
     /** @var UnitOfWork */
     protected $unitOfWork;
     /** @var IdentityMap */
@@ -25,7 +27,8 @@ class FinderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->dispatcher  = new \stdClass();
+        $orm = new RealManager();
+        $this->container  = new ServiceContainer();
         $this->connection  =
             new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud        = new DBMasterDriver($this->connection);
@@ -33,7 +36,8 @@ class FinderTest extends \PHPUnit_Framework_TestCase
         $this->identityMap = new IdentityMap;
         $this->mapper      = new OrderMapper;
         $this->finder      =
-            new OrderFinder($this->dispatcher, $this->unitOfWork, $this->identityMap, $this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection', $this->connection, $this->crud);
+            new OrderFinder($orm, $this->container, $this->unitOfWork, $this->identityMap, $this->mapper, 'Order',
+                            'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection', $this->connection, $this->crud);
 
 
         $this->connection->execute('DROP TABLE IF EXISTS `Order`');
@@ -47,9 +51,9 @@ class FinderTest extends \PHPUnit_Framework_TestCase
         $this->connection->execute('DROP TABLE IF EXISTS `Order`');
         unset($this->connection);
     }
-    public function testGetEventDispatcher()
+    public function testGetContainer()
     {
-        $this->assertEquals($this->dispatcher, $this->finder->getEventDispatcherPublic());
+        $this->assertEquals($this->container, $this->finder->getContainerPublic());
     }
     public function testCreate()
     {

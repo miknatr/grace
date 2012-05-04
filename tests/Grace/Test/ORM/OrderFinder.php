@@ -6,9 +6,9 @@ use Grace\ORM\Finder;
 
 class OrderFinder extends Finder
 {
-    public function getEventDispatcherPublic()
+    public function getContainerPublic()
     {
-        return $this->getEventDispatcher();
+        return $this->getContainer();
     }
     public function getNameColumn()
     {

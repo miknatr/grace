@@ -213,7 +213,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
         $recordClass = $this->fullClassName;
         //TODO magic string 'id'
         $record =
-            new $recordClass($this->getOrm(), $this->getContainer(), $this->$this->unitOfWork, $recordArray['id'], $recordArray, $isNew);
+            new $recordClass($this->getOrm(), $this->getContainer(), $this->unitOfWork, $recordArray['id'], $recordArray, $isNew);
         $this->identityMap->setRecord($this->className, $record->getId(), $record);
         return $record;
     }

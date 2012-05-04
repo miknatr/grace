@@ -24,8 +24,8 @@ class Order extends Record
         $this->fields['phone'] = $phone;
         return $this;
     }
-    public function getEventDispatcherPublic()
+    public function getContainerPublic()
     {
-        return parent::getEventDispatcher();
+        return parent::getContainer();
     }
 }
