@@ -157,11 +157,11 @@ class MysqliConnection extends AbstractConnection
         //So we need '@'
         $this
             ->getLogger()
-            ->startQuery('Mysqli connection');
+            ->startConnection('Mysqli connection');
         $this->dbh = @mysqli_connect($this->host, $this->user, $this->password, $this->database, (int)$this->port);
         $this
             ->getLogger()
-            ->stopQuery();
+            ->stopConnection();
 
         if (mysqli_connect_error()) {
             throw new ExceptionConnection('Error ' . mysqli_connect_errno() . ' - ' . mysqli_connect_error());
@@ -169,7 +169,7 @@ class MysqliConnection extends AbstractConnection
 
         $this
             ->getLogger()
-            ->startQuery('Setting utf8 charset');
+            ->startConnection('Setting utf8 charset');
         $this->dbh->query("SET character SET 'utf8'");
         $this->dbh->query('SET character_set_client = utf8');
         $this->dbh->query('SET character_set_results = utf8');
@@ -177,6 +177,6 @@ class MysqliConnection extends AbstractConnection
         $this->dbh->query("SET SESSION collation_connection = 'utf8_general_ci'");
         $this
             ->getLogger()
-            ->stopQuery();
+            ->stopConnection();
     }
 }

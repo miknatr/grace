@@ -18,7 +18,9 @@ class QueryLogger
 {
     private $timer = 0;
     private $counter = 0;
+    private $counterConnections = 0;
     private $queries = array();
+    private $connections = array();
     /**
      * Start timer for query
      * @param $queryString sql query string
@@ -49,5 +51,31 @@ class QueryLogger
     public function getQueries()
     {
         return $this->queries;
+    }
+    /**
+     * Start timer for connection
+     * @param $queryString sql query string
+     */
+    public function startConnection($queryString)
+    {
+        $this->connections[$this->counterConnections] = array('query' => $queryString);
+        $this->timer                                  = time() + microtime(true);
+    }
+    /**
+     *  Stops timer and logs connection information
+     */
+    public function stopConnection()
+    {
+        $this->connections[$this->counter]['time'] = (time() + microtime(true) - $this->timer);
+        $this->counterConnections++;
+        $this->timer = 0;
+    }
+    /**
+     * Gets all connection information
+     * @return array connection array
+     */
+    public function getConnections()
+    {
+        return $this->connections;
     }
 }
