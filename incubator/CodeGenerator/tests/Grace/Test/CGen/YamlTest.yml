@@ -16,7 +16,7 @@ yaml:
   barClass:
     extends: absctractSomeClass
     fields: {fieldFoo, fieldBar}
-#3 Manager.  return Finder for entities
+#3 Manager.  return FinderSql for entities
 yaml:
   nameClass:
     entity: {fooEntity, barEntity}

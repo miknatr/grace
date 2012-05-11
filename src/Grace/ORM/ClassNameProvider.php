@@ -90,7 +90,7 @@ class ClassNameProvider implements ClassNameProviderInterface
     /**
      * Gets full class name
      * @param $baseClass base model class
-     * @param $type      finder, mapper, collection, record
+     * @param $type      FinderSql, mapper, collection, record
      * @return string
      */
     protected function getClass($baseClass, $type)

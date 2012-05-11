@@ -183,7 +183,7 @@ abstract class ManagerAbstract
      * Gets finder which associated with model $className
      * @param $className
      * @param $finderClassName for extra-finders
-     * @return Finder
+     * @return FinderSql
      */
     protected function getFinder($className, $finderClassName = '', $tableName = '')
     {
@@ -193,14 +193,27 @@ abstract class ManagerAbstract
         if ($tableName == '') {
             $tableName = $className;
         }
-
         if (!isset($this->finders[$finderClassName])) {
             $connectionName = $this->getConnectionNameByClass($className);
 
-            $nameProvider                    = $this->getClassNameProvider();
-            $fullFinderClassName             = $nameProvider->getFinderClass($finderClassName);
-            $this->finders[$finderClassName] =
-                new $fullFinderClassName($this, $this->getContainer(), $this->unitOfWork, $this->identityMap, $this->getMapper($className), $tableName, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className), $this->getSqlReadOnlyConnection($connectionName), $this->getCrudConnection($connectionName));
+            $nameProvider        = $this->getClassNameProvider();
+            $fullFinderClassName = $nameProvider->getFinderClass($finderClassName);
+
+            $finder              =
+                new $fullFinderClassName($this->unitOfWork, $this->identityMap, $this->getMapper($className), $tableName, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className));
+
+            if ($finder instanceof Aware) {
+                $finder->setOrm($this);
+                $finder->setContainer($this->getContainer());
+            }
+            if ($finder instanceof FinderCrud) {
+                $finder->setCrud($this->getCrudConnection($connectionName));
+            }
+            if ($finder instanceof FinderSql) {
+                $finder->setSqlReadOnly($this->getSqlReadOnlyConnection($connectionName));
+            }
+
+            $this->finders[$finderClassName] = $finder;
         }
 
         return $this->finders[$className];

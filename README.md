@@ -113,7 +113,7 @@ Create config file for your models:
 ---
 namespace:
   record: Your\AppNamespace\Model
-  finder: Your\AppNamespace\Finder
+  finder: Your\AppNamespace\FinderSql
   mapper: Your\AppNamespace\Mapper
   collection: Your\AppNamespace\Collection
 models:

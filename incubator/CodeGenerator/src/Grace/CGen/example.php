@@ -70,7 +70,7 @@ $classGenerator = null;
 ### Класс-наследник класса Manager
 
 #* Это только один класс для всех сущностей.
-#* Для каждой сущности в нем есть метод получения Finder'а - getOrderFinder
+#* Для каждой сущности в нем есть метод получения FinderSql'а - getOrderFinder
 
 #```php
 #<?php
@@ -103,9 +103,9 @@ $classGenerator = null;
 #```
 
 
-### Finder'ы
+### FinderSql'ы
 
-#* Так же, как и выше, генерируются два Finder'а на каждую сущность (OrderFinder и OrderFinderAbstract)
+#* Так же, как и выше, генерируются два FinderSql'а на каждую сущность (OrderFinder и OrderFinderAbstract)
 #
 #```php
 #<?php
@@ -115,5 +115,5 @@ $classGenerator = null;
  * @method Order fetchOne()
  * @method OrderCollection fetchAll()
  */
-#OrderFinderAbstract extends \Grace\ORM\Finder {}
+#OrderFinderAbstract extends \Grace\ORM\FinderSql {}
 #```

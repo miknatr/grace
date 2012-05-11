@@ -2,9 +2,9 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\Finder;
+use Grace\ORM\FinderSql;
 
-class OrderFinder extends Finder
+class OrderFinder extends FinderSql
 {
     public function getContainerPublic()
     {

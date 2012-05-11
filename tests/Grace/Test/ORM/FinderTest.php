@@ -27,17 +27,22 @@ class FinderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $orm = new RealManager();
-        $this->container  = new ServiceContainer();
+        $orm               = new RealManager();
+        $this->container   = new ServiceContainer();
         $this->connection  =
             new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud        = new DBMasterDriver($this->connection);
         $this->unitOfWork  = new UnitOfWork;
         $this->identityMap = new IdentityMap;
         $this->mapper      = new OrderMapper;
+
         $this->finder      =
-            new OrderFinder($orm, $this->container, $this->unitOfWork, $this->identityMap, $this->mapper, 'Order',
-                            'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection', $this->connection, $this->crud);
+            new OrderFinder($this->unitOfWork, $this->identityMap, $this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection');
+
+        $this->finder->setOrm($orm);
+        $this->finder->setContainer($this->container);
+        $this->finder->setCrud($this->crud);
+        $this->finder->setSqlReadOnly($this->connection);
 
 
         $this->connection->execute('DROP TABLE IF EXISTS `Order`');
