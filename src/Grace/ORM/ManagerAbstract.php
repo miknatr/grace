@@ -182,18 +182,22 @@ abstract class ManagerAbstract
     /**
      * Gets finder which associated with model $className
      * @param $className
+     * @param $finderClassName for extra-finders
      * @return Finder
      */
-    protected function getFinder($className)
+    protected function getFinder($className, $finderClassName = '')
     {
-        if (!isset($this->finders[$className])) {
+        if ($finderClassName == '') {
+            $finderClassName = $className;
+        }
+
+        if (!isset($this->finders[$finderClassName])) {
             $connectionName = $this->getConnectionNameByClass($className);
 
-            $nameProvider              = $this->getClassNameProvider();
-            $fullFinderClassName       = $nameProvider->getFinderClass($className);
-            $this->finders[$className] =
-                new $fullFinderClassName($this, $this->getContainer(), $this->unitOfWork, $this->identityMap,
-                                         $this->getMapper($className), $className, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className), $this->getSqlReadOnlyConnection($connectionName), $this->getCrudConnection($connectionName));
+            $nameProvider                    = $this->getClassNameProvider();
+            $fullFinderClassName             = $nameProvider->getFinderClass($finderClassName);
+            $this->finders[$finderClassName] =
+                new $fullFinderClassName($this, $this->getContainer(), $this->unitOfWork, $this->identityMap, $this->getMapper($className), $className, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className), $this->getSqlReadOnlyConnection($connectionName), $this->getCrudConnection($connectionName));
         }
 
         return $this->finders[$className];
