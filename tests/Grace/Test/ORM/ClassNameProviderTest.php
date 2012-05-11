@@ -26,5 +26,7 @@ class ClassNameProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('\\Some\\AppBundle\\Finder\\PostFinder', $provider->getFinderClass('Post'));
         $this->assertEquals('\\Some\\AppBundle\\Mapper\\PostMapper', $provider->getMapperClass('Post'));
         $this->assertEquals('\\Some\\AppBundle\\Collection\\PostCollection', $provider->getCollectionClass('Post'));
+
+        $this->assertEquals('\\Some\\AppBundle\\Finder\\Post\\ExtraPostFinder', $provider->getFinderClass('Post\\ExtraPost'));
     }
 }
