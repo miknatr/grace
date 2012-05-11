@@ -105,8 +105,11 @@ abstract class ManagerAbstract
      * @param string $name
      * @return CRUDInterface
      */
-    protected function getCrudConnection($name)
+    public function getCrudConnection($name = '')
     {
+        if ($name == '') {
+            $name = self::DEFAULT_CONNECTION_NAME;
+        }
         if (!isset($this->crudConnections[$name]) and isset($this->sqlReadOnlyConnections[$name])) {
             $this->crudConnections[$name] = new DBMasterDriver($this->sqlReadOnlyConnections[$name]);
         }
@@ -145,8 +148,11 @@ abstract class ManagerAbstract
      * @param string $name
      * @return InterfaceConnection
      */
-    protected function getSqlReadOnlyConnection($name)
+    public function getSqlReadOnlyConnection($name = '')
     {
+        if ($name == '') {
+            $name = self::DEFAULT_CONNECTION_NAME;
+        }
         if (!isset($this->sqlReadOnlyConnections[$name])) {
             return null;
         }
