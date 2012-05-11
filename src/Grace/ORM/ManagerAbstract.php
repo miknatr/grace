@@ -185,10 +185,13 @@ abstract class ManagerAbstract
      * @param $finderClassName for extra-finders
      * @return Finder
      */
-    protected function getFinder($className, $finderClassName = '')
+    protected function getFinder($className, $finderClassName = '', $tableName = '')
     {
         if ($finderClassName == '') {
             $finderClassName = $className;
+        }
+        if ($tableName == '') {
+            $tableName = $className;
         }
 
         if (!isset($this->finders[$finderClassName])) {
@@ -197,7 +200,7 @@ abstract class ManagerAbstract
             $nameProvider                    = $this->getClassNameProvider();
             $fullFinderClassName             = $nameProvider->getFinderClass($finderClassName);
             $this->finders[$finderClassName] =
-                new $fullFinderClassName($this, $this->getContainer(), $this->unitOfWork, $this->identityMap, $this->getMapper($className), $className, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className), $this->getSqlReadOnlyConnection($connectionName), $this->getCrudConnection($connectionName));
+                new $fullFinderClassName($this, $this->getContainer(), $this->unitOfWork, $this->identityMap, $this->getMapper($className), $tableName, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className), $this->getSqlReadOnlyConnection($connectionName), $this->getCrudConnection($connectionName));
         }
 
         return $this->finders[$className];

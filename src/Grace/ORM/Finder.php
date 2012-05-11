@@ -30,7 +30,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
     private $sqlReadOnly;
     private $crud;
     private $mapper;
-    private $className;
+    private $tableName;
     private $idCounter = null;
     /** @var InterfaceResult */
     private $queryResult;
@@ -45,7 +45,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
      * @param UnitOfWork                                                    $unitOfWork
      * @param IdentityMap                                                   $identityMap
      * @param MapperInterface                                               $mapper
-     * @param                                                               $className
+     * @param                                                               $tableName
      * @param                                                               $fullClassName
      * @param                                                               $fullCollectionClassName
      * @param \Grace\DBAL\InterfaceConnection|null                          $sqlReadOnly
@@ -53,7 +53,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
      */
     final public function __construct(ManagerAbstract $orm, ServiceContainerInterface $container,
                                       UnitOfWork $unitOfWork, IdentityMap $identityMap, MapperInterface $mapper,
-                                      $className, $fullClassName, $fullCollectionClassName,
+                                      $tableName, $fullClassName, $fullCollectionClassName,
                                       InterfaceConnection $sqlReadOnly = null, CRUDInterface $crud = null)
     {
 
@@ -67,7 +67,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
         $this->sqlReadOnly             = $sqlReadOnly;
         $this->crud                    = $crud;
         $this->mapper                  = $mapper;
-        $this->className               = $className;
+        $this->tableName               = $tableName;
     }
     /**
      * Creates new record instance
@@ -92,13 +92,13 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
             throw new ExceptionUndefinedConnection('CRUD connection is not defined');
         }
 
-        if ($this->identityMap->issetRecord($this->className, $id)) {
-            return $this->identityMap->getRecord($this->className, $id);
+        if ($this->identityMap->issetRecord($this->tableName, $id)) {
+            return $this->identityMap->getRecord($this->tableName, $id);
         }
 
-        $row = $this->crud->selectById($this->className, $id);
+        $row = $this->crud->selectById($this->tableName, $id);
         if (!is_array($row)) {
-            throw new ExceptionNotFoundById('Row ' . $id . ' in ' . $this->className . ' is not found by id');
+            throw new ExceptionNotFoundById('Row ' . $id . ' in ' . $this->tableName . ' is not found by id');
         }
         $record = $this->convertRowToRecord($row, false);
         return $record;
@@ -182,7 +182,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
      */
     final protected function getSelectBuilder()
     {
-        return new SelectBuilder($this->className, $this);
+        return new SelectBuilder($this->tableName, $this);
     }
     /**
      * Generate new id for insert
@@ -214,7 +214,7 @@ abstract class Finder implements InterfaceExecutable, InterfaceResult
         //TODO magic string 'id'
         $record =
             new $recordClass($this->getOrm(), $this->getContainer(), $this->unitOfWork, $recordArray['id'], $recordArray, $isNew);
-        $this->identityMap->setRecord($this->className, $record->getId(), $record);
+        $this->identityMap->setRecord($this->tableName, $record->getId(), $record);
         return $record;
     }
 }
