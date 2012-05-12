@@ -66,7 +66,7 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
     public function testFetchingColumn()
     {
         $r = $this->connection
-            ->execute('SELECT 1, 2, 3 FROM DUAL')
+            ->execute('SELECT 1 FROM DUAL')
             ->fetchColumn();
         $this->assertEquals(array('1'), $r);
     }

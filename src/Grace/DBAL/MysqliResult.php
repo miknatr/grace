@@ -21,7 +21,7 @@ class MysqliResult extends AbstractResult
     /**
      * @inheritdoc
      */
-    public function fetchOne()
+    public function fetchOneOrFalse()
     {
         return $this->result->fetch_assoc();
     }

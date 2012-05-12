@@ -18,10 +18,22 @@ abstract class AbstractResult implements InterfaceResult
     /**
      * @inheritdoc
      */
+    public function fetchOne()
+    {
+        $row = $this->fetchOneOrFalse();
+        if (is_array($row)) {
+            return $row;
+        } else {
+            throw new ExceptionNoResult('Sql-query result doesn\'t contain anything');
+        }
+    }
+    /**
+     * @inheritdoc
+     */
     public function fetchAll()
     {
         $r = array();
-        while ($row = $this->fetchOne()) {
+        while ($row = $this->fetchOneOrFalse()) {
             $r[] = $row;
         }
         return $r;
@@ -35,7 +47,7 @@ abstract class AbstractResult implements InterfaceResult
         if (is_array($row)) {
             return array_shift($row);
         } else {
-            return false;
+            throw new ExceptionNoResult('fetchOneOrFalse method must return array, ' . gettype($row) . ' given');
         }
     }
     /**
@@ -44,9 +56,12 @@ abstract class AbstractResult implements InterfaceResult
     public function fetchColumn()
     {
         $r = array();
-        while ($row = $this->fetchOne()) {
-            $result = array_shift($row);
-            $r[]    = $result;
+        while ($row = $this->fetchOneOrFalse()) {
+            if (count($row) == 1) {
+                $r[]    = array_shift($row);
+            } else {
+                throw new ExceptionNoResult('Sql-query result must contain one column');
+            }
         }
         return $r;
     }
@@ -56,11 +71,13 @@ abstract class AbstractResult implements InterfaceResult
     public function fetchHash()
     {
         $r = array();
-        while ($row = $this->fetchOne()) {
-            if (count($row) >= 2) {
+        while ($row = $this->fetchOneOrFalse()) {
+            if (count($row) == 2) {
                 $key     = array_shift($row);
                 $value   = array_shift($row);
                 $r[$key] = $value;
+            } else {
+                throw new ExceptionNoResult('Sql-query result must contain two columns');
             }
         }
         return $r;

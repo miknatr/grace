@@ -16,6 +16,12 @@ namespace Grace\DBAL;
 interface InterfaceResult
 {
     /**
+     * Fetches one row or false
+     * @abstract
+     * @return array|bool one row from db as associative array
+     */
+    public function fetchOneOrFalse();
+    /**
      * Fetches one row
      * @abstract
      * @return array one row from db as associative array

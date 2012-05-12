@@ -12,6 +12,7 @@ namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
 use Grace\CRUD\CRUDInterface;
+use Grace\CRUD\ExceptionNoResult as ExceptionNoResultCRUD;
 
 /**
  * Finds records by id
@@ -60,7 +61,7 @@ abstract class FinderCrud extends Aware
      * @param $id
      * @return Record
      * @throws ExceptionUndefinedConnection
-     * @throws ExceptionNotFoundById
+     * @throws ExceptionNoResult
      */
     public function getById($id)
     {
@@ -72,12 +73,13 @@ abstract class FinderCrud extends Aware
             return $this->identityMap->getRecord($this->tableName, $id);
         }
 
-        $row = $this->crud->selectById($this->tableName, $id);
-        if (!is_array($row)) {
-            throw new ExceptionNotFoundById('Row ' . $id . ' in ' . $this->tableName . ' is not found by id');
+        try {
+            $row = $this->crud->selectById($this->tableName, $id);
+        } catch (ExceptionNoResultCRUD $e) {
+            throw new ExceptionNoResult('Row ' . $id . ' in ' . $this->tableName . ' is not found by id');
         }
-        $record = $this->convertRowToRecord($row, false);
-        return $record;
+
+        return $this->convertRowToRecord($row, false);
     }
     /**
      * Creates new record instance

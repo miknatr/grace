@@ -11,9 +11,9 @@
 namespace Grace\ORM;
 
 /**
- * Not found exception
+ * No result
  */
-class ExceptionNotFoundById extends \Exception implements ExceptionInterface
+class ExceptionNoResult extends \Exception implements ExceptionInterface
 {
 
 }

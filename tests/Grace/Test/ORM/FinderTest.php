@@ -83,7 +83,7 @@ class FinderTest extends \PHPUnit_Framework_TestCase
     }
     public function testGetByIdWithBadId()
     {
-        $this->setExpectedException('Grace\ORM\ExceptionNotFoundById');
+        $this->setExpectedException('Grace\ORM\ExceptionNoResult');
         $r = $this->finder->getById(123123);
     }
     public function testFetchColumn()

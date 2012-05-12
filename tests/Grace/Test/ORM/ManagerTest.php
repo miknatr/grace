@@ -6,7 +6,7 @@ use Grace\ORM\UnitOfWork;
 use Grace\ORM\IdentityMap;
 use Grace\DBAL\MysqliConnection;
 use Grace\CRUD\DBMasterDriver;
-use Grace\ORM\ExceptionNotFoundById;
+use Grace\ORM\ExceptionNoResult;
 
 class ManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -101,7 +101,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->getById(3)
                 ->getName();
             $this->fail('Row was deleted');
-        } catch (ExceptionNotFoundById $e) {
+        } catch (ExceptionNoResult $e) {
             $this->assertTrue(true);
         }
     }

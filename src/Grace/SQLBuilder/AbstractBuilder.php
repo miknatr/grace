@@ -50,6 +50,15 @@ abstract class AbstractBuilder implements InterfaceResult
     /**
      * @inheritdoc
      */
+    public function fetchOneOrFalse()
+    {
+        return $this
+            ->execute()
+            ->fetchOneOrFalse();
+    }
+    /**
+     * @inheritdoc
+     */
     public function fetchOne()
     {
         return $this

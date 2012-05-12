@@ -26,4 +26,8 @@ class ExecutableAndResultPlug extends ExecutablePlug implements InterfaceResult
     {
         return 'one';
     }
+    public function fetchOneOrFalse()
+    {
+        return 'one or false';
+    }
 }

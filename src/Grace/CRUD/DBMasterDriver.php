@@ -11,6 +11,7 @@
 namespace Grace\CRUD;
 
 use Grace\DBAL\InterfaceConnection;
+use Grace\DBAL\ExceptionNoResult as ExceptionNoResultDB;
 
 /**
  * Master crud db connection
@@ -31,11 +32,15 @@ class DBMasterDriver implements CRUDInterface
      */
     public function selectById($table, $id)
     {
-        return $this->connection
-            ->getSQLBuilder()
-            ->select($table)
-            ->eq('id', $id)
-            ->fetchOne();
+        try {
+            return $this->connection
+                ->getSQLBuilder()
+                ->select($table)
+                ->eq('id', $id)
+                ->fetchOne();
+        } catch (ExceptionNoResultDB $e) {
+            throw new ExceptionNoResult($e->getMessage());
+        }
     }
     /**
      * @inheritdoc

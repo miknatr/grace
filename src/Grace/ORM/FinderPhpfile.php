@@ -15,14 +15,13 @@ use Grace\CRUD\CRUDInterface;
 use Grace\DBAL\InterfaceExecutable;
 use Grace\DBAL\InterfaceResult;
 use Grace\SQLBuilder\SelectBuilder;
-use Grace\DBAL\ExceptionNoResult as ExceptionNoResultDB;
 
 /**
  * Finds records by id
  * Gets collections
  * Create new records
  */
-abstract class FinderSql extends FinderCrud implements InterfaceExecutable, InterfaceResult
+abstract class FinderPhpfile extends FinderCrud implements InterfaceExecutable, InterfaceResult
 {
     private $sqlReadOnly;
     private $idCounter = null;
@@ -38,25 +37,15 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
     }
     /**
      * Fetches record object
-     * @throws ExceptionNoResult
      * @return bool|Record
      */
     public function fetchOne()
     {
-        try {
-            $row = $this->queryResult->fetchOne();
-        } catch (ExceptionNoResultDB $e) {
-            throw new ExceptionNoResult($e->getMessage());
+        $row = $this->queryResult->fetchOne();
+        if (!is_array($row)) {
+            return false;
         }
-
         return $this->convertRowToRecord($row, false);
-    }
-    /**
-     * @throws LogicE
-     */
-    public function fetchOneOrFalse()
-    {
-        throw new \LogicException('You mustn\'t call this method for finders');
     }
     /**
      * Fetches collection of records
@@ -65,8 +54,8 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
     public function fetchAll()
     {
         $records = array();
-        while ($row = $this->queryResult->fetchOneOrFalse()) {
-            $records[] = $this->convertRowToRecord($row, false);
+        while ($record = $this->fetchOne()) {
+            $records[] = $record;
         }
         $collectionClassName = $this->fullCollectionClassName;
         return new $collectionClassName($records);
