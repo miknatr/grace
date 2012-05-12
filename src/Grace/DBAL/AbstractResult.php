@@ -43,11 +43,11 @@ abstract class AbstractResult implements InterfaceResult
      */
     public function fetchResult()
     {
-        $row = $this->fetchOne();
+        $row = $this->fetchOneOrFalse();
         if (is_array($row)) {
             return array_shift($row);
         } else {
-            throw new ExceptionNoResult('fetchOneOrFalse method must return array, ' . gettype($row) . ' given');
+            return null;
         }
     }
     /**
