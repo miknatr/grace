@@ -21,7 +21,7 @@ use Grace\CRUD\DBMasterDriver;
 abstract class ManagerAbstract
 {
     const DEFAULT_CONNECTION_NAME = 'default';
-    private $connectionNames = array();
+    protected $connectionNames = array();
     private $sqlReadOnlyConnections = array();
     private $crudConnections = array();
     private $container;
