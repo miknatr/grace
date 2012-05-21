@@ -216,7 +216,7 @@ abstract class ManagerAbstract
             $this->finders[$finderClassName] = $finder;
         }
 
-        return $this->finders[$className];
+        return $this->finders[$finderClassName];
     }
     /**
      * Gets mapper which associated with model $className
