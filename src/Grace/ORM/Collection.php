@@ -17,24 +17,13 @@ namespace Grace\ORM;
 abstract class Collection extends \ArrayObject
 {
     /**
-     * Inserts all new records
+     * Clears all changes in collection records
      * @return Collection
      */
-    public function insert()
+    public function revert()
     {
         foreach ($this as $record) {
-            $record->insert();
-        }
-        return $this;
-    }
-    /**
-     * Saves all changes in collection records
-     * @return Collection
-     */
-    public function save()
-    {
-        foreach ($this as $record) {
-            $record->save();
+            $record->revert();
         }
         return $this;
     }

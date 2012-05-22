@@ -45,7 +45,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     {
         $this->collection
             ->setName('Anonymous')
-            ->setPhone('nophone');
+            ->setPhone('nophone')
+            ->revert();
 
         $interator = $this->collection->getIterator();
 
@@ -90,8 +91,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     {
         $this->collection
             ->setName('Anonymous')
-            ->setPhone('nophone')
-            ->save();
+            ->setPhone('nophone');
         $this->checkAssertsAfterSetters();
     }
     public function testSettingFieldWithSavingViaEdit()
@@ -100,8 +100,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->edit(array(
                         'name'  => 'Anonymous',
                         'phone' => 'nophone',
-                   ))
-            ->save();
+                   ));
         $this->checkAssertsAfterSetters();
     }
 }

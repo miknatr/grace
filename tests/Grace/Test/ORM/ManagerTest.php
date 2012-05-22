@@ -59,7 +59,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         //test insert
         $inserted = $this->manager
             ->getOrderFinder()
-            ->create()->insert();
+            ->create();
         $inserted
             ->setName('Arnold')
             ->setPhone('+1-123-123');
@@ -74,8 +74,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager
             ->getOrderFinder()
             ->getById(2)
-            ->setName('Jack')
-            ->save();
+            ->setName('Jack');
 
         $this->manager->commit();
 

@@ -37,11 +37,12 @@ class RecordTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Mike', $this->order->getName());
         $this->assertEquals('+79991234567', $this->order->getPhone());
     }
-    public function testSettingFieldWithoutSaving()
+    public function testSettingFieldWithReverting()
     {
         $this->order
             ->setName('John')
             ->setPhone('+1234546890');
+        $this->order->revert();
         $this->assertEquals('John', $this->order->getName());
         $this->assertEquals('+1234546890', $this->order->getPhone());
         $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
@@ -70,8 +71,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
     {
         $this->order
             ->setName('John')
-            ->setPhone('+1234546890')
-            ->save();
+            ->setPhone('+1234546890');
         $this->checkAssertsAfterSetters();
     }
     public function testSettingFieldWithSavingViaEdit()
@@ -80,8 +80,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
             ->edit(array(
                         'name'  => 'John',
                         'phone' => '+1234546890',
-                   ))
-            ->save();
+                   ));
         $this->checkAssertsAfterSetters();
     }
     public function testCreateNewRecord()
@@ -91,7 +90,6 @@ class RecordTest extends \PHPUnit_Framework_TestCase
             'phone' => '+79991234567',
         );
         $this->order = new Order($this->orm, $this->container, $this->unitOfWork, 123, $fields, true);
-        $this->order->insert();
         $this->assertEquals(array($this->order), array_values($this->unitOfWork->getNewRecords()));
     }
 }

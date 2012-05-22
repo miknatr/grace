@@ -45,6 +45,7 @@ abstract class Record implements MapperRecordInterface
 
         if ($isNew) { //if it is a new object
             $this->fields = $this->prepareNewFields($this->fields);
+            $this->unitOfWork->markAsNew($this);
         }
     }
     /**
@@ -71,6 +72,16 @@ abstract class Record implements MapperRecordInterface
         return $this->defaultFields;
     }
     /**
+     * Delete all changes about this record
+     * @return Record
+     */
+    final public function revert()
+    {
+        $this->unitOfWork->revert($this);
+
+        return $this;
+    }
+    /**
      * Marks record as delete
      * @return Record
      */
@@ -94,24 +105,7 @@ abstract class Record implements MapperRecordInterface
                 $this->$method($v);
             }
         }
-        return $this;
-    }
-    /**
-     * Marks record as changed
-     * @return Record
-     */
-    final public function save()
-    {
-        $this->unitOfWork->markAsChanged($this);
-        return $this;
-    }
-    /**
-     * Marks record as new
-     * @return Record
-     */
-    final public function insert()
-    {
-        $this->unitOfWork->markAsNew($this);
+        $this->markAsChanged();
         return $this;
     }
     /**
@@ -121,6 +115,15 @@ abstract class Record implements MapperRecordInterface
     final public function getId()
     {
         return $this->id;
+    }
+    /**
+     * Marks record as changed
+     * @return Record
+     */
+    final protected function markAsChanged()
+    {
+        $this->unitOfWork->markAsChanged($this);
+        return $this;
     }
     /**
      * Gets service container

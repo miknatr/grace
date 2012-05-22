@@ -58,4 +58,21 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
         $this->assertEquals(array($record1, $record2), array_values($this->unitOfWork->getDeletedRecords()));
     }
+    public function testRevert()
+    {
+        $record1 = new \stdClass;
+        $record2 = new \stdClass;
+        $record3 = new \stdClass;
+        $this->unitOfWork
+            ->markAsNew($record1)
+            ->markAsChanged($record2)
+            ->markAsDeleted($record3);
+        $this->unitOfWork
+            ->revert($record1)
+            ->revert($record2)
+            ->revert($record3);
+        $this->assertEquals(array(), $this->unitOfWork->getNewRecords());
+        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
+        $this->assertEquals(array(), $this->unitOfWork->getDeletedRecords());
+    }
 }

@@ -51,6 +51,18 @@ class UnitOfWork
         return $this;
     }
     /**
+     * Delete all changes about this record
+     * @param Record $record
+     * @return UnitOfWork
+     */
+    public function revert($record)
+    {
+        unset($this->newRecords[spl_object_hash($record)]);
+        unset($this->changedRecords[spl_object_hash($record)]);
+        unset($this->deletedRecords[spl_object_hash($record)]);
+        return $this;
+    }
+    /**
      * All new records
      * @return Record[]
      */

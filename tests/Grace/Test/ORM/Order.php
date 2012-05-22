@@ -13,6 +13,7 @@ class Order extends Record
     public function setName($name)
     {
         $this->fields['name'] = $name;
+        $this->markAsChanged();
         return $this;
     }
     public function getPhone()
@@ -22,6 +23,7 @@ class Order extends Record
     public function setPhone($phone)
     {
         $this->fields['phone'] = $phone;
+        $this->markAsChanged();
         return $this;
     }
     public function getContainerPublic()
