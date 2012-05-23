@@ -87,6 +87,7 @@ abstract class Record implements MapperRecordInterface
     final public function revert()
     {
         $this->unitOfWork->revert($this);
+        $this->fields = $this->getDefaultFields();
 
         return $this;
     }
