@@ -47,6 +47,8 @@ abstract class Record implements MapperRecordInterface
             $this->fields = $this->prepareNewFields($this->fields);
             $this->unitOfWork->markAsNew($this);
         }
+
+        $this->init();
     }
     /**
      * Prepares fields for new record
@@ -56,6 +58,13 @@ abstract class Record implements MapperRecordInterface
     protected function prepareNewFields(array $fields)
     {
         return $fields;
+    }
+    /**
+     * Init trigger
+     */
+    protected function init()
+    {
+        ;
     }
     /**
      * @inheritdoc
