@@ -51,14 +51,14 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $interator = $this->collection->getIterator();
 
         $r = $interator->current();
-        $this->assertEquals('Anonymous', $r->getName());
-        $this->assertEquals('nophone', $r->getPhone());
+        $this->assertEquals('Mike', $r->getName());
+        $this->assertEquals('+79991234567', $r->getPhone());
 
         $interator->next();
 
         $r = $interator->current();
-        $this->assertEquals('Anonymous', $r->getName());
-        $this->assertEquals('nophone', $r->getPhone());
+        $this->assertEquals('John', $r->getName());
+        $this->assertEquals('+79991234567', $r->getPhone());
 
         $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
     }

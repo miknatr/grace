@@ -267,5 +267,7 @@ abstract class ManagerAbstract
             $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
             $crud->deleteById($className, $record->getId());
         }
+
+        $this->unitOfWork->flush();
     }
 }

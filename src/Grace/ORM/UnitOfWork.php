@@ -63,6 +63,17 @@ class UnitOfWork
         return $this;
     }
     /**
+     * Delete all changes about all record
+     * @return UnitOfWork
+     */
+    public function flush()
+    {
+        $this->newRecords     = array();
+        $this->changedRecords = array();
+        $this->deletedRecords = array();
+        return $this;
+    }
+    /**
      * All new records
      * @return Record[]
      */

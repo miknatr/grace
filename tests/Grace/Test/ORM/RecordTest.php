@@ -43,8 +43,8 @@ class RecordTest extends \PHPUnit_Framework_TestCase
             ->setName('John')
             ->setPhone('+1234546890');
         $this->order->revert();
-        $this->assertEquals('John', $this->order->getName());
-        $this->assertEquals('+1234546890', $this->order->getPhone());
+        $this->assertEquals('Mike', $this->order->getName());
+        $this->assertEquals('+79991234567', $this->order->getPhone());
         $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
     }
     public function testDeleting()
