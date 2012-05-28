@@ -66,7 +66,7 @@ class QueryLogger
      */
     public function stopConnection()
     {
-        $this->connections[$this->counter]['time'] = (time() + microtime(true) - $this->timer);
+        $this->connections[$this->counterConnections]['time'] = (time() + microtime(true) - $this->timer);
         $this->counterConnections++;
         $this->timer = 0;
     }
