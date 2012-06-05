@@ -3,6 +3,7 @@
 namespace Grace\Test\ORM;
 
 use Grace\ORM\ManagerAbstract;
+use Grace\ORM\UnitOfWork;
 
 class RealManager extends ManagerAbstract
 {
@@ -13,5 +14,12 @@ class RealManager extends ManagerAbstract
     public function getOrderFinder()
     {
         return $this->getFinder('Order');
+    }
+    /**
+     * @return UnitOfWork
+     */
+    public function getUnitOfWorkPuplic()
+    {
+        return $this->unitOfWork;
     }
 }

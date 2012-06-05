@@ -13,17 +13,18 @@ namespace Grace\ORM;
 /**
  * Gets access to orm manager and container
  */
-abstract class Aware
+abstract class StaticAware
 {
-    private $orm;
-    private $container;
+    static private $orm;
+    static private $container;
 
     /**
+     * @static
      * @param ManagerAbstract $orm
      */
-    public function setOrm(ManagerAbstract $orm)
+    final static public function setOrm(ManagerAbstract $orm)
     {
-        $this->orm = $orm;
+        self::$orm = $orm;
     }
     /**
      * Gets orm manager
@@ -31,14 +32,15 @@ abstract class Aware
      */
     final protected function getOrm()
     {
-        return $this->orm;
+        return self::$orm;
     }
     /**
+     * @static
      * @param ServiceContainerInterface $container
      */
-    public function setContainer(ServiceContainerInterface $container)
+    final static public function setServiceContainer(ServiceContainerInterface $container)
     {
-        $this->container = $container;
+        self::$container = $container;
     }
     /**
      * Gets service container
@@ -46,6 +48,6 @@ abstract class Aware
      */
     final protected function getContainer()
     {
-        return $this->container;
+        return self::$container;
     }
 }

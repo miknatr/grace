@@ -13,39 +13,26 @@ namespace Grace\ORM;
 /**
  * Base model class
  */
-abstract class Record implements MapperRecordInterface
+abstract class Record extends RecordAware implements MapperRecordInterface
 {
-    private $orm;
-    private $container;
-    private $unitOfWork;
     private $id;
     private $defaultFields = array();
     protected $fields = array();
 
     /**
-     * @param ManagerAbstract           $orm
-     * @param ServiceContainerInterface           $services
-     * @param UnitOfWork $unitOfWork
      * @param            $id
      * @param array      $fields
      * @param            $isNew
      */
-    final public function __construct(ManagerAbstract $orm, ServiceContainerInterface $container,
-                                      UnitOfWork $unitOfWork,
-                                      $id, array $fields, $isNew)
+    final public function __construct($id, array $fields, $isNew)
     {
-
-        $this->container = $container;
-        $this->orm = $orm;
-        $this->unitOfWork      = $unitOfWork;
-
         $this->id            = $id;
         $this->defaultFields = $fields;
         $this->fields        = $fields;
 
         if ($isNew) { //if it is a new object
             $this->fields = $this->prepareNewFields($this->fields);
-            $this->unitOfWork->markAsNew($this);
+            $this->getUnitOfWork()->markAsNew($this);
         }
 
         $this->init();
@@ -86,7 +73,7 @@ abstract class Record implements MapperRecordInterface
      */
     final public function revert()
     {
-        $this->unitOfWork->revert($this);
+        $this->getUnitOfWork()->revert($this);
         $this->fields = $this->getDefaultFields();
 
         return $this;
@@ -97,7 +84,7 @@ abstract class Record implements MapperRecordInterface
      */
     final public function delete()
     {
-        $this->unitOfWork->markAsDeleted($this);
+        $this->getUnitOfWork()->markAsDeleted($this);
 
         return $this;
     }
@@ -132,23 +119,7 @@ abstract class Record implements MapperRecordInterface
      */
     final protected function markAsChanged()
     {
-        $this->unitOfWork->markAsChanged($this);
+        $this->getUnitOfWork()->markAsChanged($this);
         return $this;
-    }
-    /**
-     * Gets service container
-     * @return ServiceContainerInterface
-     */
-    final protected function getContainer()
-    {
-        return $this->container;
-    }
-    /**
-     * Gets orm manager
-     * @return ManagerAbstract
-     */
-    final protected function getOrm()
-    {
-        return $this->orm;
     }
 }

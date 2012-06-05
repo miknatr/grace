@@ -7,30 +7,28 @@ use Grace\ORM\ServiceContainer;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var RealManager */
+    protected $orm;
     /** @var ServiceContainer */
     protected $container;
-    /** @var UnitOfWork */
-    protected $unitOfWork;
     /** @var OrderCollection */
     protected $collection;
 
     protected function setUp()
     {
-        $orm              = new RealManager();
-        $this->container  = new ServiceContainer();
-        $this->unitOfWork = new UnitOfWork;
+        $this->orm       = new RealManager();
+        $this->container = new ServiceContainer();
+        $this->orm->setContainer($this->container);
 
         $fields = array(
-            'name'  => 'Mike',
-            'phone' => '+79991234567',
+            'name'  => 'Mike', 'phone' => '+79991234567',
         );
-        $r1     = new Order($orm, $this->container, $this->unitOfWork, 1, $fields, false);
+        $r1     = new Order(1, $fields, false);
 
         $fields = array(
-            'name'  => 'John',
-            'phone' => '+79991234567',
+            'name'  => 'John', 'phone' => '+79991234567',
         );
-        $r2     = new Order($orm, $this->container, $this->unitOfWork, 2, $fields, false);
+        $r2     = new Order(2, $fields, false);
 
         $this->collection = new OrderCollection(array($r1, $r2));
     }
@@ -60,12 +58,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('John', $r->getName());
         $this->assertEquals('+79991234567', $r->getPhone());
 
-        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
+        $this->assertEquals(array(), $this->orm
+            ->getUnitOfWorkPuplic()
+            ->getChangedRecords());
     }
     public function testDeleting()
     {
         $this->collection->delete();
-        $this->assertEquals(2, count($this->unitOfWork->getDeletedRecords()));
+        $this->assertEquals(2, count($this->orm
+                                         ->getUnitOfWorkPuplic()
+                                         ->getDeletedRecords()));
     }
     protected function checkAssertsAfterSetters()
     {
@@ -85,7 +87,9 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Anonymous', $r->getName());
         $this->assertEquals('nophone', $r->getPhone());
 
-        $this->assertEquals(2, count($this->unitOfWork->getChangedRecords()));
+        $this->assertEquals(2, count($this->orm
+                                         ->getUnitOfWorkPuplic()
+                                         ->getChangedRecords()));
     }
     public function testSettingFieldWithSaving()
     {
@@ -96,11 +100,9 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
     public function testSettingFieldWithSavingViaEdit()
     {
-        $this->collection
-            ->edit(array(
-                        'name'  => 'Anonymous',
-                        'phone' => 'nophone',
-                   ));
+        $this->collection->edit(array(
+                                     'name'  => 'Anonymous', 'phone' => 'nophone',
+                                ));
         $this->checkAssertsAfterSetters();
     }
 }

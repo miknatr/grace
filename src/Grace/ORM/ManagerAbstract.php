@@ -27,7 +27,7 @@ abstract class ManagerAbstract
     private $container;
     private $nameProvider;
     private $identityMap;
-    private $unitOfWork;
+    protected $unitOfWork;
     private $mappers = array();
     private $finders = array();
 
@@ -36,8 +36,12 @@ abstract class ManagerAbstract
      */
     public function __construct()
     {
+        //TODO static
+        StaticAware::setOrm($this);
         $this->identityMap = new IdentityMap;
         $this->unitOfWork  = new UnitOfWork;
+        //TODO static
+        RecordAware::setUnitOfWork($this->unitOfWork);
     }
     /**
      * Sets class name provider
@@ -70,6 +74,8 @@ abstract class ManagerAbstract
     public function setContainer(ServiceContainerInterface $container)
     {
         $this->container = $container;
+        //TODO static
+        StaticAware::setServiceContainer($this->container);
         return $this;
     }
     /**
@@ -199,8 +205,8 @@ abstract class ManagerAbstract
             $nameProvider        = $this->getClassNameProvider();
             $fullFinderClassName = $nameProvider->getFinderClass($finderClassName);
 
-            $finder              =
-                new $fullFinderClassName($this->unitOfWork, $this->identityMap, $this->getMapper($className), $tableName, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className));
+            $finder =
+                new $fullFinderClassName($this->identityMap, $this->getMapper($className), $tableName, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className));
 
             if ($finder instanceof Aware) {
                 $finder->setOrm($this);

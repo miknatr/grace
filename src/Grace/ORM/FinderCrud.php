@@ -19,11 +19,10 @@ use Grace\CRUD\ExceptionNoResult as ExceptionNoResultCRUD;
  * Gets collections
  * Create new records
  */
-abstract class FinderCrud extends Aware
+abstract class FinderCrud extends StaticAware
 {
     protected $fullCollectionClassName;
     protected $fullClassName;
-    protected $unitOfWork;
     protected $identityMap;
     protected $mapper;
     protected $tableName;
@@ -31,20 +30,18 @@ abstract class FinderCrud extends Aware
     protected $crud;
 
     /**
-     * @param UnitOfWork $unitOfWork
      * @param IdentityMap $identityMap
      * @param MapperInterface $mapper
      * @param $tableName
      * @param $fullClassName
      * @param $fullCollectionClassName
      */
-    final public function __construct(UnitOfWork $unitOfWork, IdentityMap $identityMap, MapperInterface $mapper, $tableName,
+    final public function __construct(IdentityMap $identityMap, MapperInterface $mapper, $tableName,
                                 $fullClassName, $fullCollectionClassName)
     {
 
         $this->fullClassName           = $fullClassName;
         $this->fullCollectionClassName = $fullCollectionClassName;
-        $this->unitOfWork              = $unitOfWork;
         $this->identityMap             = $identityMap;
         $this->mapper                  = $mapper;
         $this->tableName               = $tableName;
@@ -110,8 +107,7 @@ abstract class FinderCrud extends Aware
         $recordArray = $this->mapper->convertDbRowToRecordArray($row);
         $recordClass = $this->fullClassName;
         //TODO magic string 'id'
-        $record =
-            new $recordClass($this->getOrm(), $this->getContainer(), $this->unitOfWork, $recordArray['id'], $recordArray, $isNew);
+        $record = new $recordClass($recordArray['id'], $recordArray, $isNew);
         $this->identityMap->setRecord($this->tableName, $record->getId(), $record);
         return $record;
     }

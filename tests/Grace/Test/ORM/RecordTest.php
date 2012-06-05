@@ -11,8 +11,6 @@ class RecordTest extends \PHPUnit_Framework_TestCase
     protected $orm;
     /** @var ServiceContainer */
     protected $container;
-    /** @var UnitOfWork */
-    protected $unitOfWork;
     /** @var Order */
     protected $order;
 
@@ -20,12 +18,12 @@ class RecordTest extends \PHPUnit_Framework_TestCase
     {
         $this->orm = new RealManager();
         $this->container = new ServiceContainer();
-        $this->unitOfWork = new UnitOfWork;
+        $this->orm->setContainer($this->container);
         $fields           = array(
             'name'  => 'Mike',
             'phone' => '+79991234567',
         );
-        $this->order      = new Order($this->orm, $this->container, $this->unitOfWork, 123, $fields, false);
+        $this->order      = new Order(123, $fields, false);
     }
     public function testGettingContainer()
     {
@@ -45,19 +43,19 @@ class RecordTest extends \PHPUnit_Framework_TestCase
         $this->order->revert();
         $this->assertEquals('Mike', $this->order->getName());
         $this->assertEquals('+79991234567', $this->order->getPhone());
-        $this->assertEquals(array(), $this->unitOfWork->getChangedRecords());
+        $this->assertEquals(array(), $this->orm->getUnitOfWorkPuplic()->getChangedRecords());
     }
     public function testDeleting()
     {
         $this->order->delete();
-        $this->assertEquals(array($this->order), array_values($this->unitOfWork->getDeletedRecords()));
+        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWorkPuplic()->getDeletedRecords()));
     }
     protected function checkAssertsAfterSetters()
     {
         $this->assertEquals('John', $this->order->getName());
         $this->assertEquals('+1234546890', $this->order->getPhone());
 
-        $this->assertEquals(array($this->order), array_values($this->unitOfWork->getChangedRecords()));
+        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWorkPuplic()->getChangedRecords()));
 
         $defaults = $this->order->getDefaultFields();
         $this->assertEquals('Mike', $defaults['name']);
@@ -89,7 +87,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
             'name'  => 'Mike',
             'phone' => '+79991234567',
         );
-        $this->order = new Order($this->orm, $this->container, $this->unitOfWork, 123, $fields, true);
-        $this->assertEquals(array($this->order), array_values($this->unitOfWork->getNewRecords()));
+        $this->order = new Order(123, $fields, true);
+        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWorkPuplic()->getNewRecords()));
     }
 }

@@ -10,12 +10,12 @@ use Grace\CRUD\DBMasterDriver;
 
 class FinderTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var RealManager */
+    protected $orm;
     /** @var OrderFinder */
     protected $finder;
     /** @var ServiceContainer */
     protected $container;
-    /** @var UnitOfWork */
-    protected $unitOfWork;
     /** @var IdentityMap */
     protected $identityMap;
     /** @var OrderMapper */
@@ -27,20 +27,17 @@ class FinderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $orm               = new RealManager();
-        $this->container   = new ServiceContainer();
+        $this->orm = new RealManager();
+        $this->container = new ServiceContainer();
+        $this->orm->setContainer($this->container);
         $this->connection  =
             new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud        = new DBMasterDriver($this->connection);
-        $this->unitOfWork  = new UnitOfWork;
         $this->identityMap = new IdentityMap;
         $this->mapper      = new OrderMapper;
 
         $this->finder      =
-            new OrderFinder($this->unitOfWork, $this->identityMap, $this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection');
-
-        $this->finder->setOrm($orm);
-        $this->finder->setContainer($this->container);
+            new OrderFinder($this->identityMap, $this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection');
         $this->finder->setCrud($this->crud);
         $this->finder->setSqlReadOnly($this->connection);
 
