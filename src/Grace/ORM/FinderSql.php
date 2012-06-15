@@ -52,7 +52,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
         return $this->convertRowToRecord($row, false);
     }
     /**
-     * @throws LogicE
+     * @throws LogicException
      */
     public function fetchOneOrFalse()
     {
@@ -127,5 +127,14 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
                 ->fetchResult();
         }
         return ++$this->idCounter;
+    }
+
+    /**
+     * Gets all records collection
+     * @return Collection
+     */
+    public function getAll()
+    {
+        return $this->getSelectBuilder()->order('id')->fetchAll();
     }
 }

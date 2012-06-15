@@ -12,6 +12,7 @@ namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
 use Grace\CRUD\CRUDInterface;
+use Grace\CRUD\CRUDWithAllInterface;
 use Grace\CRUD\ExceptionNoResult as ExceptionNoResultCRUD;
 
 /**
@@ -51,7 +52,24 @@ abstract class FinderCrud extends StaticAware
      */
     public function setCrud(CRUDInterface $crud)
     {
+        if (!($this instanceof FinderSql) and !($crud instanceof CRUDWithAllInterface)) {
+            throw new \LogicException('If it is not a FinderSql instance, it needs CRUDWithAllInterface instance');
+        }
         $this->crud = $crud;
+    }
+    /**
+     * Fetches collection of records
+     * @return Collection
+     */
+    public function getAll()
+    {
+        $rows = $this->crud->selectAll($this->tableName);
+        $records = array();
+        foreach ($rows as $row) {
+            $records[] = $this->convertRowToRecord($row, false);
+        }
+        $collectionClassName = $this->fullCollectionClassName;
+        return new $collectionClassName($records);
     }
     /**
      * Fetches record object

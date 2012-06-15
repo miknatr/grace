@@ -15,7 +15,7 @@ use Grace\DBAL\InterfaceConnection;
 /**
  * Driver for php file which contains array with data
  */
-class PhpFileReadOnlyDriver implements CRUDInterface
+class PhpFileReadOnlyDriver implements CRUDWithAllInterface
 {
     private $data;
 
@@ -25,6 +25,13 @@ class PhpFileReadOnlyDriver implements CRUDInterface
     public function __construct($filename)
     {
         $this->data = include $filename;
+    }
+    /**
+     * @inheritdoc
+     */
+    public function selectAll($table)
+    {
+        return $this->data[$table];
     }
     /**
      * @inheritdoc
