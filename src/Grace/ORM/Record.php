@@ -31,28 +31,15 @@ abstract class Record extends RecordAware implements MapperRecordInterface
         $this->fields        = $fields;
 
         if ($isNew) { //if it is a new object
-            $this->fields = $this->prepareNewFields($this->fields);
+            $this->onCreate();
             $this->getUnitOfWork()->markAsNew($this);
         }
 
-        $this->init();
+        $this->onInit();
     }
-    /**
-     * Prepares fields for new record
-     * @param array $fields
-     * @return array
-     */
-    protected function prepareNewFields(array $fields)
-    {
-        return $fields;
-    }
-    /**
-     * Init trigger
-     */
-    protected function init()
-    {
-        ;
-    }
+    protected function onCreate() {}
+    protected function onInit() {}
+
     /**
      * @inheritdoc
      */
