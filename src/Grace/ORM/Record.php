@@ -24,20 +24,20 @@ abstract class Record extends RecordAware implements MapperRecordInterface
      * @param array      $fields
      * @param            $isNew
      */
-    final public function __construct($id, array $fields, $isNew)
+    final public function __construct($id, array $fields, $isNew, array $newParams = array())
     {
         $this->id            = $id;
         $this->defaultFields = $fields;
         $this->fields        = $fields;
 
         if ($isNew) { //if it is a new object
-            $this->onCreate();
+            $this->onCreate($newParams);
             $this->getUnitOfWork()->markAsNew($this);
         }
 
         $this->onInit();
     }
-    protected function onCreate() {}
+    protected function onCreate(array $params = array()) {}
     protected function onInit() {}
 
     /**

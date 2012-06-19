@@ -100,11 +100,12 @@ abstract class FinderCrud extends StaticAware
      * Creates new record instance
      * @return Record
      */
-    public function create()
+    public function create(array $newParams = array())
     {
-        $id = $this->generateNewId();
+        $fields = array();
+        $fields['id'] = $this->generateNewId();
         //TODO magic string 'id'
-        return $this->convertRowToRecord(array('id' => $id), true);
+        return $this->convertRowToRecord($fields, true, $newParams);
     }
     /**
      * Generate new id for insert
@@ -120,12 +121,12 @@ abstract class FinderCrud extends StaticAware
      * @param       $isNew
      * @return Record
      */
-    protected function convertRowToRecord(array $row, $isNew)
+    protected function convertRowToRecord(array $row, $isNew, array $newParams = array())
     {
         $recordArray = $this->mapper->convertDbRowToRecordArray($row);
         $recordClass = $this->fullClassName;
         //TODO magic string 'id'
-        $record = new $recordClass($recordArray['id'], $recordArray, $isNew);
+        $record = new $recordClass($recordArray['id'], $recordArray, $isNew, $newParams);
         $this->identityMap->setRecord($this->tableName, $record->getId(), $record);
         return $record;
     }
