@@ -188,15 +188,15 @@
             'clientPhone': { 'dbtype': 'varchar(11)', 'form': { 'title': 'Телефон клиента', 'input': 'text', 'validators': [['minlen', '4'], ['maxlen', '13']] } }
             'autoTypeId': { 'dbtype': 'varchar(25)', 'form': { 'title': 'Тип авто', 'input': 'select', 'validators': [['alnum']] } }
             'needAt': { 'dbtype': 'datetime', 'form': { 'title': 'Время подачи', 'input': 'text', 'validators': [['datetime']] } }
-            'clientAdressObject': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Откуда', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '100']] } }
-            'clientAdressDom': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Дом', 'input': 'text', 'validators': [['maxlen', '20']] } }
-            'clientAdressKorpus': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Корпус', 'input': 'text', 'validators': [['maxlen', '20']] } }
-            'clientAdressStroenie': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Строение', 'input': 'text', 'validators': [['maxlen', '20']] } }
-            'clientAdressPodezd': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Подъезд', 'input': 'text', 'validators': [['maxlen', '20']] } }
-            'clientAdressLatitude': { 'dbtype': 'float', 'form': { 'title': 'Широта', 'input': 'text', 'validators': [['float']], 'filters': [['float']] } }
-            'clientAdressLongitude': { 'dbtype': 'float', 'form': { 'title': 'Долгота', 'input': 'text', 'validators': [['float']], 'filters': [['float']] } }
-            'clientAdressMetro': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Метро', 'input': 'text', 'validators': [['maxlen', '100']] } }
-            'destinationAdress': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Куда', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '100']] } }
+            'clientAddressObject': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Откуда', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '100']] } }
+            'clientAddressDom': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Дом', 'input': 'text', 'validators': [['maxlen', '20']] } }
+            'clientAddressKorpus': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Корпус', 'input': 'text', 'validators': [['maxlen', '20']] } }
+            'clientAddressStroenie': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Строение', 'input': 'text', 'validators': [['maxlen', '20']] } }
+            'clientAddressPodezd': { 'dbtype': 'varchar(20)', 'form': { 'title': 'Подъезд', 'input': 'text', 'validators': [['maxlen', '20']] } }
+            'clientAddressLatitude': { 'dbtype': 'float', 'form': { 'title': 'Широта', 'input': 'text', 'validators': [['float']], 'filters': [['float']] } }
+            'clientAddressLongitude': { 'dbtype': 'float', 'form': { 'title': 'Долгота', 'input': 'text', 'validators': [['float']], 'filters': [['float']] } }
+            'clientAddressMetro': { 'dbtype': 'varchar(100)', 'form': { 'title': 'Метро', 'input': 'text', 'validators': [['maxlen', '100']] } }
+            'destinationAddress': { 'dbtype': 'varchar(255)', 'form': { 'title': 'Куда', 'input': 'text', 'validators': [['notEmpty'], ['maxlen', '100']] } }
             'needCCardReader': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Кредитные карты', 'input': 'checkbox', 'filters': [['bool']] } }
             'needNoSmoking': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Водитель не курит', 'input': 'checkbox', 'filters': [['bool']] } }
             'needSmoking': { 'dbtype': 'tinyint(1) unsigned', 'form': { 'title': 'Можно курить в салоне', 'input': 'checkbox', 'filters': [['bool']] } }

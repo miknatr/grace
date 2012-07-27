@@ -191,14 +191,14 @@ abstract class ManagerAbstract
      * @param $finderClassName for extra-finders
      * @return FinderSql
      */
-    protected function getFinder($className, $finderClassName = '', $tableName = '')
+    protected function getFinder($className, $finderClassName = '')//, $tableName = '')
     {
         if ($finderClassName == '') {
             $finderClassName = $className;
         }
-        if ($tableName == '') {
+        //if ($tableName == '') {
             $tableName = $className;
-        }
+        //}
         if (!isset($this->finders[$finderClassName])) {
             $connectionName = $this->getConnectionNameByClass($className);
 

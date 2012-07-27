@@ -16,6 +16,7 @@ namespace Grace\ORM;
 abstract class Mapper implements MapperInterface
 {
     protected $fields = array();
+    protected $noDbFields = array();
 
     /**
      * @inheritdoc
@@ -29,6 +30,9 @@ abstract class Mapper implements MapperInterface
             } else {
                 $recordArray[$field] = null;
             }
+        }
+        foreach ($this->noDbFields as $field) {
+            $recordArray[$field] = null;
         }
         return $recordArray;
     }
