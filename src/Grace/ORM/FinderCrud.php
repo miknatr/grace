@@ -61,7 +61,7 @@ abstract class FinderCrud extends StaticAware
      * Fetches collection of records
      * @return Collection
      */
-    public function getAll()
+    public function fetchAll()
     {
         $rows = $this->crud->selectAll($this->tableName);
         $records = array();
@@ -80,6 +80,21 @@ abstract class FinderCrud extends StaticAware
      */
     public function getById($id)
     {
+        $recordOrFalse = $this->getByIdOrFalse($id);
+        if ($recordOrFalse) {
+            return $recordOrFalse;
+        } else {
+            throw new ExceptionNoResult('Row ' . $id . ' in ' . $this->tableName . ' is not found by id');
+        }
+    }
+    /**
+     * Fetches record object
+     * @param $id
+     * @return Record|bool
+     * @throws ExceptionUndefinedConnection
+     */
+    public function getByIdOrFalse($id)
+    {
         if (empty($this->crud)) {
             throw new ExceptionUndefinedConnection('CRUD connection is not defined');
         }
@@ -91,7 +106,7 @@ abstract class FinderCrud extends StaticAware
         try {
             $row = $this->crud->selectById($this->tableName, $id);
         } catch (ExceptionNoResultCRUD $e) {
-            throw new ExceptionNoResult('Row ' . $id . ' in ' . $this->tableName . ' is not found by id');
+            return false;
         }
 
         return $this->convertRowToRecord($row, false);

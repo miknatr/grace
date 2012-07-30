@@ -81,7 +81,7 @@ abstract class ManagerAbstract
     /**
      * @return mixed
      */
-    protected function getContainer()
+    public function getContainer()
     {
         if (empty($this->container)) {
             $this->container = new ServiceContainer();

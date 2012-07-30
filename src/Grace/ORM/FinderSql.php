@@ -64,6 +64,10 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
      */
     public function fetchAll()
     {
+        if (!is_object($this->queryResult)) {
+            return $this->getSelectBuilder()->fetchAll();
+        }
+
         $records = array();
         while ($row = $this->queryResult->fetchOneOrFalse()) {
             $records[] = $this->convertRowToRecord($row, false);
@@ -83,6 +87,10 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
      */
     final public function fetchColumn()
     {
+        if (!is_object($this->queryResult)) {
+            return $this->getSelectBuilder()->fetchAll();
+        }
+
         return $this->queryResult->fetchColumn();
     }
     /**
@@ -90,6 +98,10 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
      */
     final public function fetchHash()
     {
+        if (!is_object($this->queryResult)) {
+            return $this->getSelectBuilder()->fetchAll();
+        }
+
         return $this->queryResult->fetchHash();
     }
     /**
@@ -127,14 +139,5 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
                 ->fetchResult();
         }
         return ++$this->idCounter;
-    }
-
-    /**
-     * Gets all records collection
-     * @return Collection
-     */
-    public function getAll()
-    {
-        return $this->getSelectBuilder()->order('id')->fetchAll();
     }
 }
