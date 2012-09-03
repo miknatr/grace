@@ -50,4 +50,15 @@ abstract class Collection extends \ArrayObject
         }
         return $this;
     }
+    /**
+     * @return array
+     */
+    public function asArray()
+    {
+        $r = array();
+        foreach ($this as $record) {
+            $r[] = $record->asArray();
+        }
+        return $r;
+    }
 }
