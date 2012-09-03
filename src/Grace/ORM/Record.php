@@ -45,7 +45,14 @@ abstract class Record extends RecordAware implements MapperRecordInterface
      */
     final public function asArray()
     {
-        return $this->fields;
+        //TODO сомнительное поведение
+        $r = array();
+        foreach ($this->fields as $fieldName => $v) {
+            $getter = 'get' . ucfirst($fieldName);
+            $r[$fieldName] = $this->$getter();
+        }
+        return $r;
+        //return $this->fields;
     }
     /**
      * @inheritdoc
