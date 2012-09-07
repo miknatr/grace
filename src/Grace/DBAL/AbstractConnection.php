@@ -75,7 +75,7 @@ abstract class AbstractConnection implements InterfaceConnection
         if (is_object($value)) {
             $value = (string) $value;
         }
-        
+
         switch ($type) {
             case 'p':
                 $r = $value;
