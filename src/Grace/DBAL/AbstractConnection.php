@@ -72,6 +72,10 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     private function escapeValueByType($value, $type)
     {
+        if (is_object($value)) {
+            $value = (string) $value;
+        }
+        
         switch ($type) {
             case 'p':
                 $r = $value;
