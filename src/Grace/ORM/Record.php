@@ -43,7 +43,7 @@ abstract class Record extends RecordAware implements MapperRecordInterface
     /**
      * @inheritdoc
      */
-    final public function asArray()
+    public function asArray()
     {
         return $this->fields;
     }
