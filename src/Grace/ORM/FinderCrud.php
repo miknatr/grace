@@ -115,10 +115,14 @@ abstract class FinderCrud extends StaticAware
      * Creates new record instance
      * @return Record
      */
-    public function create(array $newParams = array())
+    public function create(array $newParams = array(), $idWhenNecessary = null)
     {
         $fields = array();
-        $fields['id'] = $this->generateNewId();
+        if ($idWhenNecessary !== null) {
+            $fields['id'] = $idWhenNecessary;
+        } else {
+            $fields['id'] = $this->generateNewId();
+        }
         //TODO magic string 'id'
         return $this->convertRowToRecord($fields, true, $newParams);
     }
@@ -128,7 +132,7 @@ abstract class FinderCrud extends StaticAware
      */
     protected function generateNewId()
     {
-        throw new ExceptionUndefinedBehavior('You mus implement this method if you need create operations');
+        throw new ExceptionUndefinedBehavior('You must implement this method if you need create operations');
     }
     /**
      * Converts db row to record object
