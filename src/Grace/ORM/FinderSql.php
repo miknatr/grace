@@ -56,7 +56,13 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
      */
     public function fetchOneOrFalse()
     {
-        throw new \LogicException('You mustn\'t call this method for finders');
+        try {
+            $row = $this->queryResult->fetchOne();
+        } catch (ExceptionNoResultDB $e) {
+            return false;
+        }
+
+        return $this->convertRowToRecord($row, false);
     }
     /**
      * Fetches collection of records
