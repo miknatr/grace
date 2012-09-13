@@ -52,17 +52,28 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function replacePlaceholders($query, array $arguments)
     {
-        $position = 0;
-        foreach ($arguments as $value) {
-            $position = strpos($query, '?', $position);
-            if ($position !== false) {
-                $bindType    = $query[$position + 1];
-                $replacement = $this->escapeValueByType($value, $bindType);
-                $query       = substr_replace($query, $replacement, $position, 2);
-                $position    = $position + strlen($value);
+        $queryParts = explode('?', $query);
+        $queryPartsLen = count($queryParts);
+        $r = '';
+        $i = 0;
+
+        while ($i < $queryPartsLen) {
+            $queryPartCurrent = $queryParts[$i];
+            $r .= $queryPartCurrent;
+
+            if (isset($queryParts[$i + 1])) {
+                $queryPartNext = $queryParts[$i + 1];
+
+                $type = $queryPartNext[0];
+                $queryParts[$i + 1] = substr($queryParts[$i + 1], 1); //подрезаем первый символ (где указан символ типа)
+
+                $r .= $this->escapeValueByType($arguments[$i], $type);
             }
+
+            $i++;
         }
-        return $query;
+
+        return $r;
     }
     /**
      * Escapes value in compliance with type
@@ -84,8 +95,10 @@ abstract class AbstractConnection implements InterfaceConnection
                 $r = $this->escape($value);
                 break;
             case 'q':
-            default:
                 $r = "'" . $this->escape($value) . "'";
+                break;
+            default:
+                throw new ExceptionQuery('Placeholder has incorrect type: ' . $type);
         }
         return $r;
     }
