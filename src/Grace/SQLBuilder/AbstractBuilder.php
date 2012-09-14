@@ -20,6 +20,7 @@ abstract class AbstractBuilder implements InterfaceResult
 {
     /** @var InterfaceExecutable */
     private $executable;
+    private $result;
     protected $from;
 
     /**
@@ -36,7 +37,11 @@ abstract class AbstractBuilder implements InterfaceResult
      */
     public function execute()
     {
-        return $this->executable->execute($this->getQueryString(), $this->getQueryArguments());
+        if (!$this->result) {
+            $this->result = $this->executable->execute($this->getQueryString(), $this->getQueryArguments());
+        }
+
+        return $this->result;
     }
     /**
      * @inheritdoc
