@@ -31,14 +31,14 @@ class PhpFileReadOnlyDriver implements CRUDWithAllInterface
      */
     public function selectAll($table)
     {
-        return $this->data[$table];
+        return isset($this->data[$table]) ? $this->data[$table] : array();
     }
     /**
      * @inheritdoc
      */
     public function selectById($table, $id)
     {
-        return $this->data[$table][$id];
+        return isset($this->data[$table][$id]) ? $this->data[$table][$id] : false;
     }
     /**
      * @inheritdoc
