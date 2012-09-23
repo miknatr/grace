@@ -251,7 +251,7 @@ abstract class ManagerAbstract
             $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
             $changes   = $this
                 ->getMapper($className)
-                ->convertRecordArrayToDbRow($record->asArray());
+                ->convertRecordArrayToDbRow($record->getFields());
             $crud->insertById($className, $record->getId(), $changes);
         }
         foreach ($this->unitOfWork->getChangedRecords() as $record) {
@@ -261,7 +261,7 @@ abstract class ManagerAbstract
             $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
             $changes   = $this
                 ->getMapper($className)
-                ->getRecordChanges($record->asArray(), $record->getDefaultFields());
+                ->getRecordChanges($record->getFields(), $record->getDefaultFields());
             if (count($changes) > 0) {
                 $crud->updateById($className, $record->getId(), $changes);
             }

@@ -21,6 +21,13 @@ interface MapperRecordInterface
      */
     public function asArray();
     /**
+     * Method for mapper usage only
+     * @abstract
+     * @return array
+     */
+    public function getFields();
+    /**
+     * Method for mapper usage only
      * @abstract
      * @return array
      */
