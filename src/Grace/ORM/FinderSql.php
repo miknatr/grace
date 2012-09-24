@@ -25,7 +25,7 @@ use Grace\DBAL\ExceptionNoResult as ExceptionNoResultDB;
 abstract class FinderSql extends FinderCrud implements InterfaceExecutable, InterfaceResult
 {
     private $sqlReadOnly;
-    private $idCounter = null;
+    protected $idCounter = null;
     /** @var InterfaceResult */
     private $queryResult;
 
