@@ -11,6 +11,7 @@
 namespace Grace\CRUD;
 
 use Grace\DBAL\InterfaceConnection;
+use Grace\DBAL\ExceptionNoResult as ExceptionNoResultDB;
 
 /**
  * Driver for php file which contains array with data
@@ -38,7 +39,10 @@ class PhpFileReadOnlyDriver implements CRUDWithAllInterface
      */
     public function selectById($table, $id)
     {
-        return isset($this->data[$table][$id]) ? $this->data[$table][$id] : false;
+        if (isset($this->data[$table][$id])) {
+            return $this->data[$table][$id];
+        }
+        throw new ExceptionNoResult("Php-storage doesn't contain $table:$id");
     }
     /**
      * @inheritdoc

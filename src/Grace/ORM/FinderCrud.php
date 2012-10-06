@@ -24,26 +24,23 @@ abstract class FinderCrud extends StaticAware
 {
     protected $fullCollectionClassName;
     protected $fullClassName;
-    protected $identityMap;
     protected $mapper;
     protected $tableName;
 
     protected $crud;
 
     /**
-     * @param IdentityMap $identityMap
      * @param MapperInterface $mapper
      * @param $tableName
      * @param $fullClassName
      * @param $fullCollectionClassName
      */
-    final public function __construct(IdentityMap $identityMap, MapperInterface $mapper, $tableName,
+    final public function __construct(MapperInterface $mapper, $tableName,
                                 $fullClassName, $fullCollectionClassName)
     {
 
         $this->fullClassName           = $fullClassName;
         $this->fullCollectionClassName = $fullCollectionClassName;
-        $this->identityMap             = $identityMap;
         $this->mapper                  = $mapper;
         $this->tableName               = $tableName;
     }
@@ -99,8 +96,8 @@ abstract class FinderCrud extends StaticAware
             throw new ExceptionUndefinedConnection('CRUD connection is not defined');
         }
 
-        if ($this->identityMap->issetRecord($this->tableName, $id)) {
-            return $this->identityMap->getRecord($this->tableName, $id);
+        if ($this->getIdentityMap()->issetRecord($this->tableName, $id)) {
+            return $this->getIdentityMap()->getRecord($this->tableName, $id);
         }
 
         try {
@@ -146,7 +143,7 @@ abstract class FinderCrud extends StaticAware
         $recordClass = $this->fullClassName;
         //TODO magic string 'id'
         $record = new $recordClass($recordArray['id'], $recordArray, $isNew, $newParams);
-        $this->identityMap->setRecord($this->tableName, $record->getId(), $record);
+        $this->getIdentityMap()->setRecord($this->tableName, $record->getId(), $record);
         return $record;
     }
 }

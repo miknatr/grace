@@ -16,8 +16,6 @@ namespace Grace\ORM;
 abstract class StaticAware
 {
     static private $orm;
-    static private $container;
-
     /**
      * @static
      * @param ManagerAbstract $orm
@@ -34,6 +32,9 @@ abstract class StaticAware
     {
         return self::$orm;
     }
+
+
+    static private $container;
     /**
      * @static
      * @param ServiceContainerInterface $container
@@ -49,5 +50,33 @@ abstract class StaticAware
     final protected function getContainer()
     {
         return self::$container;
+    }
+
+
+    static private $unitOfWork;
+    /**
+     * Gets service container
+     * @return ServiceContainerInterface
+     */
+    final protected function getUnitOfWork()
+    {
+        if (empty(self::$unitOfWork)) {
+            self::$unitOfWork = new UnitOfWork();
+        }
+        return self::$unitOfWork;
+    }
+
+
+    static private $identityMap;
+    /**
+     * Gets IdentityMap
+     * @return IdentityMap
+     */
+    final protected function getIdentityMap()
+    {
+        if (empty(self::$identityMap)) {
+            self::$identityMap = new IdentityMap;
+        }
+        return self::$identityMap;
     }
 }

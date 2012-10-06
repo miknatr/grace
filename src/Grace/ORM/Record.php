@@ -13,7 +13,7 @@ namespace Grace\ORM;
 /**
  * Base model class
  */
-abstract class Record extends RecordAware implements MapperRecordInterface
+abstract class Record extends StaticAware implements MapperRecordInterface
 {
     private $id;
     private $defaultFields = array();

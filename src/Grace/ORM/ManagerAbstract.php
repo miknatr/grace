@@ -18,16 +18,13 @@ use Grace\CRUD\DBMasterDriver;
  * Orm manager
  * Gets finders and manages db connections
  */
-abstract class ManagerAbstract
+abstract class ManagerAbstract extends StaticAware
 {
     const DEFAULT_CONNECTION_NAME = 'default';
     protected $connectionNames = array();
     private $sqlReadOnlyConnections = array();
     private $crudConnections = array();
-    private $container;
     private $nameProvider;
-    private $identityMap;
-    protected $unitOfWork;
     private $mappers = array();
     private $finders = array();
 
@@ -38,10 +35,6 @@ abstract class ManagerAbstract
     {
         //TODO static
         StaticAware::setOrm($this);
-        $this->identityMap = new IdentityMap;
-        $this->unitOfWork  = new UnitOfWork;
-        //TODO static
-        RecordAware::setUnitOfWork($this->unitOfWork);
     }
     /**
      * Sets class name provider
@@ -73,20 +66,9 @@ abstract class ManagerAbstract
      */
     public function setContainer(ServiceContainerInterface $container)
     {
-        $this->container = $container;
         //TODO static
-        StaticAware::setServiceContainer($this->container);
+        StaticAware::setServiceContainer($container);
         return $this;
-    }
-    /**
-     * @return mixed
-     */
-    public function getContainer()
-    {
-        if (empty($this->container)) {
-            $this->container = new ServiceContainer();
-        }
-        return $this->container;
     }
     /**
      * Sets crud connection
@@ -206,7 +188,7 @@ abstract class ManagerAbstract
             $fullFinderClassName = $nameProvider->getFinderClass($finderClassName);
 
             $finder =
-                new $fullFinderClassName($this->identityMap, $this->getMapper($className), $tableName, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className));
+                new $fullFinderClassName($this->getMapper($className), $tableName, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className));
 
             if ($finder instanceof Aware) {
                 $finder->setOrm($this);
@@ -244,7 +226,7 @@ abstract class ManagerAbstract
      */
     public function commit()
     {
-        foreach ($this->unitOfWork->getNewRecords() as $record) {
+        foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
             $className = $this
                 ->getClassNameProvider()
                 ->getBaseClass(get_class($record));
@@ -254,7 +236,7 @@ abstract class ManagerAbstract
                 ->convertRecordArrayToDbRow($record->getFields());
             $crud->insertById($className, $record->getId(), $changes);
         }
-        foreach ($this->unitOfWork->getChangedRecords() as $record) {
+        foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
             $className = $this
                 ->getClassNameProvider()
                 ->getBaseClass(get_class($record));
@@ -266,7 +248,7 @@ abstract class ManagerAbstract
                 $crud->updateById($className, $record->getId(), $changes);
             }
         }
-        foreach ($this->unitOfWork->getDeletedRecords() as $record) {
+        foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
             $className = $this
                 ->getClassNameProvider()
                 ->getBaseClass(get_class($record));
@@ -274,6 +256,6 @@ abstract class ManagerAbstract
             $crud->deleteById($className, $record->getId());
         }
 
-        $this->unitOfWork->flush();
+        $this->getUnitOfWork()->flush();
     }
 }
