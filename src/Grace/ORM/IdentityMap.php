@@ -19,6 +19,15 @@ class IdentityMap
     private $records = array();
 
     /**
+     * Cleans cache
+     * @return UnitOfWork
+     */
+    public function flush()
+    {
+        $this->records = array();
+        return $this;
+    }
+    /**
      * Gets record
      * @param $class
      * @param $id
@@ -26,6 +35,7 @@ class IdentityMap
      */
     public function getRecord($class, $id)
     {
+        $id = self::filterId($id);
         if (!isset($this->records[$class][$id])) {
             return false;
         }
@@ -40,6 +50,7 @@ class IdentityMap
      */
     public function setRecord($class, $id, $record)
     {
+        $id = self::filterId($id);
         $this->records[$class][$id] = $record;
         return $this;
     }
@@ -51,6 +62,7 @@ class IdentityMap
      */
     public function issetRecord($class, $id)
     {
+        $id = self::filterId($id);
         return isset($this->records[$class][$id]);
     }
     /**
@@ -61,7 +73,14 @@ class IdentityMap
      */
     public function unsetRecord($class, $id)
     {
+        $id = self::filterId($id);
         unset($this->records[$class][$id]);
         return $this;
+    }
+    private static function filterId($id)
+    {
+        //чтобы мы могли использовать и int и строки в качестве айди при создании объекта
+        $id = strval($id);
+        return $id;
     }
 }

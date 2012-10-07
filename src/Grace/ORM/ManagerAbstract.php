@@ -256,6 +256,12 @@ abstract class ManagerAbstract extends StaticAware
             $crud->deleteById($className, $record->getId());
         }
 
+        $this->flush();
+    }
+    public function flush()
+    {
         $this->getUnitOfWork()->flush();
+        //TODO временный хак, вообще нужно бы использовать некий defaulFieldsStorage, и при комите сбрасывать его, а в след комитах уже получать данные перед изменениями
+        $this->getIdentityMap()->flush();
     }
 }

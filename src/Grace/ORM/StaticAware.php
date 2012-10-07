@@ -28,7 +28,7 @@ abstract class StaticAware
      * Gets orm manager
      * @return ManagerAbstract
      */
-    final protected function getOrm()
+    final public function getOrm()
     {
         return self::$orm;
     }
@@ -47,7 +47,7 @@ abstract class StaticAware
      * Gets service container
      * @return ServiceContainerInterface
      */
-    final protected function getContainer()
+    final public function getContainer()
     {
         return self::$container;
     }
@@ -58,7 +58,7 @@ abstract class StaticAware
      * Gets service container
      * @return ServiceContainerInterface
      */
-    final protected function getUnitOfWork()
+    final public function getUnitOfWork()
     {
         if (empty(self::$unitOfWork)) {
             self::$unitOfWork = new UnitOfWork();
@@ -72,7 +72,7 @@ abstract class StaticAware
      * Gets IdentityMap
      * @return IdentityMap
      */
-    final protected function getIdentityMap()
+    final public function getIdentityMap()
     {
         if (empty(self::$identityMap)) {
             self::$identityMap = new IdentityMap;

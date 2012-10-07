@@ -142,8 +142,16 @@ abstract class FinderCrud extends StaticAware
         $recordArray = $this->mapper->convertDbRowToRecordArray($row);
         $recordClass = $this->fullClassName;
         //TODO magic string 'id'
-        $record = new $recordClass($recordArray['id'], $recordArray, $isNew, $newParams);
-        $this->getIdentityMap()->setRecord($this->tableName, $record->getId(), $record);
+
+        //if already exists in IdentityMap -  we get from IdentityMap because we don't want different objects related to one db row
+        $identityMap = $this->getIdentityMap();
+        if ($identityMap->issetRecord($this->tableName, $recordArray['id'])) {
+            $record = $identityMap->getRecord($this->tableName, $recordArray['id']);
+        } else {
+            $record = new $recordClass($recordArray['id'], $recordArray, $isNew, $newParams);
+            $identityMap->setRecord($this->tableName, $recordArray['id'], $record);
+        }
+
         return $record;
     }
 }
