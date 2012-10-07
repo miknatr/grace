@@ -16,7 +16,6 @@ namespace Grace\ORM;
 abstract class Record extends StaticAware implements MapperRecordInterface
 {
     private $id;
-    private $defaultFields = array();
     protected $fields = array();
 
     /**
@@ -26,9 +25,10 @@ abstract class Record extends StaticAware implements MapperRecordInterface
      */
     final public function __construct($id, array $fields, $isNew, array $newParams = array())
     {
-        $this->id            = $id;
-        $this->defaultFields = $fields;
-        $this->fields        = $fields;
+        $this->id     = $id;
+        $this->fields = $fields;
+
+        $this->getDefaultFieldsStorage()->setFields(get_class($this), $this->getId(), $fields);
 
         if ($isNew) { //if it is a new object
             $this->onCreate($newParams);
@@ -60,20 +60,13 @@ abstract class Record extends StaticAware implements MapperRecordInterface
         return $this->fields;
     }
     /**
-     * @inheritdoc
-     */
-    final public function getDefaultFields()
-    {
-        return $this->defaultFields;
-    }
-    /**
      * Delete all changes about this record
      * @return Record
      */
     final public function revert()
     {
         $this->getUnitOfWork()->revert($this);
-        $this->fields = $this->getDefaultFields();
+        $this->fields = $this->getDefaultFieldsStorage()->getFields(get_class($this), $this->getId());
 
         return $this;
     }

@@ -227,31 +227,35 @@ abstract class ManagerAbstract extends StaticAware
     public function commit()
     {
         foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
-            $className = $this
-                ->getClassNameProvider()
-                ->getBaseClass(get_class($record));
+            $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
             $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-            $changes   = $this
-                ->getMapper($className)
-                ->convertRecordArrayToDbRow($record->getFields());
+            $changes   = $this ->getMapper($className)->convertRecordArrayToDbRow($record->getFields());
             $crud->insertById($className, $record->getId(), $changes);
         }
+
+
         foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
-            $className = $this
-                ->getClassNameProvider()
-                ->getBaseClass(get_class($record));
+            $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
+            $classNameFull = get_class($record);
             $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-            $changes   = $this
-                ->getMapper($className)
-                ->getRecordChanges($record->getFields(), $record->getDefaultFields());
+
+            if ($this->getDefaultFieldsStorage()->issetFields($classNameFull, $record->getId())) {
+                $defaults = $this->getDefaultFieldsStorage()->getFields($classNameFull, $record->getId());
+            } else {
+                $defaults = $crud->selectById($className, $record->getId());
+            }
+
+            $changes = $this->getMapper($className)->getRecordChanges($record->getFields(), $defaults);
             if (count($changes) > 0) {
                 $crud->updateById($className, $record->getId(), $changes);
             }
+
+            $this->getDefaultFieldsStorage()->unsetFields($classNameFull, $record->getId());
         }
+
+
         foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
-            $className = $this
-                ->getClassNameProvider()
-                ->getBaseClass(get_class($record));
+            $className = $this ->getClassNameProvider()->getBaseClass(get_class($record));
             $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
             $crud->deleteById($className, $record->getId());
         }

@@ -13,45 +13,45 @@ namespace Grace\ORM;
 /**
  * Guarantees only one instance of every record
  */
-class IdentityMap
+class DefaultFieldsStorage
 {
 
-    private $records = array();
+    private $defaultFields = array();
 
     /**
      * Cleans cache
-     * @return IdentityMap
+     * @return DefaultFieldsStorage
      */
     public function flush()
     {
-        $this->records = array();
+        $this->defaultFields = array();
         return $this;
     }
     /**
      * Gets record
      * @param $class
      * @param $id
-     * @return Record|bool
+     * @return array|bool
      */
-    public function getRecord($class, $id)
+    public function getFields($class, $id)
     {
         $id = self::filterId($id);
-        if (!isset($this->records[$class][$id])) {
+        if (!isset($this->defaultFields[$class][$id])) {
             return false;
         }
-        return $this->records[$class][$id];
+        return $this->defaultFields[$class][$id];
     }
     /**
      * Sets record into map
      * @param $class
      * @param $id
      * @param $record
-     * @return IdentityMap
+     * @return DefaultFieldsStorage
      */
-    public function setRecord($class, $id, $record)
+    public function setFields($class, $id, $record)
     {
         $id = self::filterId($id);
-        $this->records[$class][$id] = $record;
+        $this->defaultFields[$class][$id] = $record;
         return $this;
     }
     /**
@@ -60,21 +60,21 @@ class IdentityMap
      * @param $id
      * @return bool
      */
-    public function issetRecord($class, $id)
+    public function issetFields($class, $id)
     {
         $id = self::filterId($id);
-        return isset($this->records[$class][$id]);
+        return isset($this->defaultFields[$class][$id]);
     }
     /**
      * Delete record from map
      * @param $class
      * @param $id
-     * @return IdentityMap
+     * @return DefaultFieldsStorage
      */
-    public function unsetRecord($class, $id)
+    public function unsetFields($class, $id)
     {
         $id = self::filterId($id);
-        unset($this->records[$class][$id]);
+        unset($this->defaultFields[$class][$id]);
         return $this;
     }
     private static function filterId($id)

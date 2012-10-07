@@ -79,4 +79,18 @@ abstract class StaticAware
         }
         return self::$identityMap;
     }
+
+
+    static private $defaultFieldsStorage;
+    /**
+     * Gets DefaultFieldsStorage
+     * @return DefaultFieldsStorage
+     */
+    final public function getDefaultFieldsStorage()
+    {
+        if (empty(self::$defaultFieldsStorage)) {
+            self::$defaultFieldsStorage = new DefaultFieldsStorage;
+        }
+        return self::$defaultFieldsStorage;
+    }
 }

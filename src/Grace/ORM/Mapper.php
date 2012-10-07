@@ -58,11 +58,7 @@ abstract class Mapper implements MapperInterface
     {
         $changes = array();
         foreach ($this->fields as $field) {
-            if (isset($recordArray[$field])
-                and isset($defaults[$field])
-                    and $recordArray[$field] != $defaults[$field]
-            ) {
-
+            if (isset($recordArray[$field]) and isset($defaults[$field]) and $recordArray[$field] != $defaults[$field]) {
                 $changes[$field] = $recordArray[$field];
             }
         }
