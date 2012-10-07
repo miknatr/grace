@@ -17,6 +17,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->orm       = new RealManager();
+        $this->orm->flush();
         $this->container = new ServiceContainer();
         $this->orm->setContainer($this->container);
 
@@ -58,16 +59,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('John', $r->getName());
         $this->assertEquals('+79991234567', $r->getPhone());
 
-        $this->assertEquals(array(), $this->orm
-            ->getUnitOfWorkPuplic()
-            ->getChangedRecords());
+        $this->assertEquals(array(), $this->orm->getUnitOfWork()->getChangedRecords());
     }
     public function testDeleting()
     {
         $this->collection->delete();
-        $this->assertEquals(2, count($this->orm
-                                         ->getUnitOfWorkPuplic()
-                                         ->getDeletedRecords()));
+        $this->assertEquals(2, count($this->orm->getUnitOfWork()->getDeletedRecords()));
     }
     protected function checkAssertsAfterSetters()
     {
@@ -87,9 +84,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Anonymous', $r->getName());
         $this->assertEquals('nophone', $r->getPhone());
 
-        $this->assertEquals(2, count($this->orm
-                                         ->getUnitOfWorkPuplic()
-                                         ->getChangedRecords()));
+        $this->assertEquals(2, count($this->orm->getUnitOfWork()->getChangedRecords()));
     }
     public function testSettingFieldWithSaving()
     {

@@ -7,19 +7,11 @@ use Grace\ORM\UnitOfWork;
 
 class RealManager extends ManagerAbstract
 {
-
     /**
      * @return OrderFinder
      */
     public function getOrderFinder()
     {
         return $this->getFinder('Order');
-    }
-    /**
-     * @return UnitOfWork
-     */
-    public function getUnitOfWorkPuplic()
-    {
-        return $this->unitOfWork;
     }
 }

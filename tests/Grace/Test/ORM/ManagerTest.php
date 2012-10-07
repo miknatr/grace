@@ -40,6 +40,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->setClassNameProvider(new RealClassNameProvider())
             ->setSqlReadOnlyConnection($this->connection)
             ->setCrudConnection($this->crud);
+        $this->manager->flush();
     }
     protected function tearDown()
     {
@@ -57,42 +58,23 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testCommit()
     {
         //test insert
-        $inserted = $this->manager
-            ->getOrderFinder()
-            ->create();
-        $inserted
-            ->setName('Arnold')
-            ->setPhone('+1-123-123');
+        $inserted = $this->manager->getOrderFinder()->create();
+        $inserted->setName('Arnold')->setPhone('+1-123-123');
 
         //test delete
-        $this->manager
-            ->getOrderFinder()
-            ->getById(3)
-            ->delete();
+        $this->manager->getOrderFinder()->getById(3)->delete();
 
         //test update
-        $this->manager
-            ->getOrderFinder()
-            ->getById(2)
-            ->setName('Jack');
+        $this->manager->getOrderFinder()->getById(2)->setName('Jack');
 
         $this->manager->commit();
 
 
         //clean objects and see changes
         $this->establishConnection();
-        $this->assertEquals('Mike', $this->manager
-            ->getOrderFinder()
-            ->getById(1)
-            ->getName());
-        $this->assertEquals('Jack', $this->manager
-            ->getOrderFinder()
-            ->getById(2)
-            ->getName());
-        $this->assertEquals('Arnold', $this->manager
-            ->getOrderFinder()
-            ->getById(4)
-            ->getName());
+        $this->assertEquals('Mike', $this->manager->getOrderFinder()->getById(1)->getName());
+        $this->assertEquals('Jack', $this->manager->getOrderFinder()->getById(2)->getName());
+        $this->assertEquals('Arnold', $this->manager->getOrderFinder()->getById(4)->getName());
 
         try {
             $this->manager

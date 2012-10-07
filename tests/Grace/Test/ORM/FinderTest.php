@@ -36,8 +36,7 @@ class FinderTest extends \PHPUnit_Framework_TestCase
         $this->identityMap = new IdentityMap;
         $this->mapper      = new OrderMapper;
 
-        $this->finder      =
-            new OrderFinder($this->identityMap, $this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection');
+        $this->finder      = new OrderFinder($this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection');
         $this->finder->setCrud($this->crud);
         $this->finder->setSqlReadOnly($this->connection);
 
