@@ -40,7 +40,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->setClassNameProvider(new RealClassNameProvider())
             ->setSqlReadOnlyConnection($this->connection)
             ->setCrudConnection($this->crud);
-        $this->manager->flush();
+        $this->manager->clean();
     }
     protected function tearDown()
     {

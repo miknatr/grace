@@ -13,8 +13,47 @@ namespace Grace\ORM;
 /**
  * Base model class
  */
-abstract class Record extends StaticAware implements MapperRecordInterface
+abstract class Record implements MapperRecordInterface
 {
+
+    //SERVICES GETTERS (one service - one method, access via getOrm()->getService() is not allowed for dependency control reasons)
+
+    /**
+     * @return ManagerAbstract
+     */
+    final protected function getOrm()
+    {
+        return ManagerAbstract::getCurrent();
+    }
+
+    /**
+     * @return ServiceContainerInterface
+     */
+    final protected function getContainer()
+    {
+        return ManagerAbstract::getCurrent()->getContainer();
+    }
+
+    /**
+     * @return DefaultFieldsStorage
+     */
+    final private function getDefaultFieldsStorage()
+    {
+        return ManagerAbstract::getCurrent()->getDefaultFieldsStorage();
+    }
+
+    /**
+     * @return UnitOfWork
+     */
+    final private function getUnitOfWork()
+    {
+        return ManagerAbstract::getCurrent()->getUnitOfWork();
+    }
+
+
+
+    //RECORD METHODS
+
     private $id;
     protected $fields = array();
 
@@ -40,6 +79,14 @@ abstract class Record extends StaticAware implements MapperRecordInterface
     protected function onCreate(array $params = array()) {}
     protected function onInit() {}
 
+    /**
+     * Gets id of record
+     * @return string
+     */
+    final public function getId()
+    {
+        return $this->id;
+    }
     /**
      * @inheritdoc
      */
@@ -96,14 +143,6 @@ abstract class Record extends StaticAware implements MapperRecordInterface
         }
         $this->markAsChanged();
         return $this;
-    }
-    /**
-     * Gets id of record
-     * @return string
-     */
-    final public function getId()
-    {
-        return $this->id;
     }
     /**
      * Marks record as changed

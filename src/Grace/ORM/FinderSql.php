@@ -24,11 +24,9 @@ use Grace\DBAL\ExceptionNoResult as ExceptionNoResultDB;
  */
 abstract class FinderSql extends FinderCrud implements InterfaceExecutable, InterfaceResult
 {
-    private $sqlReadOnly;
-    protected $idCounter = null;
-    /** @var InterfaceResult */
-    private $queryResult;
+    //DB CONNECTIONS
 
+    private $sqlReadOnly;
     /**
      * @param \Grace\DBAL\InterfaceConnection $sqlReadOnly
      */
@@ -36,6 +34,13 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
     {
         $this->sqlReadOnly = $sqlReadOnly;
     }
+
+
+
+    //IMPLEMETATIONS OF InterfaceExecutable, InterfaceResult
+
+    /** @var InterfaceResult */
+    private $queryResult;
     /**
      * Fetches record object
      * @throws ExceptionNoResult
@@ -78,7 +83,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
         while ($row = $this->queryResult->fetchOneOrFalse()) {
             $records[] = $this->convertRowToRecord($row, false);
         }
-        $collectionClassName = $this->fullCollectionClassName;
+        $collectionClassName = $this->getClassNameProvider()->getCollectionClass($this->tableName);
         return new $collectionClassName($records);
     }
     /**
@@ -129,12 +134,19 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
     {
         return new SelectBuilder($this->tableName, $this);
     }
+
+
+
+    //NEW ID GENERATION
+
+    protected $idCounter = null;
     /**
      * Generate new id for insert
      * @return mixed
      */
     protected function generateNewId()
     {
+        //TODO перенести бы в слой DB, тогда будет логично для постгреса юзать последовательности, а для остальных как повезет
         //TODO многопоточность мертва
         if ($this->idCounter === null) {
             $this->idCounter = $this

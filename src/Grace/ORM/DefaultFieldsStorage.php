@@ -22,7 +22,7 @@ class DefaultFieldsStorage
      * Cleans cache
      * @return DefaultFieldsStorage
      */
-    public function flush()
+    public function clean()
     {
         $this->defaultFields = array();
         return $this;

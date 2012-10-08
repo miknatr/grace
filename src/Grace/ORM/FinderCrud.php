@@ -20,30 +20,69 @@ use Grace\CRUD\ExceptionNoResult as ExceptionNoResultCRUD;
  * Gets collections
  * Create new records
  */
-abstract class FinderCrud extends StaticAware
+abstract class FinderCrud
 {
-    protected $fullCollectionClassName;
-    protected $fullClassName;
-    protected $mapper;
     protected $tableName;
 
-    protected $crud;
-
     /**
-     * @param MapperInterface $mapper
      * @param $tableName
      * @param $fullClassName
      * @param $fullCollectionClassName
      */
-    final public function __construct(MapperInterface $mapper, $tableName,
-                                $fullClassName, $fullCollectionClassName)
+    final public function __construct($tableName)
     {
-
-        $this->fullClassName           = $fullClassName;
-        $this->fullCollectionClassName = $fullCollectionClassName;
-        $this->mapper                  = $mapper;
-        $this->tableName               = $tableName;
+        $this->tableName = $tableName;
     }
+
+
+
+    //SERVICES GETTERS (one service - one method, access via getOrm()->getService() is not allowed for dependency control reasons)
+
+    /**
+     * @return ManagerAbstract
+     */
+    final protected function getOrm()
+    {
+        return ManagerAbstract::getCurrent();
+    }
+
+    /**
+     * @return ServiceContainerInterface
+     */
+    final protected function getContainer()
+    {
+        return ManagerAbstract::getCurrent()->getContainer();
+    }
+
+    /**
+     * @return ClassNameProviderInterface
+     */
+    final protected function getClassNameProvider()
+    {
+        return ManagerAbstract::getCurrent()->getClassNameProvider();
+    }
+
+    /**
+     * @return MapperInterface
+     */
+    final private function getMapper()
+    {
+        return ManagerAbstract::getCurrent()->getMapper($this->tableName);
+    }
+
+    /**
+     * @return IdentityMap
+     */
+    final private function getIdentityMap()
+    {
+        return ManagerAbstract::getCurrent()->getIdentityMap();
+    }
+
+
+
+    //DB CONNECTIONS
+
+    protected $crud;
     /**
      * @param \Grace\CRUD\CRUDInterface $crud
      */
@@ -54,6 +93,11 @@ abstract class FinderCrud extends StaticAware
         }
         $this->crud = $crud;
     }
+
+
+
+    //FINDER METHODS
+
     /**
      * Fetches collection of records
      * @return Collection
@@ -65,7 +109,7 @@ abstract class FinderCrud extends StaticAware
         foreach ($rows as $row) {
             $records[] = $this->convertRowToRecord($row, false);
         }
-        $collectionClassName = $this->fullCollectionClassName;
+        $collectionClassName = $this->getClassNameProvider()->getCollectionClass($this->tableName);
         return new $collectionClassName($records);
     }
     /**
@@ -115,21 +159,14 @@ abstract class FinderCrud extends StaticAware
     public function create(array $newParams = array(), $idWhenNecessary = null)
     {
         $fields = array();
+        //TODO magic string 'id'
         if ($idWhenNecessary !== null) {
             $fields['id'] = $idWhenNecessary;
         } else {
             $fields['id'] = $this->generateNewId();
         }
-        //TODO magic string 'id'
+
         return $this->convertRowToRecord($fields, true, $newParams);
-    }
-    /**
-     * Generate new id for insert
-     * @return mixed
-     */
-    protected function generateNewId()
-    {
-        throw new ExceptionUndefinedBehavior('You must implement this method if you need create operations');
     }
     /**
      * Converts db row to record object
@@ -139,8 +176,9 @@ abstract class FinderCrud extends StaticAware
      */
     protected function convertRowToRecord(array $row, $isNew, array $newParams = array())
     {
-        $recordArray = $this->mapper->convertDbRowToRecordArray($row);
-        $recordClass = $this->fullClassName;
+        $recordArray = $this->getMapper()->convertDbRowToRecordArray($row);
+        $recordClass = $this->getClassNameProvider()->getModelClass($this->tableName);
+
         //TODO magic string 'id'
 
         //if already exists in IdentityMap -  we get from IdentityMap because we don't want different objects related to one db row
@@ -153,5 +191,18 @@ abstract class FinderCrud extends StaticAware
         }
 
         return $record;
+    }
+
+
+
+    //NEW ID GENERATION
+
+    /**
+     * Generate new id for insert
+     * @return mixed
+     */
+    protected function generateNewId()
+    {
+        throw new ExceptionUndefinedBehavior('You must implement this method if you need create operations');
     }
 }

@@ -18,58 +18,153 @@ use Grace\CRUD\DBMasterDriver;
  * Orm manager
  * Gets finders and manages db connections
  */
-abstract class ManagerAbstract extends StaticAware
+abstract class ManagerAbstract
 {
-    const DEFAULT_CONNECTION_NAME = 'default';
-    protected $connectionNames = array();
-    private $sqlReadOnlyConnections = array();
-    private $crudConnections = array();
-    private $nameProvider;
-    private $mappers = array();
-    private $finders = array();
+
+    static private $instances;
+    static private $currentHash;
+    /**
+     * @return ManagerAbstract
+     */
+    static final public function getCurrent()
+    {
+        return self::$instances[self::$currentHash];
+    }
+    final public function __construct()
+    {
+        self::$instances[spl_object_hash($this)] = $this;
+        $this->touch();
+    }
+    final public function touch()
+    {
+        self::$currentHash = spl_object_hash($this);
+    }
+
 
     /**
-     * Constructor
+     * Commit all changer from unit of work into database
      */
-    public function __construct()
+    public function commit()
     {
-        //TODO static
-        StaticAware::setOrm($this);
-    }
-    /**
-     * Sets class name provider
-     * @param ClassNameProviderInterface $nameProvider
-     * @return ManagerAbstract
-     */
-    public function setClassNameProvider(ClassNameProviderInterface $nameProvider)
-    {
-        $this->nameProvider = $nameProvider;
-        return $this;
-    }
-    /**
-     * Gets class name provider
-     * Make new instance of ClassNameProvider if provider is not set
-     * @return ClassNameProviderInterface
-     */
-    protected function getClassNameProvider()
-    {
-        if (empty($this->nameProvider)) {
-            $this->nameProvider = new ClassNameProvider;
+        foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
+            $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
+            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
+            $changes   = $this ->getMapper($className)->convertRecordArrayToDbRow($record->getFields());
+            $crud->insertById($className, $record->getId(), $changes);
         }
-        return $this->nameProvider;
+
+
+        foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
+            $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
+            $classNameFull = get_class($record);
+            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
+
+            if ($this->getDefaultFieldsStorage()->issetFields($classNameFull, $record->getId())) {
+                $defaults = $this->getDefaultFieldsStorage()->getFields($classNameFull, $record->getId());
+            } else {
+                $defaults = $crud->selectById($className, $record->getId());
+            }
+
+            $changes = $this->getMapper($className)->getRecordChanges($record->getFields(), $defaults);
+            if (count($changes) > 0) {
+                $crud->updateById($className, $record->getId(), $changes);
+            }
+
+            $this->getDefaultFieldsStorage()->unsetFields($classNameFull, $record->getId());
+        }
+
+
+        foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
+            $className = $this ->getClassNameProvider()->getBaseClass(get_class($record));
+            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
+            $crud->deleteById($className, $record->getId());
+        }
+
+        $this->clean();
     }
     /**
-     * Sets event dispatcher
-     * Any object is allowed, you can set any specific dispatcher which you need
-     * @param $eventDispatcher
-     * @return ManagerAbstract
+     * Clean all object caches
      */
-    public function setContainer(ServiceContainerInterface $container)
+    public function clean()
     {
-        //TODO static
-        StaticAware::setServiceContainer($container);
-        return $this;
+        $this->getUnitOfWork()->clean();
+        $this->getIdentityMap()->clean();
+        $this->getDefaultFieldsStorage()->clean();
     }
+
+
+
+    //MAPPERS AND FINDERS
+
+    private $finders = array();
+    /**
+     * Gets finder which associated with model $className
+     * @param $className
+     * @param $finderClassName for extra-finders (like "OrderMyArchive")
+     * @return FinderSql
+     */
+    public function getFinder($className, $finderClassName = '')
+    {
+        if ($finderClassName == '') {
+            $finderClassName = $className;
+        }
+
+        if (!isset($this->finders[$finderClassName])) {
+            $connectionName = $this->getConnectionNameByClass($className);
+            $fullFinderClassName = $this->getClassNameProvider()->getFinderClass($finderClassName);
+
+            $finder = new $fullFinderClassName($className);
+
+            if ($finder instanceof FinderCrud) {
+                $finder->setCrud($this->getCrudConnection($connectionName));
+            }
+            if ($finder instanceof FinderSql) {
+                $finder->setSqlReadOnly($this->getSqlReadOnlyConnection($connectionName));
+            }
+
+            $this->finders[$finderClassName] = $finder;
+        }
+
+        return $this->finders[$finderClassName];
+    }
+
+    private $mappers = array();
+    /**
+     * Gets mapper which associated with model $className
+     * @param string $className
+     * @return MapperInterface
+     */
+    public function getMapper($className)
+    {
+        if (!isset($this->mappers[$className])) {
+            $fullClassName = $this->getClassNameProvider()->getMapperClass($className);
+            $this->mappers[$className] = new $fullClassName;
+        }
+
+        return $this->mappers[$className];
+    }
+
+
+
+    //DB CONNECTIONS
+
+    const DEFAULT_CONNECTION_NAME = 'default';
+    protected $connectionNames = array();
+    /**
+     * Gets connection name which associated with model $className
+     * @param string $className
+     * @return string
+     */
+    protected function getConnectionNameByClass($className)
+    {
+        if (isset($this->connectionNames[$className])) {
+            return $this->connectionNames[$className];
+        }
+        return self::DEFAULT_CONNECTION_NAME;
+    }
+
+
+    private $crudConnections = array();
     /**
      * Sets crud connection
      * If $name is not provided, sets default connection
@@ -115,6 +210,9 @@ abstract class ManagerAbstract extends StaticAware
     {
         return isset($this->crudConnections[$name]);
     }
+
+
+    private $sqlReadOnlyConnections = array();
     /**
      * Sets sql connection by name
      * If $name is not provided, sets default connection
@@ -155,117 +253,96 @@ abstract class ManagerAbstract extends StaticAware
     {
         return isset($this->sqlReadOnlyConnections[$name]);
     }
+
+
+
+    //ORM STORAGES AND SERVICES
+
+    private $container;
     /**
-     * Gets connection name which associated with model $className
-     * @param string $className
-     * @return string
+     * Sets service container
+     * @static
+     * @param ServiceContainerInterface $container
+     * @return ManagerAbstract
      */
-    protected function getConnectionNameByClass($className)
+    final public function setContainer(ServiceContainerInterface $container)
     {
-        if (isset($this->connectionNames[$className])) {
-            return $this->connectionNames[$className];
-        }
-        return self::DEFAULT_CONNECTION_NAME;
+        $this->container = $container;
+        return $this;
     }
     /**
-     * Gets finder which associated with model $className
-     * @param $className
-     * @param $finderClassName for extra-finders
-     * @return FinderSql
+     * Gets service container
+     * @return ServiceContainerInterface
      */
-    protected function getFinder($className, $finderClassName = '')//, $tableName = '')
+    final public function getContainer()
     {
-        if ($finderClassName == '') {
-            $finderClassName = $className;
+        return $this->container;
+    }
+
+
+    private $unitOfWork;
+    /**
+     * Gets service container
+     * @return UnitOfWork
+     */
+    final public function getUnitOfWork()
+    {
+        if (empty($this->unitOfWork)) {
+            $this->unitOfWork = new UnitOfWork;
         }
-        //if ($tableName == '') {
-            $tableName = $className;
-        //}
-        if (!isset($this->finders[$finderClassName])) {
-            $connectionName = $this->getConnectionNameByClass($className);
+        return $this->unitOfWork;
+    }
 
-            $nameProvider        = $this->getClassNameProvider();
-            $fullFinderClassName = $nameProvider->getFinderClass($finderClassName);
 
-            $finder =
-                new $fullFinderClassName($this->getMapper($className), $tableName, $nameProvider->getModelClass($className), $nameProvider->getCollectionClass($className));
-
-            if ($finder instanceof Aware) {
-                $finder->setOrm($this);
-                $finder->setContainer($this->getContainer());
-            }
-            if ($finder instanceof FinderCrud) {
-                $finder->setCrud($this->getCrudConnection($connectionName));
-            }
-            if ($finder instanceof FinderSql) {
-                $finder->setSqlReadOnly($this->getSqlReadOnlyConnection($connectionName));
-            }
-
-            $this->finders[$finderClassName] = $finder;
+    private $identityMap;
+    /**
+     * Gets IdentityMap
+     * @return IdentityMap
+     */
+    final public function getIdentityMap()
+    {
+        if (empty($this->identityMap)) {
+            $this->identityMap = new IdentityMap;
         }
+        return $this->identityMap;
+    }
 
-        return $this->finders[$finderClassName];
+
+    private $defaultFieldsStorage;
+    /**
+     * Gets DefaultFieldsStorage
+     * @return DefaultFieldsStorage
+     */
+    final public function getDefaultFieldsStorage()
+    {
+        if (empty($this->defaultFieldsStorage)) {
+            $this->defaultFieldsStorage = new DefaultFieldsStorage;
+        }
+        return $this->defaultFieldsStorage;
+    }
+
+
+    private $nameProvider;
+    /**
+     * Sets class name provider
+     * @param ClassNameProviderInterface $nameProvider
+     * @return ManagerAbstract
+     */
+    final public function setClassNameProvider(ClassNameProviderInterface $nameProvider)
+    {
+        $this->nameProvider = $nameProvider;
+        return $this;
     }
     /**
-     * Gets mapper which associated with model $className
-     * @param string $className
-     * @return MapperInterface
+     * Gets class name provider
+     * Make new instance of ClassNameProvider if provider is not set
+     * @return ClassNameProviderInterface
      */
-    private function getMapper($className)
+    final public function getClassNameProvider()
     {
-        if (!isset($this->mappers[$className])) {
-            $fullClassName             = $this
-                ->getClassNameProvider()
-                ->getMapperClass($className);
-            $this->mappers[$className] = new $fullClassName;
+        if (empty($this->nameProvider)) {
+            $this->nameProvider = new ClassNameProvider;
         }
-        return $this->mappers[$className];
-    }
-    /**
-     * Commit all changer from unit of work into database
-     */
-    public function commit()
-    {
-        foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
-            $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
-            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-            $changes   = $this ->getMapper($className)->convertRecordArrayToDbRow($record->getFields());
-            $crud->insertById($className, $record->getId(), $changes);
-        }
-
-
-        foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
-            $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
-            $classNameFull = get_class($record);
-            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-
-            if ($this->getDefaultFieldsStorage()->issetFields($classNameFull, $record->getId())) {
-                $defaults = $this->getDefaultFieldsStorage()->getFields($classNameFull, $record->getId());
-            } else {
-                $defaults = $crud->selectById($className, $record->getId());
-            }
-
-            $changes = $this->getMapper($className)->getRecordChanges($record->getFields(), $defaults);
-            if (count($changes) > 0) {
-                $crud->updateById($className, $record->getId(), $changes);
-            }
-
-            $this->getDefaultFieldsStorage()->unsetFields($classNameFull, $record->getId());
-        }
-
-
-        foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
-            $className = $this ->getClassNameProvider()->getBaseClass(get_class($record));
-            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-            $crud->deleteById($className, $record->getId());
-        }
-
-        $this->flush();
-    }
-    public function flush()
-    {
-        $this->getUnitOfWork()->flush();
-        //TODO временный хак, вообще нужно бы использовать некий defaulFieldsStorage, и при комите сбрасывать его, а в след комитах уже получать данные перед изменениями
-        $this->getIdentityMap()->flush();
+        return $this->nameProvider;
     }
 }

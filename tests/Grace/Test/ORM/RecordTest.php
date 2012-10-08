@@ -17,7 +17,7 @@ class RecordTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->orm = new RealManager();
-        $this->orm->flush();
+        $this->orm->clean();
         $this->container = new ServiceContainer();
         $this->orm->setContainer($this->container);
         $fields           = array(

@@ -22,7 +22,7 @@ class IdentityMap
      * Cleans cache
      * @return IdentityMap
      */
-    public function flush()
+    public function clean()
     {
         $this->records = array();
         return $this;

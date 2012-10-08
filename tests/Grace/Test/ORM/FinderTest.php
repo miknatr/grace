@@ -28,15 +28,15 @@ class FinderTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->orm = new RealManager();
+        $this->orm->setClassNameProvider(new RealClassNameProvider);
         $this->container = new ServiceContainer();
         $this->orm->setContainer($this->container);
-        $this->connection  =
-            new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+        $this->connection  = new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud        = new DBMasterDriver($this->connection);
         $this->identityMap = new IdentityMap;
         $this->mapper      = new OrderMapper;
 
-        $this->finder      = new OrderFinder($this->mapper, 'Order', 'Grace\Test\ORM\Order', 'Grace\Test\ORM\OrderCollection');
+        $this->finder      = new OrderFinder('Order');
         $this->finder->setCrud($this->crud);
         $this->finder->setSqlReadOnly($this->connection);
 

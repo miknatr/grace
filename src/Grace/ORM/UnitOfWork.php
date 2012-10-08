@@ -66,7 +66,7 @@ class UnitOfWork
      * Delete all changes about all record
      * @return UnitOfWork
      */
-    public function flush()
+    public function clean()
     {
         $this->newRecords     = array();
         $this->changedRecords = array();
