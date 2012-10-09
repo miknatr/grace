@@ -8,6 +8,7 @@ use Grace\DBAL\ExceptionConnection;
 use Grace\DBAL\ExceptionQuery;
 use Grace\SQLBuilder\Factory;
 
+//TODO абстрактный класс коннекта уж больно заточен под MySQL. если планируется поддержка нескольких СУБД стоит задуматься о.
 abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
 {
     /** @var InterfaceConnection */
@@ -35,7 +36,7 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
     public function testFetchingOne()
     {
         $r = $this->connection
-            ->execute('SELECT 1, 2, 3 FROM DUAL')
+            ->execute('SELECT 1 AS "1", 2 AS "2", 3 AS "3"')
             ->fetchOne();
         $this->assertEquals(array(
                                  '1'  => '1',
@@ -46,7 +47,7 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
     public function testFetchingAll()
     {
         $r = $this->connection
-            ->execute('SELECT 1, 2, 3 FROM DUAL')
+            ->execute('select 1 AS "1",2 AS "2",3 AS "3"')
             ->fetchAll();
         $this->assertEquals(array(
                                  array(
@@ -59,21 +60,21 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
     public function testFetchingResult()
     {
         $r = $this->connection
-            ->execute('SELECT 1, 2, 3 FROM DUAL')
+            ->execute('select 1 AS "1",2 AS "2",3 AS "3"')
             ->fetchResult();
         $this->assertEquals('1', $r);
     }
     public function testFetchingColumn()
     {
         $r = $this->connection
-            ->execute('SELECT 1 FROM DUAL')
+            ->execute('SELECT 1 AS "1"')
             ->fetchColumn();
         $this->assertEquals(array('1'), $r);
     }
     public function testFetchingHash()
     {
         $r = $this->connection
-            ->execute('SELECT "kkk", "vvv" FROM DUAL')
+            ->execute('SELECT \'kkk\' AS "kkk", \'vvv\' AS "vvv" ')
             ->fetchHash();
         $this->assertEquals(array('kkk' => "vvv"), $r);
     }
