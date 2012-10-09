@@ -26,7 +26,7 @@ class MysqliConnectionTest extends AbstractConnectionTest
         $this->setExpectedException('Grace\DBAL\ExceptionConnection');
         $this->connection =
             new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, 'SOME BAD NAME', TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
-        //Lazy conniction, only if we really use database
+        //Lazy connection, only if we really use database
         $r = $this->connection->execute('SELECT 1');
     }
 }
