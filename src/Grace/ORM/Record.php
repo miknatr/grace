@@ -35,6 +35,14 @@ abstract class Record implements MapperRecordInterface
     }
 
     /**
+     * @return ClassNameProviderInterface
+     */
+    final protected function getClassNameProvider()
+    {
+        return ManagerAbstract::getCurrent()->getClassNameProvider();
+    }
+
+    /**
      * @return DefaultFieldsStorage
      */
     final private function getDefaultFieldsStorage()
