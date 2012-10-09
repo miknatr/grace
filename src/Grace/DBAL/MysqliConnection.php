@@ -149,7 +149,7 @@ class MysqliConnection extends AbstractConnection
     private function connect()
     {
         if (!function_exists("mysqli_connect")) {
-            throw new ExceptionConnection("Function mysqli_connect doesn\'t exists");
+            throw new ExceptionConnection("Function mysqli_connect doesn\'t exist");
         }
 
         $timer = time() + microtime(false);

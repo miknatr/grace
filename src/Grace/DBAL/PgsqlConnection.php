@@ -86,7 +86,7 @@ class PgsqlConnection extends AbstractConnection
     }
 
     /**
-     * @inheritdoc
+     * @inheritdoc                                Connection
      */
     public function escape($value)
     {
@@ -160,8 +160,9 @@ class PgsqlConnection extends AbstractConnection
      */
     private function connect()
     {
+        lala_function();
         if (!function_exists("pg_connect")) {
-            throw new ExceptionConnection("Function pg_connect doesn't exists");
+            throw new ExceptionConnection("Function pg_connect doesn't exist");
         }
 
         $timer = time() + microtime(false);
