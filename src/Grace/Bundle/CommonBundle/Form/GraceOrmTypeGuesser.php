@@ -64,6 +64,7 @@ class GraceOrmTypeGuesser implements FormTypeGuesserInterface
             } else {
                 $type = $metadata['type'];
             }
+            $confidence = Guess::VERY_HIGH_CONFIDENCE;
         } else {
             if (preg_match('e([-\s]*)mail', $fieldNameLowerCase)) {
                 $type = 'email';
@@ -72,6 +73,7 @@ class GraceOrmTypeGuesser implements FormTypeGuesserInterface
                     $type = 'url';
                 }
             }
+            $confidence = Guess::MEDIUM_CONFIDENCE;
         }
 
         //$type == 'choice' and  убрано, т.к. например тип color тоже использует _dataSource
@@ -89,7 +91,7 @@ class GraceOrmTypeGuesser implements FormTypeGuesserInterface
             }
         }
 
-        return new TypeGuess($type, $options, Guess::HIGH_CONFIDENCE);
+        return new TypeGuess($type, $options, $confidence);
     }
 
     /**
