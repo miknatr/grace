@@ -1,0 +1,7 @@
+services:
+  grace_simple_api.security.authentication.provider:
+    class:  Grace\Bundle\ApiBundle\Security\Authentication\Provider\ApiProvider
+    arguments: ['', %kernel.cache_dir%/security/nonces]
+  grace_simple_api.security.authentication.listener:
+    class:  Grace\Bundle\ApiBundle\Security\Firewall\ApiListener
+    arguments: [@security.context, @security.authentication.manager]

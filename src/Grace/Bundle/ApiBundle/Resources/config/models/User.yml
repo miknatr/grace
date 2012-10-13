@@ -1,0 +1,34 @@
+abstract: true
+properties:
+  id:
+    mapping: 'int(10) unsigned AUTO_INCREMENT'
+  name:
+    mapping: varchar(255)
+  phone:
+    mapping: varchar(20)
+  password:
+    mapping: varchar(255)
+    filter: {when: onSet, function: md5}
+  token:
+    mapping: varchar(255)
+  tokenCreatedAt:
+    mapping: datetime
+  tokenIp:
+    mapping: varchar(255)
+  createdAt:
+    mapping: datetime
+  lastVisitAt:
+    mapping: datetime
+  lastIp:
+    mapping: varchar(255)
+  countFailedLogins:
+    mapping: 'tinyint(2) unsigned'
+  isBlocked:
+    type: bool
+    mapping: 'tinyint(1) unsigned'
+  role:
+    mapping: varchar(100)
+indexes:
+  - 'PRIMARY KEY (`id`)'
+  - 'KEY `token` (`token`)'
+  - 'KEY `phone` (`phone`)'

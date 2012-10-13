@@ -1,0 +1,103 @@
+services:
+
+  #Cache services
+  zend_cache:
+    class: Zend_Cache_Core
+    factory_class: Zend_Cache
+    factory_method: factory
+    arguments:
+        - Core
+        - Memcached
+        - {lifetime: 7200, automatic_serialization: true}
+        - {}
+  cache:
+    class: Grace\Bundle\CommonBundle\Cache\Cache
+    arguments: [@zend_cache, %grace.cache.namespace%, %grace.cache.enabled%]
+
+
+
+  #DB connections
+  grace_query_logger:
+    class: Grace\DBAL\QueryLogger
+  grace_db:
+    class: Grace\DBAL\MysqliConnection
+    arguments: [%database_host%, %database_port%, %database_user%, %database_password%, %database_name%]
+    calls:
+      - [ setLogger, [ @grace_query_logger ] ]
+  grace_crud_db:
+    class: Grace\CRUD\DBMasterDriver
+    arguments: [@grace_db]
+  grace_crud_memcache:
+    class: Grace\CRUD\MemcacheProxy
+    arguments: [@grace_crud_db]
+  grace_crud_php_storage:
+    class: Grace\CRUD\PhpFileReadOnlyDriver
+    arguments: [%grace.php_storage_file%]
+
+
+
+  #ORM services
+  grace_orm:
+    class: %grace.namespace.common_prefix_without_slash%\%grace.namespace.manager_class%
+    calls:
+      - [ setSqlReadOnlyConnection, [ @grace_db ] ]
+      - [ setCrudConnection, [ @grace_crud_db ] ]
+
+      - [ setSqlReadOnlyConnection, [ @grace_db, 'memcache-proxy' ] ]
+      - [ setCrudConnection, [ @grace_crud_memcache, 'memcache-proxy' ] ]
+
+      - [ setCrudConnection, [ @grace_crud_php_storage, 'php-storage' ] ]
+
+      - [ setClassNameProvider, [ @grace_classname_provider ] ]
+      - [ setContainer, [ @?grace_container ] ]
+  grace_classname_provider:
+    class: Grace\ORM\ClassNameProvider
+    arguments: [%grace.namespace.common_prefix_without_slash%]
+  grace_generator:
+    class: Grace\Bundle\CommonBundle\Generator\ModelsGenerator
+    arguments:
+      - %grace.model_config_resources%
+      - %grace.namespace%
+      - Grace\Bundle\CommonBundle\GraceContainer
+      - %grace.output_validator_file%
+      - %grace.real_class_directory%
+      - %grace.abstract_class_directory%
+      - %grace.generator_plugins%
+  grace_container:
+    class: Grace\Bundle\CommonBundle\GraceContainer
+    calls:
+      - [ setEventDispatcher, [ @event_dispatcher ] ]
+      - [ setCache, [ @cache ] ]
+      - [ setRoleHierarchy, [ @security.role_hierarchy ] ]
+
+
+
+  #Symfony integration services
+  grace_param_converter:
+    class: Grace\Bundle\CommonBundle\Request\ParamConverter\GraceParamConverter
+    arguments: [@?grace_orm]
+    tags:
+      -  { name: request.param_converter }
+  grace_validator_unique:
+     class: Grace\Bundle\CommonBundle\Validator\UniqueValidator
+     arguments: [@?grace_orm]
+     tags:
+          - { name: validator.constraint_validator, alias: validator.grace_validator_unique }
+  grace_type_guesser:
+    class: Grace\Bundle\CommonBundle\Form\GraceOrmTypeGuesser
+    tags: [{ name: form.type_guesser }]
+    arguments: [@annotation_reader, @grace_orm, %grace.form_type_translations%]
+  grace_query_collector:
+    class: Grace\Bundle\CommonBundle\DataCollector\QueryCollector
+    arguments: [@grace_query_logger]
+    tags:
+      - { name: data_collector, template: GraceBundle:Collector:grace, id: grace }
+  grace_request_listener:
+    class: Grace\Bundle\CommonBundle\EventListener\ControllerListener
+    arguments:
+      - @grace_generator
+      - @grace_orm
+      - @?kernel
+    tags:
+      - { name: kernel.event_listener, event: kernel.controller, method: onKernelRequest }
+      - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
