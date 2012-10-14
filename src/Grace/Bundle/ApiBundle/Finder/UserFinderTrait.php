@@ -11,7 +11,7 @@ trait UserFinderTrait
         /** @var $cache \Grace\Bundle\CommonBundle\Cache\Cache */
         $cache = $this->getContainer()->getCache();
 
-        return $cache->get('by_username_' . $username, '3m', function () use ($username) {
+        return $cache->get(User::CACHE_PREFIX_USERNAME . $username, '3m', function () use ($username) {
 
             $prefix = static::USERNAME_PREFIX;
 
@@ -32,7 +32,7 @@ trait UserFinderTrait
         /** @var $cache \Grace\Bundle\CommonBundle\Cache\Cache */
         $cache = $this->getContainer()->getCache();
 
-        return $cache->get('by_token_' . $token, '3m', function () use ($token) {
+        return $cache->get(User::CACHE_PREFIX_TOKEN . $token, '3m', function () use ($token) {
             return $this
                 ->getSelectBuilder()
                 ->eq('token', $token)

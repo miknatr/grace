@@ -10,35 +10,31 @@
 
 namespace Grace\CRUD;
 
+//TODO убрать зависимость от бандла или вынест кэш в отдельный слой
+use Grace\Bundle\CommonBundle\Cache\Cache;
+
 //TODO Do and test all methods below
-class MemcacheProxy implements CRUDInterface
+class CacheProxy implements CRUDInterface
 {
-    private $memcache;
+    /**
+     * @var Cache
+     */
+    private $cache;
     private $subject;
-    private $ttl = 600;
-    public function __construct(CRUDInterface $subject)
+    public function __construct(CRUDInterface $subject, Cache $cache)
     {
         $this->subject  = $subject;
-    }
-    private function getMemcache()
-    {
-        if (empty($this->memcache)) {
-            $this->memcache = new \Memcache;
-            //TODO расхардкодить и вынести в параметры конструктора
-            $this->memcache->connect('localhost', 11211);
-        }
-        return $this->memcache;
+        $this->cache  = $cache;
     }
     /**
      * @inheritdoc
      */
     public function selectById($table, $id)
     {
-        $memcache = $this->getMemcache();
-        $r = $memcache->get($table . $id);
+        $r = $this->cache->get($table . $id);
         if (!$r) {
             $r = $this->subject->selectById($table, $id);
-            $memcache->add($table . $id, $r, 0, $this->ttl);
+            $this->cache->set($table . $id, $r);
         }
         return $r;
     }
@@ -56,7 +52,7 @@ class MemcacheProxy implements CRUDInterface
     public function updateById($table, $id, array $values)
     {
         //лучше здесь не кэшировать, чтобы данные прошли через бд, т.к. там возможна некая фильтрация
-        $this->getMemcache()->delete($table . $id);
+        $this->cache->remove($table . $id);
         return $this->subject->updateById($table, $id, $values);
     }
     /**
@@ -64,7 +60,7 @@ class MemcacheProxy implements CRUDInterface
      */
     public function deleteById($table, $id)
     {
-        $this->getMemcache()->delete($table . $id);
+        $this->cache->remove($table . $id);
         return $this->subject->deleteById($table, $id);
     }
 }

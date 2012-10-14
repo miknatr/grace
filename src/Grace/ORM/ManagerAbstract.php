@@ -80,6 +80,17 @@ abstract class ManagerAbstract
             $crud->deleteById($className, $record->getId());
         }
 
+
+        foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
+            $record->onCommitInsert();
+        }
+        foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
+            $record->onCommitChange();
+        }
+        foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
+            $record->onCommitDelete();
+        }
+
         $this->clean();
     }
     /**

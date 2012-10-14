@@ -27,9 +27,9 @@ services:
   grace_crud_db:
     class: Grace\CRUD\DBMasterDriver
     arguments: [@grace_db]
-  grace_crud_memcache:
-    class: Grace\CRUD\MemcacheProxy
-    arguments: [@grace_crud_db]
+  grace_crud_cache:
+    class: Grace\CRUD\CacheProxy
+    arguments: [@grace_crud_db, @cache]
   grace_crud_php_storage:
     class: Grace\CRUD\PhpFileReadOnlyDriver
     arguments: [%grace.php_storage_file%]
@@ -43,8 +43,8 @@ services:
       - [ setSqlReadOnlyConnection, [ @grace_db ] ]
       - [ setCrudConnection, [ @grace_crud_db ] ]
 
-      - [ setSqlReadOnlyConnection, [ @grace_db, 'memcache-proxy' ] ]
-      - [ setCrudConnection, [ @grace_crud_memcache, 'memcache-proxy' ] ]
+      - [ setSqlReadOnlyConnection, [ @grace_db, 'cache-proxy' ] ]
+      - [ setCrudConnection, [ @grace_crud_cache, 'cache-proxy' ] ]
 
       - [ setCrudConnection, [ @grace_crud_php_storage, 'php-storage' ] ]
 
@@ -97,7 +97,9 @@ services:
     arguments:
       - @grace_generator
       - @grace_orm
+      - @logger
       - @?kernel
     tags:
+      - { name: monolog.logger, channel: grace }
       - { name: kernel.event_listener, event: kernel.controller, method: onKernelRequest }
       - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }

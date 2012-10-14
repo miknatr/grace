@@ -146,4 +146,26 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
 
         return $isSameIp && $isTokenNotExpired;
     }
+    static public function trimUsername()
+    {
+
+    }
+    const CACHE_PREFIX_USERNAME = 'user_by_username_';
+    const CACHE_PREFIX_TOKEN = 'user_by_token_';
+    public function onCommitChange()
+    {
+        $this->cleanRelatedCaches();
+    }
+    public function onCommitDelete()
+    {
+        $this->cleanRelatedCaches();
+    }
+    private function cleanRelatedCaches()
+    {
+        $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_TOKEN . $this->getToken());
+
+        $finderCLass = $this->getClassNameProvider()->getFinderClass(get_class($this));
+        $prefix      = constant($finderCLass . '::USERNAME_PREFIX');
+        $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_USERNAME . $prefix . $this->getPhone());
+    }
 }

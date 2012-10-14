@@ -21,7 +21,7 @@ class Cache implements CacheInterface
 
         if ($this->enabled) {
             $r = $this->adapter->load($this->namespace . '__' . $key);
-            if (!$r && $cacheSetter !== null) {
+            if ($r === false && $cacheSetter !== null) {
                 $r = call_user_func($cacheSetter);
                 $this->set($key, $r, $ttl);
             }

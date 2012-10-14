@@ -13,7 +13,7 @@ namespace Grace\ORM;
 /**
  * Base model class
  */
-abstract class Record implements MapperRecordInterface
+abstract class Record implements MapperRecordInterface, ManagerRecordInterface
 {
 
     //SERVICES GETTERS (one service - one method, access via getOrm()->getService() is not allowed for dependency control reasons)
@@ -95,6 +95,7 @@ abstract class Record implements MapperRecordInterface
     {
         return $this->id;
     }
+
     /**
      * @inheritdoc
      */
@@ -114,6 +115,20 @@ abstract class Record implements MapperRecordInterface
     {
         return $this->fields;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function onCommitInsert() {}
+    /**
+     * @inheritdoc
+     */
+    public function onCommitChange() {}
+    /**
+     * @inheritdoc
+     */
+    public function onCommitDelete() {}
+
     /**
      * Delete all changes about this record
      * @return Record
