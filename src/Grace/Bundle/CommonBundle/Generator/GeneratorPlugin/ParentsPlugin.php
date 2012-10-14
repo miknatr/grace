@@ -30,11 +30,14 @@ class ParentsPlugin extends PluginAbstract
                 $method
                     ->setDocblock($docblock)
                     ->setName($getterName)
-                    ->setBody('return $this->getOrm()->get' . $parentTable . 'Finder()->getByIdOrFalse($this->get' .
-                                  ucfirst($fieldName) . '());');
+                    ->setBody(self::getBody($fieldName, $parentTable));
                 $recordAbstractMethods[] = $method;
             }
         }
         return $recordAbstractMethods;
+    }
+    private static function getBody($fieldName, $parentTable)
+    {
+        return '$id = $this->get' . ucfirst($fieldName) . '(); return empty($id) ? false : $this->getOrm()->get' . $parentTable . 'Finder()->getByIdOrFalse($id);';
     }
 }
