@@ -173,8 +173,8 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                         $getterByUser = $getter . 'ByUser';
 
                         if (method_exists($this, $getterByUser)) {
-                            //$value = $this->$getterByUser($user);
-                            $value = $this->fields[$fieldName];
+                            $value = $this->$getterByUser($user);
+                            //$value = $this->fields[$fieldName];
                         } else {
                             $value = $this->$getter();
                             //$value = $this->fields[$fieldName];
