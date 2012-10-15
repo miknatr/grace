@@ -17,6 +17,8 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  * либо полный запрет для всех - false.
  *
  * Для генерации полей editablies и visiblies используется AclGraceCommandPlugin
+ *
+ * @method \Grace\Bundle\CommonBundle\GraceContainer getContainer()
  */
 abstract class ResourceAbstract extends Record implements ResourceInterface
 {
@@ -102,7 +104,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
     }
 
 
-    public function getPrivilegeForUser(User $user)
+    final public function getPrivilegeForUser(User $user)
     {
         foreach (static::$aclPrivileges as $privilege => $conditions) {
             foreach ($conditions as $condition) {
@@ -156,40 +158,47 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
         $this->throwIfNotAccessOnResource('delete', $this->getPrivilegeForUser($user));
         $this->delete();
     }
-    public function asArrayByUser(User $user)
+    final public function asArrayByUser(User $user)
     {
         $privilege = $this->getPrivilegeForUser($user);
         $this->throwIfNotAccessOnResource('view', $privilege);
 
-        $r = array();
-        foreach ($this->fields as $fieldName => $v) {
-            if ($this->hasAccess(static::$aclFieldsView[$fieldName], $privilege)) {
+        $key = 'as_array_' . md5($privilege . $user->getType() . $user->getId() . md5(json_encode($this->fields)));
+        return $this->getContainer()->getCache()->get($key, 30, function() use ($user, $privilege) {
+                $r = array();
+                foreach ($this->fields as $fieldName => $v) {
+                    if ($this->hasAccess(static::$aclFieldsView[$fieldName], $privilege)) {
 
-                $getter = 'get' . ucfirst($fieldName);
-                $getterByUser = $getter . 'ByUser';
-                if (method_exists($this, $getterByUser)) {
-                    $value = $this->$getterByUser($user);
-                } else {
-                    $value = $this->$getter();
-                }
+                        $getter = 'get' . ucfirst($fieldName);
+                        $getterByUser = $getter . 'ByUser';
 
-                if(is_object($value)) {
-                    if(method_exists($value, 'asArrayByUser')) {
-                        $value = $value->asArrayByUser($user);
-                    } elseif (method_exists($value, 'asArray')) {
-                        $value = $value->asArray($user);
-                    } elseif (method_exists($value, '__toString')) {
-                        $value = (string) $value;
-                    } else {
-                        throw new \LogicException('Подобъект должен иметь метод asArrayByUser(User $user) или asArray()');
+                        if (method_exists($this, $getterByUser)) {
+                            //$value = $this->$getterByUser($user);
+                            $value = $this->fields[$fieldName];
+                        } else {
+                            $value = $this->$getter();
+                            //$value = $this->fields[$fieldName];
+                        }
+
+                        if(is_object($value)) {
+                            if(method_exists($value, 'asArrayByUser')) {
+                                $value = $value->asArrayByUser($user);
+                            } elseif (method_exists($value, 'asArray')) {
+                                $value = $value->asArray($user);
+                            } elseif (method_exists($value, '__toString')) {
+                                $value = (string) $value;
+                            } else {
+                                throw new \LogicException('Подобъект должен иметь метод asArrayByUser(User $user) или asArray()');
+                            }
+                        }
+                        $r[$fieldName] = $value;
+
                     }
                 }
-                $r[$fieldName] = $value;
+                $r['privilege'] = $privilege;
 
-            }
-        }
-        $r['privilege'] = $privilege;
-        return $r;
+                return $r;
+            });
     }
     protected function hasAccess($accessList, $privilege)
     {

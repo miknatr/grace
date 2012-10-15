@@ -69,6 +69,7 @@ services:
       - [ setEventDispatcher, [ @event_dispatcher ] ]
       - [ setCache, [ @cache ] ]
       - [ setRoleHierarchy, [ @security.role_hierarchy ] ]
+      - [ setLogger, [ @logger ] ]
 
 
 

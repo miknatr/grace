@@ -6,6 +6,7 @@ use Grace\ORM\ServiceContainerInterface;
 use Grace\Bundle\CommonBundle\Cache\Cache;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
+use Monolog\Logger;
 
 class GraceContainer implements ServiceContainerInterface
 {
@@ -46,5 +47,18 @@ class GraceContainer implements ServiceContainerInterface
     public function getEventDispatcher()
     {
         return $this->eventDispatcher;
+    }
+
+    /**
+     * @var Logger
+     */
+    private $logger;
+    public function setLogger(Logger $logger)
+    {
+        $this->logger = $logger;
+    }
+    public function getLogger()
+    {
+        return $this->logger;
     }
 }

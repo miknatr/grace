@@ -164,7 +164,8 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
     {
         $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_TOKEN . $this->getToken());
 
-        $finderCLass = $this->getClassNameProvider()->getFinderClass(get_class($this));
+        $baseClass   = $this->getClassNameProvider()->getBaseClass(get_class($this));
+        $finderCLass = $this->getClassNameProvider()->getFinderClass($baseClass);
         $prefix      = constant($finderCLass . '::USERNAME_PREFIX');
         $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_USERNAME . $prefix . $this->getPhone());
     }
