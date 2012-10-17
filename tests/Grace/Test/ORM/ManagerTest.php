@@ -31,8 +31,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     protected function establishConnection()
     {
         $this->dispatcher = new \stdClass();
-        $this->connection =
-            new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+        $this->connection = new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud       = new DBMasterDriver($this->connection);
 
         $this->manager = new RealManager();

@@ -16,7 +16,7 @@ use Grace\DBAL\ExceptionNoResult as ExceptionNoResultDB;
 /**
  * Master crud db connection
  */
-class DBMasterDriver implements CRUDInterface
+class DBMasterDriver implements CRUDInterface, CRUDCommitableInterface
 {
     private $connection;
 
@@ -76,6 +76,27 @@ class DBMasterDriver implements CRUDInterface
             ->delete($table)
             ->eq('id', $id)
             ->execute();
+    }
+    /**
+     * @inheritdoc
+     */
+    public function start()
+    {
+        return $this->connection->execute('START TRANSACTION');
+    }
+    /**
+     * @inheritdoc
+     */
+    public function commit()
+    {
+        return $this->connection->execute('COMMIT');
+    }
+    /**
+     * @inheritdoc
+     */
+    public function rollback()
+    {
+        return $this->connection->execute('ROLLBACK');
     }
 }
 

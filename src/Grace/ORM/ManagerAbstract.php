@@ -12,6 +12,7 @@ namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
 use Grace\CRUD\CRUDInterface;
+use Grace\CRUD\CRUDCommitableInterface;
 use Grace\CRUD\DBMasterDriver;
 
 /**
@@ -46,49 +47,70 @@ abstract class ManagerAbstract
      */
     public function commit()
     {
-        foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
-            $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
-            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-            $changes   = $this ->getMapper($className)->convertRecordArrayToDbRow($record->getFields());
-            $crud->insertById($className, $record->getId(), $changes);
+        foreach ($this->crudConnections as $crud) {
+            if ($crud instanceof CRUDCommitableInterface) {
+                $crud->start();
+            }
         }
 
-
-        foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
-            $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
-            $classNameFull = get_class($record);
-            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-
-            if ($this->getDefaultFieldsStorage()->issetFields($classNameFull, $record->getId())) {
-                $defaults = $this->getDefaultFieldsStorage()->getFields($classNameFull, $record->getId());
-            } else {
-                $defaults = $crud->selectById($className, $record->getId());
+        try {
+            foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
+                $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
+                $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
+                $changes   = $this ->getMapper($className)->convertRecordArrayToDbRow($record->getFields());
+                $crud->insertById($className, $record->getId(), $changes);
             }
 
-            $changes = $this->getMapper($className)->getRecordChanges($record->getFields(), $defaults);
-            if (count($changes) > 0) {
-                $crud->updateById($className, $record->getId(), $changes);
+
+            foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
+                $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
+                $classNameFull = get_class($record);
+                $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
+
+                if ($this->getDefaultFieldsStorage()->issetFields($classNameFull, $record->getId())) {
+                    $defaults = $this->getDefaultFieldsStorage()->getFields($classNameFull, $record->getId());
+                } else {
+                    $defaults = $crud->selectById($className, $record->getId());
+                }
+
+                $changes = $this->getMapper($className)->getRecordChanges($record->getFields(), $defaults);
+                if (count($changes) > 0) {
+                    $crud->updateById($className, $record->getId(), $changes);
+                }
+
+                $this->getDefaultFieldsStorage()->unsetFields($classNameFull, $record->getId());
             }
 
-            $this->getDefaultFieldsStorage()->unsetFields($classNameFull, $record->getId());
-        }
+
+            foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
+                $className = $this ->getClassNameProvider()->getBaseClass(get_class($record));
+                $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
+                $crud->deleteById($className, $record->getId());
+            }
 
 
-        foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
-            $className = $this ->getClassNameProvider()->getBaseClass(get_class($record));
-            $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-            $crud->deleteById($className, $record->getId());
+            foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
+                $record->onCommitInsert();
+            }
+            foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
+                $record->onCommitChange();
+            }
+            foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
+                $record->onCommitDelete();
+            }
+        } catch (\Exception $e) {
+            foreach ($this->crudConnections as $crud) {
+                if ($crud instanceof CRUDCommitableInterface) {
+                    $crud->rollback();
+                }
+            }
+            throw $e;
         }
 
-
-        foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
-            $record->onCommitInsert();
-        }
-        foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
-            $record->onCommitChange();
-        }
-        foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
-            $record->onCommitDelete();
+        foreach ($this->crudConnections as $crud) {
+            if ($crud instanceof CRUDCommitableInterface) {
+                $crud->commit();
+            }
         }
 
         $this->clean();
@@ -175,6 +197,7 @@ abstract class ManagerAbstract
     }
 
 
+    /** @var CRUDInterface[] */
     private $crudConnections = array();
     /**
      * Sets crud connection
