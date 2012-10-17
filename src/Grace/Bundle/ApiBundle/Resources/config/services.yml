@@ -4,4 +4,4 @@ services:
     arguments: ['', %kernel.cache_dir%/security/nonces]
   grace_simple_api.security.authentication.listener:
     class:  Grace\Bundle\ApiBundle\Security\Firewall\ApiListener
-    arguments: [@security.context, @security.authentication.manager]
+    arguments: [@security.context, @security.authentication.manager, %is_check_ip%, %is_check_token%]
