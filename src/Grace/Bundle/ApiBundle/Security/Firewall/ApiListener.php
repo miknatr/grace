@@ -22,11 +22,15 @@ class ApiListener implements ListenerInterface
 {
     protected $securityContext;
     protected $authenticationManager;
+    private $checkToken;
+    private $checkIp;
 
-    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager)
+    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, $is_check_ip, $is_check_token)
     {
         $this->securityContext       = $securityContext;
         $this->authenticationManager = $authenticationManager;
+        $this->checkToken            = $is_check_token;
+        $this->checkIp               = $is_check_ip;
     }
 
     /** @var UserApiFinderInterface[] */
@@ -108,7 +112,7 @@ class ApiListener implements ListenerInterface
             throw new AuthenticationException('The Grace Simple API authentication failed - Credentials is expired.');
         }
 
-        if (!$user->isApiTokenNotExpired()) {
+        if (!$user->isApiTokenNotExpired($this->checkToken, $this->checkIp)) {
             throw new AuthenticationException('The Grace Simple API authentication failed - Api token is expired.');
         }
     }
