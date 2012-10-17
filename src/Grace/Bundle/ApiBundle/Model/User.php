@@ -137,13 +137,19 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
             $this->setLastIp(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '');
         }
     }
-    public function isApiTokenNotExpired()
+
+    public function isApiTokenNotExpired($checkToken, $checkIp)
     {
-        $currentIp = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : static::SPECIAL_TEST_IP;
-        $isSameIp = $this->getTokenIp() == $currentIp;
+        $isSameIp = true;
+        $isTokenNotExpired = true;
+        if ($isSameIp) {
+            $currentIp = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : static::SPECIAL_TEST_IP;
+            $isSameIp = $this->getTokenIp() == $currentIp;
+        }
 
-        $isTokenNotExpired = (time() - dt2ts($this->getTokenCreatedAt()) <= 3600 * 12);
-
+        if ($checkToken) {
+            $isTokenNotExpired = (time() - dt2ts($this->getTokenCreatedAt()) <= 3600 * 12);
+        }
         return $isSameIp && $isTokenNotExpired;
     }
     static public function trimUsername()
