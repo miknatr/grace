@@ -6,7 +6,7 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Kernel;
 use Monolog\Logger;
-use Grace\Bundle\CommonBundle\Generator\ModelsGenerator;
+use Grace\Generator\ModelsGenerator;
 use Grace\ORM\ManagerAbstract;
 
 class ControllerListener

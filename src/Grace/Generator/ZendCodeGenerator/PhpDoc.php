@@ -1,6 +1,6 @@
 <?php
 
-namespace Grace\Bundle\CommonBundle\Generator\ZendCodeGenerator;
+namespace Grace\Generator\ZendCodeGenerator;
 
 /**
  * Переопределяем поведение, для успешного чтения аннотаций

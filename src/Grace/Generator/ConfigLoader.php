@@ -1,6 +1,6 @@
 <?php
 
-namespace Grace\Bundle\CommonBundle\Generator;
+namespace Grace\Generator;
 
 use Symfony\Component\Yaml\Yaml;
 

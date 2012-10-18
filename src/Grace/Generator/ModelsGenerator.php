@@ -1,9 +1,9 @@
 <?php
 
-namespace Grace\Bundle\CommonBundle\Generator;
+namespace Grace\Generator;
 
-use Grace\Bundle\CommonBundle\Generator\ZendCodeGenerator\PhpDoc;
-use Grace\Bundle\CommonBundle\Generator\GeneratorPlugin\PluginAbstract;
+use Grace\Generator\ZendCodeGenerator\PhpDoc;
+use Grace\Generator\GeneratorPlugin\PluginAbstract;
 use Symfony\Component\Yaml\Yaml;
 
 class ModelsGenerator

@@ -1,8 +1,8 @@
 <?php
 
-namespace Grace\Bundle\CommonBundle\Generator\GeneratorPlugin;
+namespace Grace\Generator\GeneratorPlugin;
 
-use Grace\Bundle\CommonBundle\Generator\ZendCodeGenerator\PhpDoc;
+use Grace\Generator\ZendCodeGenerator\PhpDoc;
 
 abstract class PluginAbstract
 {

@@ -49,7 +49,7 @@ services:
     class: Grace\ORM\ClassNameProvider
     arguments: [%grace.namespace.common_prefix_without_slash%]
   grace_generator:
-    class: Grace\Bundle\CommonBundle\Generator\ModelsGenerator
+    class: Grace\Generator\ModelsGenerator
     arguments:
       - %grace.model_config_resources%
       - %grace.namespace%

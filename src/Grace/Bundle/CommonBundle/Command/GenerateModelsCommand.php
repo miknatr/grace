@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use Grace\Bundle\CommonBundle\Generator\ModelsGenerator;
+use Grace\Generator\ModelsGenerator;
 
 class GenerateModelsCommand extends ContainerAwareCommand
 {

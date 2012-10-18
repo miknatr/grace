@@ -2,7 +2,7 @@
 
 namespace Grace\Bundle\ApiBundle\Generator\GeneratorPlugin;
 
-use Grace\Bundle\CommonBundle\Generator\GeneratorPlugin\PluginAbstract;
+use Grace\Generator\GeneratorPlugin\PluginAbstract;
 
 class AclGraceCommandPlugin extends PluginAbstract
 {
