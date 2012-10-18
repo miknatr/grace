@@ -6,7 +6,7 @@ services:
     calls:
       - [ addServer, [ localhost, 11211 ] ]
   cache:
-    class: Grace\Cache
+    class: Grace\Cache\MemcachedAdapter
     arguments: [@memcache, %grace.cache.namespace%, %grace.cache.enabled%]
 
 
