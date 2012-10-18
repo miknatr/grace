@@ -1,6 +1,6 @@
 <?php
 
-namespace Grace\Bundle\CommonBundle\Cache;
+namespace Grace\Cache;
 
 interface CacheInterface
 {

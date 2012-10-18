@@ -1,18 +1,13 @@
 services:
 
   #Cache services
-  zend_cache:
-    class: Zend_Cache_Core
-    factory_class: Zend_Cache
-    factory_method: factory
-    arguments:
-        - Core
-        - Memcached
-        - {lifetime: 7200, automatic_serialization: true}
-        - {}
+  memcache:
+    class: Memcached
+    calls:
+      - [ addServer, [ localhost, 11211 ] ]
   cache:
-    class: Grace\Bundle\CommonBundle\Cache\Cache
-    arguments: [@zend_cache, %grace.cache.namespace%, %grace.cache.enabled%]
+    class: Grace\Cache
+    arguments: [@memcache, %grace.cache.namespace%, %grace.cache.enabled%]
 
 
 
