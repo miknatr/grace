@@ -10,10 +10,8 @@
 
 namespace Grace\CRUD;
 
-//TODO убрать зависимость от бандла или вынест кэш в отдельный слой
-use Grace\Bundle\CommonBundle\Cache\Cache;
+use Grace\Cache\CacheInterface;
 
-//TODO Do and test all methods below
 class CacheProxy implements CRUDInterface
 {
     /**
@@ -21,7 +19,7 @@ class CacheProxy implements CRUDInterface
      */
     private $cache;
     private $subject;
-    public function __construct(CRUDInterface $subject, Cache $cache)
+    public function __construct(CRUDInterface $subject, CacheInterface $cache)
     {
         $this->subject  = $subject;
         $this->cache  = $cache;
