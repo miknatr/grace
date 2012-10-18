@@ -3,7 +3,7 @@
 namespace Grace\Bundle\CommonBundle;
 
 use Grace\ORM\ServiceContainerInterface;
-use Grace\Bundle\CommonBundle\Cache\Cache;
+use Grace\Cache\CacheInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
 use Monolog\Logger;
@@ -24,10 +24,10 @@ class GraceContainer implements ServiceContainerInterface
     }
 
     /**
-     * @var Cache
+     * @var CacheInterface
      */
     private $cache;
-    public function setCache(Cache $cache)
+    public function setCache(CacheInterface $cache)
     {
         $this->cache = $cache;
     }
