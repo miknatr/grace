@@ -35,12 +35,12 @@ class ModelsGenerator
 
     private $outputDir = '';
     private $defaultPlugins = array(
-        '\\Grace\Bundle\CommonBundle\\Generator\\GeneratorPlugin\\ParentsPlugin',
-        '\\Grace\Bundle\CommonBundle\\Generator\\GeneratorPlugin\\FilterPlugin',
-        '\\Grace\Bundle\CommonBundle\\Generator\\GeneratorPlugin\\CallSubObjectGetterPlugin',
-        '\\Grace\Bundle\CommonBundle\\Generator\\GeneratorPlugin\\FilteredFieldByFunctionPlugin',
-        '\\Grace\Bundle\CommonBundle\\Generator\\GeneratorPlugin\\SubObjectPlugin',
-        '\\Grace\Bundle\CommonBundle\\Generator\\GeneratorPlugin\\FormDataPlugin',
+        '\\Grace\\Generator\\GeneratorPlugin\\ParentsPlugin',
+        '\\Grace\\Generator\\GeneratorPlugin\\FilterPlugin',
+        '\\Grace\\Generator\\GeneratorPlugin\\CallSubObjectGetterPlugin',
+        '\\Grace\\Generator\\GeneratorPlugin\\FilteredFieldByFunctionPlugin',
+        '\\Grace\\Generator\\GeneratorPlugin\\SubObjectPlugin',
+        '\\Grace\\Generator\\GeneratorPlugin\\FormDataPlugin',
     );
     /**
      * @var PluginAbstract[]
