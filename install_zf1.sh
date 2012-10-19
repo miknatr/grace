@@ -1,9 +1,11 @@
+mkdir vendor
 cd vendor
 
 rm -fR ./zf1
 
 mkdir -p ./zf1/library/Zend
 svn export http://framework.zend.com/svn/framework/standard/trunk/library/Zend/CodeGenerator ./zf1/library/Zend/CodeGenerator
+svn export http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Reflection ./zf1/library/Zend/Reflection
 
 #remove includes follow manual
 #http://framework.zend.com/manual/en/performance.classloading.html#performance.classloading.striprequires.sed
