@@ -31,9 +31,11 @@ class AclGraceCommandPluginTest extends \PHPUnit_Framework_TestCase
 
             array('$user->getId()',                                            'user:id'),
             array('$user->getCompanyId()',                                     'user:companyId'),
+            array('$user->getCompany()->getOwnerId()',                           'user:company:ownerId'),
 
             array('$resource->getId()',                                        'resource:id'),
             array('$resource->getCompanyId()',                                 'resource:companyId'),
+            array('$resource->getCompany()->getOwnerId()',                       'resource:company:ownerId'),
         );
     }
 }
