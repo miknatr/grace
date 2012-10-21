@@ -21,6 +21,20 @@ class AclGraceCommandPlugin extends PluginAbstract
         return $modelConfig;
     }
 
+    private function preparePrivileges(array $privileges)
+    {
+        foreach ($privileges as $privilege => &$cases) {
+            foreach ($cases as &$case) {
+                $case = static::prepareCase($case);
+            }
+        }
+        return $privileges;
+    }
+    public static function prepareCase($case)
+    {
+        $case = preg_replace_callback('/ROLE_(A-Z_)+/', function ($match) { print_r($match);die('MATCH'); }, $case);
+        return $case;
+    }
     public function getAbstractRecordProperties($modelName, $modelConfig, $recordNamespace, $parent)
     {
         if (!isset($modelConfig['extends'])) {
@@ -47,9 +61,11 @@ class AclGraceCommandPlugin extends PluginAbstract
         if (!isset($modelConfig['api_generation']['privileges'])) {
             throw new \LogicException('Model ' . $modelName . ' must contain "privileges" section');
         }
-        $aclPrivileges = $modelConfig['api_generation']['privileges'];
+
+        $aclPrivileges = $this->preparePrivileges($modelConfig['api_generation']['privileges']);
         $privilegesDefValue = new \Zend_CodeGenerator_Php_Property_DefaultValue();
         $privilegesDefValue->setValue($aclPrivileges);
+
         $privilegesProperty = new \Zend_CodeGenerator_Php_Property();
         $privilegesProperty
             ->setDefaultValue($privilegesDefValue)
