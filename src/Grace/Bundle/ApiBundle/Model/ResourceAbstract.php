@@ -109,6 +109,13 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
         $resource = $this;
         foreach (static::$aclPrivileges as $privilege => $conditions) {
             foreach ($conditions as $condition) {
+//                file_put_contents('/tmp/grace_check_syntax', '<?php return (' . $condition[1] . ');');
+//                $syntax = shell_exec('php -l /tmp/grace_check_syntax');
+//                if (strpos($syntax, 'No syntax errors detected') === false) {
+//                    print_r($condition[1]);
+//                    print_r($syntax);
+//                    die('DIE');
+//                }
                 if (eval('return (' . $condition[1] . ');')) {
                     return $privilege;
                 }
