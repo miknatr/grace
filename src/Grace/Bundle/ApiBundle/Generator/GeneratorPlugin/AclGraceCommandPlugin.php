@@ -20,21 +20,6 @@ class AclGraceCommandPlugin extends PluginAbstract
 
         return $modelConfig;
     }
-
-    private function preparePrivileges(array $privileges)
-    {
-        foreach ($privileges as $privilege => &$cases) {
-            foreach ($cases as &$case) {
-                $case = static::prepareCase($case);
-            }
-        }
-        return $privileges;
-    }
-    public static function prepareCase($case)
-    {
-        $case = preg_replace_callback('/ROLE_(A-Z_)+/', function ($match) { print_r($match);die('MATCH'); }, $case);
-        return $case;
-    }
     public function getAbstractRecordProperties($modelName, $modelConfig, $recordNamespace, $parent)
     {
         if (!isset($modelConfig['extends'])) {
@@ -133,5 +118,22 @@ class AclGraceCommandPlugin extends PluginAbstract
 
 
         return $properties;
+    }
+
+    private function preparePrivileges(array $privileges)
+    {
+        foreach ($privileges as $privilege => &$cases) {
+            foreach ($cases as &$case) {
+                $case = static::prepareCase($case);
+            }
+        }
+        return $privileges;
+    }
+
+    public static function prepareCase($case)
+    {
+        $case = preg_replace('/ROLE_[A-Z_]+/', '$user->isRole("$0")', $case);
+        $case = preg_replace('/type:([A-Za-z]+)/', '$user->isType("$1")', $case);
+        return $case;
     }
 }

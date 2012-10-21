@@ -106,6 +106,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
 
     final public function getPrivilegeForUser(User $user)
     {
+        $resource = $this;
         foreach (static::$aclPrivileges as $privilege => $conditions) {
             foreach ($conditions as $condition) {
                 if (eval('return (' . $condition[1] . ');')) {

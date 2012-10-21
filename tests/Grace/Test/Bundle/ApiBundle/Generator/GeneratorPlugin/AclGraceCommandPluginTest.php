@@ -17,7 +17,16 @@ class AclGraceCommandPluginTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array('', ''),
-            array('$user->isRole("ROLE_TEST")', 'ROLE_TEST'),
+            array('$user->isRole("ROLE_TEST")',                                'ROLE_TEST'),
+            array('$user->isRole("ROLE_TEST_UNDERSCORE")',                     'ROLE_TEST_UNDERSCORE'),
+            array('$user->isRole("ROLE_TEST") and $user->isRole("ROLE_TEST")', 'ROLE_TEST and ROLE_TEST'),
+            array('$user->isRole("ROLE_TEST") and $user->isRole("ROLE_REST")', 'ROLE_TEST and ROLE_REST'),
+//            array('$user->isRole("ROLE_TEST")',                                '$user->isRole("ROLE_TEST")'),
+//            array('$user->isRole(\'ROLE_TEST\')',                              '$user->isRole(\'ROLE_TEST\')'),
+            array('$user->isType("Admin")',                                    'type:Admin'),
+            array('$user->isType("HighModerator")',                            'type:HighModerator'),
+            array('$user->isType("Admin") and $user->isType("Admin")',         'type:Admin and type:Admin'),
+            array('$user->isType("Admin") and $user->isType("Moder")',         'type:Admin and type:Moder'),
         );
     }
 }
