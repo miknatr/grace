@@ -74,11 +74,13 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
     {
         return '';
     }
+    const USERNAME_FIELD = 'phone';
     public function getUsername()
     {
         $baseClass = $this->getClassNameProvider()->getBaseClass(get_class($this));
         $finderClass = $this->getClassNameProvider()->getFinderClass($baseClass);
-        return constant($finderClass . '::USERNAME_PREFIX') . $this->getPhone();
+        $usernameGetter = 'get' . ucfirst(static::USERNAME_FIELD);
+        return constant($finderClass . '::USERNAME_PREFIX') . $this->$usernameGetter();
     }
     public function eraseCredentials()
     {
@@ -169,10 +171,6 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
     private function cleanRelatedCaches()
     {
         $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_TOKEN . $this->getToken());
-
-        $baseClass   = $this->getClassNameProvider()->getBaseClass(get_class($this));
-        $finderCLass = $this->getClassNameProvider()->getFinderClass($baseClass);
-        $prefix      = constant($finderCLass . '::USERNAME_PREFIX');
-        $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_USERNAME . $prefix . $this->getPhone());
+        $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_USERNAME . $this->getUsername());
     }
 }
