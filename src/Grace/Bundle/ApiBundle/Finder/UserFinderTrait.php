@@ -7,7 +7,7 @@ use Grace\Bundle\ApiBundle\Model\User;
 trait UserFinderTrait
 {
     public function getByUsername($username)
-    { 
+    {
         /** @var $cache \Grace\Bundle\CommonBundle\Cache\Cache */
         //        $cache = $this->getContainer()->getCache();
         //
