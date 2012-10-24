@@ -4,15 +4,8 @@ namespace Grace\Bundle\ApiBundle\Finder;
 
 use Grace\Bundle\ApiBundle\Model\User;
 
-trait UserFinderTrait
+trait ApiUserFinderTrait
 {
-    public function getByUsername($username)
-    {
-        return $this
-            ->getSelectBuilder()
-            ->eq('phone', $username)
-            ->fetchOneOrFalse();
-    }
     public function getByToken($token)
     {
         /** @var $cache \Grace\Bundle\CommonBundle\Cache\Cache */
