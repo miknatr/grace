@@ -77,10 +77,8 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
     const USERNAME_FIELD = 'phone';
     public function getUsername()
     {
-        $baseClass = $this->getClassNameProvider()->getBaseClass(get_class($this));
-        $finderClass = $this->getClassNameProvider()->getFinderClass($baseClass);
         $usernameGetter = 'get' . ucfirst(static::USERNAME_FIELD);
-        return constant($finderClass . '::USERNAME_PREFIX') . $this->$usernameGetter();
+        return $this->$usernameGetter();
     }
     public function eraseCredentials()
     {
@@ -125,40 +123,30 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
 
     //ApiUserInterface
     const SPECIAL_TEST_IP = 'special_test_ip';
-    public function refreshApiTokenOnLogin()
+    public function refreshApiTokenAndCommitOnLogin()
     {
+        $this->setToken(md5(microtime() . rand()));
         $this->setTokenCreatedAt(dt());
         $this->setTokenIp(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '');
-
-
-        //TODO если не происходит никаких действий, не происходит и комита, поэтому для setLastVisitAt нужен другой механизм апдейста (лисенеры реквеста возможно)
-        $onlineTime = 10 * 60;
-
-        if (dt2ts($this->getLastVisitAt()) + $onlineTime < time()) {
-            $this->setLastVisitAt(dt());
-            $this->setLastIp(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '');
-        }
+        $this->getOrm()->commit();
     }
-
     public function isApiTokenNotExpired($checkToken, $checkIp)
     {
         $isSameIp = true;
-        $isTokenNotExpired = true;
         if ($isSameIp) {
             $currentIp = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : static::SPECIAL_TEST_IP;
             $isSameIp = $this->getTokenIp() == $currentIp;
         }
 
+        $isTokenNotExpired = true;
         if ($checkToken) {
             $isTokenNotExpired = (time() - dt2ts($this->getTokenCreatedAt()) <= 3600 * 12);
         }
+
         return $isSameIp && $isTokenNotExpired;
     }
-    static public function trimUsername()
-    {
 
-    }
-    const CACHE_PREFIX_USERNAME = 'user_by_username_';
+    //очистка кэша
     const CACHE_PREFIX_TOKEN = 'user_by_token_';
     public function onCommitChange()
     {
@@ -171,6 +159,5 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
     private function cleanRelatedCaches()
     {
         $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_TOKEN . $this->getToken());
-        $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_USERNAME . $this->getUsername());
     }
 }

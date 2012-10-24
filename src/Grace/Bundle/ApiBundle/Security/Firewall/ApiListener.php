@@ -48,6 +48,12 @@ class ApiListener implements ListenerInterface
 
         $tokenKey = $this->getTokenKeyFromRequest($event->getRequest());
 
+        if ($tokenKey == '') {
+            throw new AuthenticationException('The Grace Simple API authentication failed - Token key is not provided.');
+        }
+
+
+
         /** @var ApiUserInterface|bool $user */
         $user = $this->getUserByToken($tokenKey);
 
