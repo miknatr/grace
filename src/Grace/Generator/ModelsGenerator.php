@@ -34,6 +34,7 @@ class ModelsGenerator
     private $versionFilename;
 
     private $outputDir = '';
+    private $abstractClassDirectory = '';
     private $defaultPlugins = array(
         '\\Grace\\Generator\\GeneratorPlugin\\ParentsPlugin',
         '\\Grace\\Generator\\GeneratorPlugin\\FilterPlugin',
@@ -49,14 +50,15 @@ class ModelsGenerator
 
     public function __construct(array $modelConfigResources, $namespace, $containerClass, $validatorsFile, $realClassDirectory, $abstractClassDirectory, array $extraPlugins)
     {
-        $this->modelConfigResources = $modelConfigResources;
-        $this->namespace           = $namespace;
-        $this->containerClass      = $containerClass;
-        $this->validatorsFile      = $validatorsFile;
-        $this->realClassDirectory  = $realClassDirectory;
-        $this->outputDir           = rtrim($abstractClassDirectory, '\\/') . '/grace';
-        $this->versionFilename     = $this->outputDir . '/version.txt';
-        $this->extraPlugins        = $extraPlugins;
+        $this->modelConfigResources   = $modelConfigResources;
+        $this->namespace              = $namespace;
+        $this->containerClass         = $containerClass;
+        $this->validatorsFile         = $validatorsFile;
+        $this->realClassDirectory     = $realClassDirectory;
+        $this->abstractClassDirectory = rtrim($abstractClassDirectory, '\\/');
+        $this->outputDir              = $this->abstractClassDirectory . '/grace_new';
+        $this->versionFilename        = $this->outputDir . '/version.txt';
+        $this->extraPlugins           = $extraPlugins;
     }
     public function needUpdate()
     {
@@ -131,6 +133,11 @@ class ModelsGenerator
         $this->generateFinders($config, $managerClass, $this->containerClass, $nsFinder, $nsRecord, $nsCollection);
         $this->generateMappers($config, $nsMapper);
         $this->generateCollections($config, $nsCollection, $nsRecord);
+
+
+        shell_exec('rm -fR ' . $this->abstractClassDirectory . '/grace');
+        shell_exec('mv ' . $this->abstractClassDirectory . '/grace_new ' . $this->abstractClassDirectory . '/grace');
+        //shell_exec('cp -R ' . $this->abstractClassDirectory . '/grace_new ' . $this->abstractClassDirectory . '/grace');
     }
     private function initPlugins(array $pluginNames)
     {
