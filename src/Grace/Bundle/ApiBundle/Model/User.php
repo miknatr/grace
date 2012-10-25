@@ -133,7 +133,7 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
     public function isApiTokenNotExpired($checkToken, $checkIp)
     {
         $isSameIp = true;
-        if ($isSameIp) {
+        if ($checkIp) {
             $currentIp = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : static::SPECIAL_TEST_IP;
             $isSameIp = $this->getTokenIp() == $currentIp;
         }
