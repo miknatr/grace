@@ -401,18 +401,22 @@ class ModelsGenerator
                 ->setAbstract(true)
                 ->setDocblock($docblock);
 
-            if (isset($modelConfig[self::CONFIG_CONNECTION]['type'])) {
-                switch ($modelConfig[self::CONFIG_CONNECTION]['type']) {
-                    case 'crud':
-                        $finderAbstract->setExtendedClass(self::BASE_CLASS_FINDER_CRUD);
-                        break;
-                    case'sql':
-                    default:
-                        $finderAbstract->setExtendedClass(self::BASE_CLASS_FINDER_SQL);
-                }
-            } else {
-                $finderAbstract->setExtendedClass(self::BASE_CLASS_FINDER_SQL);
+
+
+            if (!isset($modelConfig[self::CONFIG_CONNECTION]['type'])) {
+                $modelConfig[self::CONFIG_CONNECTION]['type'] = '';
             }
+
+            switch ($modelConfig[self::CONFIG_CONNECTION]['type']) {
+                case 'crud':
+                    $finderAbstract->setExtendedClass(self::BASE_CLASS_FINDER_CRUD);
+                    break;
+                case'sql':
+                default:
+                    $finderAbstract->setExtendedClass(self::BASE_CLASS_FINDER_SQL);
+            }
+
+
 
             $finderConcrete = new \Zend_CodeGenerator_Php_Class();
             $finderConcrete
