@@ -11,12 +11,33 @@
 namespace Grace\DBAL;
 
 use Grace\SQLBuilder\Factory;
+use Grace\Cache\CacheInterface;
 
 /**
  * Provides some base functions for concrete connection classes
  */
 abstract class AbstractConnection implements InterfaceConnection
 {
+
+    /**
+     * @var CacheInterface
+     */
+    private $cache;
+    /**
+     * @inheritdoc
+     */
+    public function setCache(CacheInterface $cache)
+    {
+        $this->cache = $cache;
+        return $this;
+    }
+    /**
+     * @inheritdoc
+     */
+    public function getCache()
+    {
+        return $this->cache;
+    }
 
     /**
      * @var QueryLogger
@@ -101,5 +122,37 @@ abstract class AbstractConnection implements InterfaceConnection
                 throw new ExceptionQuery('Placeholder has incorrect type: ' . $type);
         }
         return $r;
+    }
+
+
+    protected $idCounter = null;
+    /**
+     * Generate new id for insert
+     * @return mixed
+     */
+    public function generateNewId($table)
+    {
+        //TODO будет логично для постгреса юзать последовательности
+        if ($this->idCounter === null) {
+            $this->idCounter = $this->getSQLBuilder()->select($table)->fields('id')->order('id DESC')->limit(0, 1)->fetchResult();
+        }
+
+        for ($i = 0; $i < 50; $i++) {
+            $this->idCounter++;
+            $key    = 'grace_id_gen_' . strval($this->idCounter);
+
+            $isBusy = $this->getCache()->get($key);
+            if ($isBusy === false) {
+                $this->getCache()->set($key, '1', 60);
+                $newId = $this->idCounter;
+                break;
+            }
+        }
+
+        if (!isset($newId)) {
+            throw new \OutOfBoundsException('Maximum number of cycles to generate new id has reached');
+        }
+
+        return $newId;
     }
 }

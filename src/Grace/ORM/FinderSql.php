@@ -11,7 +11,6 @@
 namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
-use Grace\CRUD\CRUDInterface;
 use Grace\DBAL\InterfaceExecutable;
 use Grace\DBAL\InterfaceResult;
 use Grace\SQLBuilder\SelectBuilder;
@@ -26,6 +25,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
 {
     //DB CONNECTIONS
 
+    /** @var \Grace\DBAL\InterfaceConnection */
     private $sqlReadOnly;
     /**
      * @param \Grace\DBAL\InterfaceConnection $sqlReadOnly
@@ -57,7 +57,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
         return $this->convertRowToRecord($row, false);
     }
     /**
-     * @throws LogicException
+     * @inheritdoc
      */
     public function fetchOneOrFalse()
     {
@@ -139,23 +139,12 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
 
     //NEW ID GENERATION
 
-    protected $idCounter = null;
     /**
      * Generate new id for insert
      * @return mixed
      */
     protected function generateNewId()
     {
-        //TODO перенести бы в слой DB, тогда будет логично для постгреса юзать последовательности, а для остальных как повезет
-        //TODO многопоточность мертва
-        if ($this->idCounter === null) {
-            $this->idCounter = $this
-                ->getSelectBuilder()
-                ->fields('id')
-                ->order('id DESC')
-                ->limit(0, 1)
-                ->fetchResult();
-        }
-        return ++$this->idCounter;
+        return $this->sqlReadOnly->generateNewId($this->tableName);
     }
 }
