@@ -144,15 +144,10 @@ abstract class AbstractConnection implements InterfaceConnection
             $isBusy = $this->getCache()->get($key);
             if ($isBusy === false) {
                 $this->getCache()->set($key, '1', 60);
-                $newId = $this->idCounter;
-                break;
+                return $this->idCounter;
             }
         }
 
-        if (!isset($newId)) {
-            throw new \OutOfBoundsException('Maximum number of cycles to generate new id has reached');
-        }
-
-        return $newId;
+        throw new \OutOfBoundsException('Maximum number of cycles to generate new id has reached');
     }
 }
