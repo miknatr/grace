@@ -125,7 +125,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
 
-    protected $idCounter = null;
+    protected $idCounterByTable = array();
     /**
      * Generate new id for insert
      * @return mixed
@@ -133,18 +133,18 @@ abstract class AbstractConnection implements InterfaceConnection
     public function generateNewId($table)
     {
         //TODO будет логично для постгреса юзать последовательности
-        if ($this->idCounter === null) {
-            $this->idCounter = $this->getSQLBuilder()->select($table)->fields('id')->order('id DESC')->limit(0, 1)->fetchResult();
+        if (!isset($this->idCounterByTable[$table])) {
+            $this->idCounterByTable[$table] = $this->getSQLBuilder()->select($table)->fields('id')->order('id DESC')->limit(0, 1)->fetchResult();
         }
 
         for ($i = 0; $i < 50; $i++) {
-            $this->idCounter++;
-            $key    = 'grace_id_gen_' . strval($this->idCounter);
+            $this->idCounterByTable[$table]++;
+            $key    = 'grace_id_gen_' . $table . '_' . strval($this->idCounterByTable[$table]);
 
             $isBusy = $this->getCache()->get($key);
             if ($isBusy === false) {
                 $this->getCache()->set($key, '1', 60);
-                return $this->idCounter;
+                return $this->idCounterByTable[$table];
             }
         }
 
