@@ -23,6 +23,7 @@ services:
     arguments: [%database_host%, %database_port%, %database_user%, %database_password%, %database_name%]
     calls:
       - [ setLogger, [ @grace_query_logger ] ]
+      - [ setCache, [ @cache ] ]
   grace_crud_db:
     class: Grace\CRUD\DBMasterDriver
     arguments: [@grace_db]

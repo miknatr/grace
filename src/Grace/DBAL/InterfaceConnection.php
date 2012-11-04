@@ -79,4 +79,22 @@ interface InterfaceConnection extends InterfaceExecutable
      * @return InterfaceConnection
      */
     public function setLogger(QueryLogger $logger);
+    /**
+     * Returns instance of \Grace\Cache\CacheInterface
+     * @abstract
+     * @return \Grace\Cache\CacheInterface;
+     */
+    public function getCache();
+    /**
+     * Sets cache for this connection
+     * @abstract
+     * @param \Grace\Cache\CacheInterface $logger
+     * @return InterfaceConnection
+     */
+    public function setCache(\Grace\Cache\CacheInterface $logger);
+    /**
+     * Generate new id for insert
+     * @return mixed
+     */
+    public function generateNewId($table);
 }
