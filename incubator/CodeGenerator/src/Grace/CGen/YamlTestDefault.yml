@@ -1,7 +1,0 @@
-yaml:
-  fooClass: 
-    implements: TestInterface
-    fields: {'fieldName','field2'}
-  barClass:
-    implements: TestInterface
-    fields: {'fieldFoo', 'fieldBar'}

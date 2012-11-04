@@ -38,11 +38,6 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
         $roles = $this->getContainer()->getRoleHierarchy()->getReachableRoles(array($userRole));
         return in_array(new Role($role), $roles);
     }
-
-    public function isType($type)
-    {
-        return $this->getType() == $type;
-    }
     public function getType()
     {
         return strtolower($this->getClassNameProvider()->getBaseClass(get_class($this)));
