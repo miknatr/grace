@@ -383,11 +383,19 @@ class ModelsGenerator
                                     ),
                                     array(
                                         'name'        => 'method',
+                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . '|bool getByIdOrFalse($id)'
+                                    ),
+                                    array(
+                                        'name'        => 'method',
                                         'description' => '\\' . $recordNamespace . '\\' . $modelName . ' create()'
                                     ),
                                     array(
                                         'name'        => 'method',
                                         'description' => '\\' . $recordNamespace . '\\' . $modelName . ' fetchOne()'
+                                    ),
+                                    array(
+                                        'name'        => 'method',
+                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . '|bool fetchOneOrFalse()'
                                     ),
                                     array(
                                         'name'        => 'method',
