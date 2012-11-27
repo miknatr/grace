@@ -97,4 +97,5 @@ interface InterfaceConnection extends InterfaceExecutable
      * @return mixed
      */
     public function generateNewId($table);
+
 }

@@ -15,9 +15,9 @@ namespace Grace\CRUD;
  * Interface provides common access point for operations with entities
  * by unique id. You can combine few classes which implement CRUDInterface
  * to intercept method calls. Example:
- * $masterConnection = new MysqliConnection(...master host...);
+ * $masterConnection = new InterfaceConnection(...master host...);
  * $master = new DBMasterDriver($masterConnection);
- * $slaveConnection = new MysqliConnection(...slave host...);
+ * $slaveConnection = new InterfaceConnection(...slave host...);
  * $slave = new DBSlaveDriver($slaveConnection, $masterConnection);
  * $memcacheProxy = new MemcacheProxy(...memcache host..., $slaveConnection);
  * And after that you have following intercept chain:

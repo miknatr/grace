@@ -24,6 +24,8 @@ class MysqliConnection extends AbstractConnection
     private $password;
     private $database;
 
+    protected $sqlEscapeSymbol = '`';
+
     /**
      * Creates connection instance
      * All parameters are necessary

@@ -14,6 +14,7 @@ class InsertBuilderTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->plug    = new ExecutablePlug;
+        $this->plug->setSqlEscapeSymbol('`');
         $this->builder = new InsertBuilder('TestTable', $this->plug);
     }
     protected function tearDown()

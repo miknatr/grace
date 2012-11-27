@@ -14,6 +14,7 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->plug    = new ExecutableAndResultPlug;
+        $this->plug->setSqlEscapeSymbol('`');
         $this->builder = new SelectBuilder('TestTable', $this->plug);
     }
     protected function tearDown()

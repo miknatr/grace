@@ -23,6 +23,17 @@ abstract class AbstractConnection implements InterfaceConnection
      * @var CacheInterface
      */
     private $cache;
+
+    /**
+     * @var string
+     */
+    protected  $sqlEscapeSymbol;
+
+    /**
+     * @var string
+     */
+    protected  $dataEscapeSymbol = '';
+
     /**
      * @inheritdoc
      */
@@ -141,13 +152,45 @@ abstract class AbstractConnection implements InterfaceConnection
             $this->idCounterByTable[$table]++;
             $key    = 'grace_id_gen_' . $table . '_' . strval($this->idCounterByTable[$table]);
 
-            $isBusy = $this->getCache()->get($key);
-            if ($isBusy === false) {
-                $this->getCache()->set($key, '1', 60);
+            if ($this->isNewIdFree($key)) {
+                $this->cacheKey($key);
                 return $this->idCounterByTable[$table];
             }
         }
 
         throw new \OutOfBoundsException('Maximum number of cycles to generate new id has reached');
+    }
+
+    private function isNewIdFree($key)
+    {
+        $result = true;
+
+        $cache = $this->getCache();
+
+        if($cache && ($cache->get($key) !== false))
+        {
+            $result = false;
+        }
+
+        return $result;
+    }
+
+    private function cacheKey($key)
+    {
+        $cache = $this->getCache();
+        if($cache)
+        {
+            $cache->set($key, '1', 60);
+        }
+    }
+
+    public function getSqlEscapeSymbol()
+    {
+        return $this->sqlEscapeSymbol;
+    }
+
+    public function getDataEscapeSymbol()
+    {
+        return $this->dataEscapeSymbol;
     }
 }

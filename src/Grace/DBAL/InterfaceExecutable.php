@@ -24,4 +24,16 @@ interface InterfaceExecutable
      * @return InterfaceResult
      */
     public function execute($query, array $arguments = array());
+
+    /**
+     * Get symbol for escaping SQL data such as tables and columns.
+     * @return string
+     */
+    public function getSqlEscapeSymbol();
+
+    /**
+     * Get symbol for escaping strings
+     * @return string
+     */
+    public function getDataEscapeSymbol();
 }
