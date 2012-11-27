@@ -133,7 +133,6 @@ class AclGraceCommandPlugin extends PluginAbstract
     public static function prepareCase($case)
     {
         $case = preg_replace('/ROLE_[A-Z_]+/', '$user->isRole("$0")', $case);
-        #$case = preg_replace('/type:([A-Za-z0-9_]+)/', '$user->isType("$1")', $case);
         $case = preg_replace_callback('/same:([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()' . ' == ' . '$resource->get' . ucfirst($match[1]) . '()'; }, $case);
         $case = preg_replace_callback('/user:([A-Za-z0-9_]+):([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()->get' . ucfirst($match[2]) . '()'; }, $case);
         $case = preg_replace_callback('/user:([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()'; }, $case);
