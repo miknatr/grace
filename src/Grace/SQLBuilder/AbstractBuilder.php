@@ -38,6 +38,14 @@ abstract class AbstractBuilder implements InterfaceResult
         $this->dataEscapeSymbol = $this->executable->getDataEscapeSymbol();
     }
     /**
+     * @param $fromTable
+     */
+    public function setFrom($fromTable)
+    {
+        $this->from = $fromTable;
+        return $this;
+    }
+    /**
      * @return InterfaceResult
      */
     public function execute()
