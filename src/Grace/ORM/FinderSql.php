@@ -41,6 +41,25 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
 
     /** @var InterfaceResult */
     private $queryResult;
+
+    /**
+     * Get symbol for escaping SQL data such as tables and columns.
+     * @return string
+     */
+    public function getSqlEscapeSymbol()
+    {
+        $this->sqlReadOnly->getSqlEscapeSymbol();
+    }
+
+    /**
+     * Get symbol for escaping strings
+     * @return string
+     */
+    public function getDataEscapeSymbol()
+    {
+        $this->sqlReadOnly->getDataEscapeSymbol();
+    }
+
     /**
      * Fetches record object
      * @throws ExceptionNoResult

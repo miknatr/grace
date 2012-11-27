@@ -23,6 +23,9 @@ abstract class AbstractBuilder implements InterfaceResult
     private $result;
     protected $from;
 
+    protected $sqlEscapeSymbol;
+    protected $dataEscapeSymbol;
+
     /**
      * @param                                 $fromTable
      * @param \Grace\DBAL\InterfaceExecutable $executable
@@ -31,6 +34,8 @@ abstract class AbstractBuilder implements InterfaceResult
     {
         $this->from       = $fromTable;
         $this->executable = $executable;
+        $this->sqlEscapeSymbol = $this->executable->getSqlEscapeSymbol();
+        $this->dataEscapeSymbol = $this->executable->getDataEscapeSymbol();
     }
     /**
      * @return InterfaceResult

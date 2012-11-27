@@ -52,7 +52,7 @@ class SelectBuilder extends AbstractWhereBuilder
     public function join($table, $fromTableField, $joinTableField)
     {
         $this->joinSql .=
-            ' JOIN `' . $table . '` ON `' . $this->from . '`.`' . $fromTableField . '`=`' . $table . '`.`' .
+            ' JOIN ' . $this->sqlEscapeSymbol . $table . $this->sqlEscapeSymbol . ' ON ' . $this->sqlEscapeSymbol . $this->from . $this->sqlEscapeSymbol . '.' . $this->sqlEscapeSymbol . $fromTableField . '`=`' . $table . '`.`' .
                 $joinTableField . '`';
         return $this;
     }

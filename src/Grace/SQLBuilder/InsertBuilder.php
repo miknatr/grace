@@ -26,7 +26,7 @@ class InsertBuilder extends AbstractBuilder
      */
     public function values(array $values)
     {
-        $this->fieldsSql   = '`' . implode('`, `', array_keys($values)) . '`';
+        $this->fieldsSql   = $this->sqlEscapeSymbol . implode($this->sqlEscapeSymbol.', '.$this->sqlEscapeSymbol, array_keys($values)) . $this->sqlEscapeSymbol;
         $this->valuesSql   = substr(str_repeat('?q, ', count($values)), 0, -2);
         $this->fieldValues = array_values($values);
         return $this;
@@ -39,7 +39,7 @@ class InsertBuilder extends AbstractBuilder
         if (count($this->fieldValues) == 0) {
             throw new ExceptionCallOrder('Set values for insert before execute');
         }
-        return 'INSERT INTO `' . $this->from . '` (' . $this->fieldsSql . ')' . ' VALUES (' . $this->valuesSql . ')';
+        return 'INSERT INTO '. $this->sqlEscapeSymbol . $this->from . $this->sqlEscapeSymbol . ' (' . $this->fieldsSql . ')' . ' VALUES (' . $this->valuesSql . ')';
     }
     /**
      * @inheritdoc
