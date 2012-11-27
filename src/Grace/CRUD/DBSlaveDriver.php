@@ -37,12 +37,17 @@ class DBSlaveDriver implements CRUDInterface
      */
     public function selectById($table, $id)
     {
-        return $this->connection
-            ->getSQLBuilder()
-            ->select($table)
-            ->eq('id', $id)
-            ->fetchOne();
+        try {
+            return $this->connection
+                ->getSQLBuilder()
+                ->select($table)
+                ->eq('id', $id)
+                ->fetchOne();
+        } catch (ExceptionNoResultDB $e) {
+            throw new ExceptionNoResult($e->getMessage());
+        }
     }
+
     /**
      * @inheritdoc
      */
