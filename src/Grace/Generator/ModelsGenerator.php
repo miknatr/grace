@@ -100,6 +100,13 @@ class ModelsGenerator
     }
     public function generate()
     {
+        spl_autoload_register(function($className)
+        {
+            $fileName = $this->outputDir . '/' . str_replace('\\', '/', ltrim($className, '\\')) . '.php';
+            if (file_exists($fileName)) {
+                require $fileName ;
+            }
+        });
 
         $annotationReader = 'Grace\Bundle\CommonBundle\Annotations\FormData';
 
