@@ -150,8 +150,8 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      */
     protected function setInOperator($field, array $values, $operator)
     {
-        $this->whereSqlConditions[] =
-            $field . ' ' . $operator . ' (' . substr(str_repeat('?q,', count($values)), 0, -1) . ')';
+        $whereCondition = empty($values) ? 'FALSE' : $field . ' ' . $operator . ' (' . substr(str_repeat('?q,', count($values)), 0, -1) . ')';
+        $this->whereSqlConditions[] = $whereCondition;
         $this->arguments            = array_merge($this->arguments, $values);
         return $this;
     }
