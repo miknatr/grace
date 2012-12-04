@@ -100,13 +100,15 @@ class ModelsGenerator
     }
     public function generate()
     {
-        spl_autoload_register(function($className)
+        $autoload = function($className)
         {
             $fileName = $this->outputDir . '/' . str_replace('\\', '/', ltrim($className, '\\')) . '.php';
             if (file_exists($fileName)) {
                 require $fileName ;
             }
-        });
+        };
+
+        spl_autoload_register($autoload);
 
         $annotationReader = 'Grace\Bundle\CommonBundle\Annotations\FormData';
 
@@ -141,6 +143,8 @@ class ModelsGenerator
         $this->generateMappers($config, $nsMapper);
         $this->generateCollections($config, $nsCollection, $nsRecord);
 
+
+        spl_autoload_unregister($autoload);
 
         shell_exec('rm -fR ' . $this->abstractClassDirectory . '/grace');
         shell_exec('mv ' . $this->abstractClassDirectory . '/grace_new ' . $this->abstractClassDirectory . '/grace');
