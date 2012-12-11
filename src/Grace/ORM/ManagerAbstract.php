@@ -188,7 +188,7 @@ abstract class ManagerAbstract
      * @param string $className
      * @return string
      */
-    protected function getConnectionNameByClass($className)
+    public function getConnectionNameByClass($className)
     {
         if (isset($this->connectionNames[$className])) {
             return $this->connectionNames[$className];

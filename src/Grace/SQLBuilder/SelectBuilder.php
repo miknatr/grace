@@ -57,6 +57,19 @@ class SelectBuilder extends AbstractWhereBuilder
         return $this;
     }
     /**
+     * Joins SELECT statement as table
+     * @param $table
+     * @param $fromTableField
+     * @param $joinTableField
+     * @return SelectBuilder
+     */
+    public function joinSelect($selectSQL, $alias, $fromTableField, $joinTableField, $operator = '=')
+    {
+        $this->joinSql .=
+            " JOIN ({$selectSQL}) AS `{$alias}` ON `{$this->from}`.`{$fromTableField}`{$operator}`{$alias}`.`{$joinTableField}`";
+        return $this;
+    }
+    /**
      * Sets group by statement
      * @param $sql
      * @return SelectBuilder
