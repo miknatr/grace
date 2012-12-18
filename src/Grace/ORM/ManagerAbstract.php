@@ -92,6 +92,7 @@ abstract class ManagerAbstract
             foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
                 $record->onCommitInsert();
                 $this->getRecordObserver()->onInsert($record);
+                $record->clearIsNewMarker();
             }
             foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
                 $record->onCommitChange();

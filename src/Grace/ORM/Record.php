@@ -170,6 +170,15 @@ abstract class Record implements MapperRecordInterface, ManagerRecordInterface
         return $this;
     }
     /**
+     * Clears is new marker
+     * @return Record
+     */
+    final public function clearIsNewMarker()
+    {
+        $this->isNew = false;
+        return $this;
+    }
+    /**
      * Marks record as changed
      * @return Record
      */
