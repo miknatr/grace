@@ -63,6 +63,7 @@ abstract class Record implements MapperRecordInterface, ManagerRecordInterface
     //RECORD METHODS
 
     private $id;
+    private $isNew = false;
     protected $fields = array();
 
     /**
@@ -73,11 +74,12 @@ abstract class Record implements MapperRecordInterface, ManagerRecordInterface
     final public function __construct($id, array $fields, $isNew, array $newParams = array())
     {
         $this->id     = $id;
+        $this->isNew  = $isNew;
         $this->fields = $fields;
 
         $this->getDefaultFieldsStorage()->setFields(get_class($this), $this->getId(), $fields);
 
-        if ($isNew) { //if it is a new object
+        if ($this->isNew) { //if it is a new object
             $this->onCreate($newParams);
             $this->getUnitOfWork()->markAsNew($this);
         }
@@ -173,7 +175,10 @@ abstract class Record implements MapperRecordInterface, ManagerRecordInterface
      */
     final protected function markAsChanged()
     {
-        $this->getUnitOfWork()->markAsChanged($this);
+        if (!$this->isNew) {
+            $this->getUnitOfWork()->markAsChanged($this);
+        }
+
         return $this;
     }
 }

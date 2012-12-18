@@ -91,12 +91,15 @@ abstract class ManagerAbstract
 
             foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
                 $record->onCommitInsert();
+                $this->getRecordObserver()->onInsert($record);
             }
             foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
                 $record->onCommitChange();
+                $this->getRecordObserver()->onChange($record);
             }
             foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
                 $record->onCommitDelete();
+                $this->getRecordObserver()->onDelete($record);
             }
         } catch (\Exception $e) {
             foreach ($this->crudConnections as $crud) {
@@ -378,5 +381,30 @@ abstract class ManagerAbstract
             $this->nameProvider = new ClassNameProvider;
         }
         return $this->nameProvider;
+    }
+
+
+    private $recordObserver;
+    /**
+     * Sets class RecordObserver
+     * @param RecordObserver $recordObserver
+     * @return ManagerAbstract
+     */
+    final public function setRecordObserver(RecordObserver $recordObserver)
+    {
+        $this->recordObserver = $recordObserver;
+        return $this;
+    }
+    /**
+     * Gets class RecordObserver
+     * Make new instance of RecordObserver if provider is not set
+     * @return RecordObserver
+     */
+    final public function getRecordObserver()
+    {
+        if (empty($this->recordObserver)) {
+            $this->recordObserver = new RecordObserver;
+        }
+        return $this->recordObserver;
     }
 }

@@ -37,6 +37,7 @@ class Configuration implements ConfigurationInterface
 
         $children->variableNode('model_config_resources')->isRequired();
 
+        $children->scalarNode('record_observer_class')->isRequired()->cannotBeEmpty();
         $children->scalarNode('output_validator_file')->isRequired()->cannotBeEmpty();
         $children->scalarNode('php_storage_file')->isRequired()->cannotBeEmpty();
         $children->scalarNode('real_class_directory')->isRequired()->cannotBeEmpty();

@@ -49,10 +49,14 @@ services:
       - [ setCrudConnection, [ @grace_crud_php_storage, 'php-storage' ] ]
 
       - [ setClassNameProvider, [ @grace_classname_provider ] ]
+      - [ setRecordObserver, [ @?grace_record_observer ] ]
       - [ setContainer, [ @?grace_container ] ]
   grace_classname_provider:
     class: Grace\ORM\ClassNameProvider
     arguments: [%grace.namespace.common_prefix_without_slash%]
+  grace_record_observer:
+    class: %grace.record_observer_class%
+    arguments: [@?grace_container]
   grace_generator:
     class: Grace\Generator\ModelsGenerator
     arguments:
