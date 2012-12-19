@@ -78,7 +78,7 @@ abstract class ManagerAbstract
                     $crud->updateById($className, $record->getId(), $changes);
                 }
 
-                $this->getDefaultFieldsStorage()->unsetFields($classNameFull, $record->getId());
+                //$this->getDefaultFieldsStorage()->unsetFields($classNameFull, $record->getId());
             }
 
 
