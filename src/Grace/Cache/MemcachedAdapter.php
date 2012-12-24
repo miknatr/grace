@@ -20,7 +20,7 @@ class MemcachedAdapter extends AbstractAdapter
         $r = false;
 
         if ($this->enabled) {
-            $r = $this->adapter->get($this->namespace . '__' . $key);
+            $r = $this->adapter->get($this->formatKey($key));
             if ($r === false && $cacheSetter !== null) {
                 $r = call_user_func($cacheSetter);
                 $this->set($key, $r, $ttl);
@@ -33,16 +33,22 @@ class MemcachedAdapter extends AbstractAdapter
 
         return $r;
     }
+
     public function set($key, $value, $ttl = null)
     {
-        $this->adapter->set($this->namespace . '__' . $key, $value, $this->parseTtl($ttl));
+        $this->adapter->set($this->formatKey($key), $value, time() + $this->parseTtl($ttl));
     }
     public function remove($key)
     {
-        $this->adapter->delete($this->namespace . '__' . $key);
+        $this->adapter->delete($this->formatKey($key));
     }
     public function clean()
     {
         $this->adapter->flush();
+    }
+
+    protected function formatKey($key)
+    {
+        return $this->namespace . '__' . $key;
     }
 }
