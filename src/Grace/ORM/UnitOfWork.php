@@ -27,7 +27,9 @@ class UnitOfWork
      */
     public function markAsNew($record)
     {
-        $this->newRecords[spl_object_hash($record)] = $record;
+        if (!isset($this->deletedRecords[spl_object_hash($record)])) {
+            $this->newRecords[spl_object_hash($record)] = $record;
+        }
         return $this;
     }
     /**
@@ -37,7 +39,9 @@ class UnitOfWork
      */
     public function markAsChanged($record)
     {
-        $this->changedRecords[spl_object_hash($record)] = $record;
+        if (!isset($this->newRecords[spl_object_hash($record)]) and !isset($this->deletedRecords[spl_object_hash($record)])) {
+            $this->changedRecords[spl_object_hash($record)] = $record;
+        }
         return $this;
     }
     /**
@@ -47,6 +51,12 @@ class UnitOfWork
      */
     public function markAsDeleted($record)
     {
+        if (isset($this->newRecords[spl_object_hash($record)])) {
+            unset($this->newRecords[spl_object_hash($record)]);
+        }
+        if (isset($this->changedRecords[spl_object_hash($record)])) {
+            unset($this->changedRecords[spl_object_hash($record)]);
+        }
         $this->deletedRecords[spl_object_hash($record)] = $record;
         return $this;
     }
