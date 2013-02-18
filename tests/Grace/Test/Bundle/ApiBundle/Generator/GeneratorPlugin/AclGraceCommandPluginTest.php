@@ -24,10 +24,10 @@ class AclGraceCommandPluginTest extends \PHPUnit_Framework_TestCase
 //            array('$user->isRole("ROLE_TEST")',                                '$user->isRole("ROLE_TEST")'),
 //            array('$user->isRole(\'ROLE_TEST\')',                              '$user->isRole(\'ROLE_TEST\')'),
 
-            array('$user->isType("Admin")',                                    'type:Admin'),
-            array('$user->isType("HighModerator")',                            'type:HighModerator'),
-            array('$user->isType("Admin") and $user->isType("Admin")',         'type:Admin and type:Admin'),
-            array('$user->isType("Admin") and $user->isType("Moder")',         'type:Admin and type:Moder'),
+//            array('$user->isType("Admin")',                                    'type:Admin'),
+//            array('$user->isType("HighModerator")',                            'type:HighModerator'),
+//            array('$user->isType("Admin") and $user->isType("Admin")',         'type:Admin and type:Admin'),
+//            array('$user->isType("Admin") and $user->isType("Moder")',         'type:Admin and type:Moder'),
 
             array('$user->getId()',                                            'user:id'),
             array('$user->getCompanyId()',                                     'user:companyId'),

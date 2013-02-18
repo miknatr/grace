@@ -73,31 +73,36 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function replacePlaceholders($query, array $arguments)
     {
-        $queryParts = explode('?', $query);
-        $queryPartsLen = count($queryParts);
-        $r = '';
-        $i = 0;
-
-        while ($i < $queryPartsLen) {
-            $queryPartCurrent = $queryParts[$i];
-            $r .= $queryPartCurrent;
-
-            if (isset($queryParts[$i + 1])) {
-                $queryPartNext = $queryParts[$i + 1];
-
-                $type = $queryPartNext[0];
-                $queryParts[$i + 1] = substr($queryParts[$i + 1], 1); //подрезаем первый символ (где указан символ типа)
-
-                $r .= $this->escapeValueByType($arguments[$i], $type);
+        //firstly, we replace named placeholders like ?i:name: where "i" is escaping type and "name" is parameter name
+        $onMatch = function($matches) use ($arguments) {
+            if (!isset($arguments[$matches[2]])) {
+                throw new ExceptionQuery("Placeholder named '$matches[2]' is not presented in \$arguments");
             }
+            return $this->escapeValueByType($arguments[$matches[2]], $matches[1]);
+        };
+        $query = preg_replace_callback("(\?([a-z]{1}):([a-zA-Z0-9]{0,100}):)", $onMatch, $query);
 
-            $i++;
-        }
+        //secondly, we replace ordered placeholders like ?i where "i" is escaping type
+        $counter = -1;
+        $onMatch = function($matches) use ($arguments, &$counter) {
+            $counter++;
+            if (!isset($arguments[$counter])) {
+                throw new ExceptionQuery("Placeholder number '$counter' is not presented in \$arguments");
+            }
+            return $this->escapeValueByType($arguments[$counter], $matches[1]);
+        };
+        $query = preg_replace_callback("(\?([a-z]{1}))", $onMatch, $query);
 
-        return $r;
+        return $query;
     }
     /**
      * Escapes value in compliance with type
+     *
+     * Possible values of $type:
+     * "p" - plain value, no escaping
+     * "e" - escaping by "db-escape" function, but not quoting
+     * "q" - escaping by "db-escape" function and quoting
+     *
      * @param mixed $value
      * @param char  $type
      * @return string
@@ -139,11 +144,16 @@ abstract class AbstractConnection implements InterfaceConnection
 
         for ($i = 0; $i < 50; $i++) {
             $this->idCounterByTable[$table]++;
-            $key    = 'grace_id_gen_' . $table . '_' . strval($this->idCounterByTable[$table]);
 
-            $isBusy = $this->getCache()->get($key);
-            if ($isBusy === false) {
-                $this->getCache()->set($key, '1', 60);
+            if ($this->getCache()) {
+                $key    = 'grace_id_gen_' . $table . '_' . strval($this->idCounterByTable[$table]);
+
+                $isBusy = $this->getCache()->get($key);
+                if ($isBusy === false) {
+                    $this->getCache()->set($key, '1', 60);
+                    return $this->idCounterByTable[$table];
+                }
+            } else {
                 return $this->idCounterByTable[$table];
             }
         }

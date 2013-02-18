@@ -26,6 +26,17 @@ interface InterfaceConnection extends InterfaceExecutable
     public function escape($value);
     /**
      * Replaces and escapes arguments in query
+     *
+     * Query can contain named and ordered placeholders like ?i:name: and ?i respectively
+     * which are replaced in this method by real values from arguments array
+     *
+     * Named placeholders are replaced by associative part of $arguments array
+     * Ordered placeholders are replaced by numeric part of $arguments array
+     *
+     * Method throws QueryException
+     * if $arguments is not contain one of named placeholders from $query
+     * or number of ordered placeholders $query is greater than number of numeric members in $arguments
+     *
      * @abstract
      * @param       $query
      * @param array $arguments
