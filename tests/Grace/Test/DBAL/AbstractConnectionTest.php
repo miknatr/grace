@@ -112,10 +112,10 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
     }
     public function testReplacingPlaceholders()
     {
-        $r = $this->connection->replacePlaceholders("SELECT ?q, '?e', \"?p\", ?q:named: FROM DUAL",
+        $r = $this->connection->replacePlaceholders("SELECT ?q, '?e', \"?p\", ?q:named_pl: FROM DUAL",
             array(
                 '\'quoted\'',
-                'named' => '\'named quoted\'',
+                'named_pl' => '\'named quoted\'',
                 '\'escaped\'',
                 '\'plain\'',
         ));
