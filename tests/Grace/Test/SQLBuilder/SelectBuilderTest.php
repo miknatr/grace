@@ -45,12 +45,34 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
             ->limit(5, 15)
             ->eq('isPublished', 1) //test with AbstractWhereBuilder
             ->between('category', 10, 20) //test with AbstractWhereBuilder
+            ->_or()
+            ->between('category', 40, 50) //test with AbstractWhereBuilder
+            ->_open()
+                ->eq('isPublished', 1)
+                ->eq('isPublished', 1)
+                ->_or()
+                ->eq('isPublished', 1)
+            ->_close()
+            ->_not()
+            ->_open()
+                ->_not()
+                ->eq('isPublished', 1)
+                ->_not()
+                ->eq('isPublished', 1)
+                ->_or()
+                ->_not()
+                ->eq('isPublished', 1)
+            ->_close()
             ->execute();
         $this->assertEquals(
             'SELECT id, name FROM `TestTable`' . ' JOIN `Test2Table` ON `TestTable`.`test2Id`=`Test2Table`.`id`' .
-                ' WHERE isPublished=?q AND category BETWEEN ?q AND ?q' . ' GROUP BY region' . ' HAVING region > 123' .
+                ' WHERE isPublished=?q AND category BETWEEN ?q AND ?q OR category BETWEEN ?q AND ?q' .
+                ' AND ( isPublished=?q AND isPublished=?q OR isPublished=?q )' .
+                ' AND NOT ( NOT isPublished=?q AND NOT isPublished=?q OR NOT isPublished=?q )' .
+                ' GROUP BY region' . ' HAVING region > 123' .
                 ' ORDER BY id DESC' . ' LIMIT 5,15', $this->plug->query);
-        $this->assertEquals(array(1, 10, 20), $this->plug->arguments);
+
+        $this->assertEquals(array(1, 10, 20, 40, 50, 1, 1, 1, 1, 1, 1), $this->plug->arguments);
     }
     public function testFetchAll()
     {

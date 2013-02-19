@@ -212,27 +212,39 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
         return $this->setBetweenOperator($field, $value1, $value2, 'NOT BETWEEN');
     }
 
+    protected $gluingLoginOperators = array('OR' => 1, 'AND' => 1);
+    protected $rightOperators = array('NOT' => 1, '(' => 1);
+    protected $leftOperators = array(')' => 1);
 
-    protected $logicOperators = array();
     /** @return AbstractWhereBuilder */
     public function _not()
     {
         $this->whereSqlConditions[] = 'NOT';
+        return $this;
+    }
+    /** @return AbstractWhereBuilder */
+    public function _and()
+    {
+        $this->whereSqlConditions[] = 'AND';
+        return $this;
     }
     /** @return AbstractWhereBuilder */
     public function _or()
     {
         $this->whereSqlConditions[] = 'OR';
+        return $this;
     }
     /** @return AbstractWhereBuilder */
     public function _open()
     {
         $this->whereSqlConditions[] = '(';
+        return $this;
     }
     /** @return AbstractWhereBuilder */
     public function _close()
     {
         $this->whereSqlConditions[] = ')';
+        return $this;
     }
 
     /**
@@ -250,6 +262,29 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
         if (count($this->whereSqlConditions) == 0) {
             return '';
         }
-        return ' WHERE ' . implode(' AND ', $this->whereSqlConditions);
+
+        //есть операторы, которые должны склеивать любые два элемента
+        //и есть операторы, которые не нуждаются в склейке: "NOT" и ")" не нужна склейка справа, ")" не нужна слева
+        $conditions = array();
+        $conditions[] = $this->whereSqlConditions[0];
+
+        for ($i = 1; $i < count($this->whereSqlConditions); $i++) {
+
+            $prev = $this->whereSqlConditions[$i - 1];
+            $curr = $this->whereSqlConditions[$i];
+
+            //проверяем, нужно ли склеить с помощью AND предыдущий и текущий элемент
+            if (!isset($this->gluingLoginOperators[$prev])
+                and !isset($this->gluingLoginOperators[$curr])
+                and !isset($this->rightOperators[$prev])
+                and !isset($this->leftOperators[$curr])) {
+
+                $conditions[] = 'AND';
+            }
+
+            $conditions[] = $this->whereSqlConditions[$i];
+        }
+
+        return ' WHERE ' . implode(' ', $conditions);
     }
 }
