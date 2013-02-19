@@ -211,6 +211,30 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
     {
         return $this->setBetweenOperator($field, $value1, $value2, 'NOT BETWEEN');
     }
+
+
+    protected $logicOperators = array();
+    /** @return AbstractWhereBuilder */
+    public function _not()
+    {
+        $this->whereSqlConditions[] = 'NOT';
+    }
+    /** @return AbstractWhereBuilder */
+    public function _or()
+    {
+        $this->whereSqlConditions[] = 'OR';
+    }
+    /** @return AbstractWhereBuilder */
+    public function _open()
+    {
+        $this->whereSqlConditions[] = '(';
+    }
+    /** @return AbstractWhereBuilder */
+    public function _close()
+    {
+        $this->whereSqlConditions[] = ')';
+    }
+
     /**
      * @inheritdoc
      */
