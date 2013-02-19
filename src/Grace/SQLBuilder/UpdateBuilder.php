@@ -15,6 +15,10 @@ class UpdateBuilder extends AbstractWhereBuilder
     private $fieldsSql = '';
     private $fieldValues = array();
 
+    /**
+     * @param array $values
+     * @return $this
+     */
     public function values(array $values)
     {
         $fieldQueryParts = array();

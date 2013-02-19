@@ -22,7 +22,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds sql statement into where statement
      * @param       $sql
      * @param array $values
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function sql($sql, array $values = array())
     {
@@ -34,7 +34,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * @param $field
      * @param $value
      * @param $operator
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     protected function setTwoArgsOperator($field, $value, $operator)
     {
@@ -46,7 +46,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds '=' statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function eq($field, $value)
     {
@@ -56,7 +56,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds '!=' statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function notEq($field, $value)
     {
@@ -66,7 +66,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds '>' statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function gt($field, $value)
     {
@@ -76,7 +76,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds '>=' statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function gtEq($field, $value)
     {
@@ -86,7 +86,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds '<' statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function lt($field, $value)
     {
@@ -96,7 +96,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds '<=' statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function ltEq($field, $value)
     {
@@ -106,7 +106,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds LIKE statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function like($field, $value)
     {
@@ -116,7 +116,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds NOT LIKE statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function notLike($field, $value)
     {
@@ -126,7 +126,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds LIKE '%value%' statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function likeInPart($field, $value)
     {
@@ -136,7 +136,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds NOT LIKE '%value%' statement into where statement
      * @param $field
      * @param $value
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function notLikeInPart($field, $value)
     {
@@ -146,7 +146,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * @param       $field
      * @param array $values
      * @param       $operator
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     protected function setInOperator($field, array $values, $operator)
     {
@@ -159,7 +159,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds IN statement into where statement
      * @param       $field
      * @param array $values
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function in($field, array $values)
     {
@@ -169,7 +169,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * Adds NOT IN statement into where statement
      * @param       $field
      * @param array $values
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function notIn($field, array $values)
     {
@@ -180,7 +180,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * @param $value1
      * @param $value2
      * @param $operator
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     protected function setBetweenOperator($field, $value1, $value2, $operator)
     {
@@ -194,7 +194,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * @param $field
      * @param $value1
      * @param $value2
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function between($field, $value1, $value2)
     {
@@ -205,7 +205,7 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      * @param $field
      * @param $value1
      * @param $value2
-     * @return AbstractWhereBuilder
+     * @return $this
      */
     public function notBetween($field, $value1, $value2)
     {
@@ -216,31 +216,33 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
     protected $rightOperators = array('NOT' => 1, '(' => 1);
     protected $leftOperators = array(')' => 1);
 
-    /** @return AbstractWhereBuilder */
+    /** @return $this */
     public function _not()
     {
         $this->whereSqlConditions[] = 'NOT';
         return $this;
     }
-    /** @return AbstractWhereBuilder */
+    /** @return $this */
     public function _and()
     {
         $this->whereSqlConditions[] = 'AND';
         return $this;
     }
-    /** @return AbstractWhereBuilder */
+    /** @return $this */
     public function _or()
     {
         $this->whereSqlConditions[] = 'OR';
         return $this;
     }
-    /** @return AbstractWhereBuilder */
+    /**
+     * @return $this
+     */
     public function _open()
     {
         $this->whereSqlConditions[] = '(';
         return $this;
     }
-    /** @return AbstractWhereBuilder */
+    /** @return $this */
     public function _close()
     {
         $this->whereSqlConditions[] = ')';

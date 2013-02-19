@@ -24,7 +24,7 @@ class SelectBuilder extends AbstractWhereBuilder
 
     /**
      * Sets count syntax
-     * @return SelectBuilder
+     * @return $this
      */
     public function count()
     {
@@ -35,7 +35,7 @@ class SelectBuilder extends AbstractWhereBuilder
     /**
      * Sets fields statement
      * @param $sql
-     * @return SelectBuilder
+     * @return $this
      */
     public function fields($sql)
     {
@@ -47,7 +47,7 @@ class SelectBuilder extends AbstractWhereBuilder
      * @param $table
      * @param $fromTableField
      * @param $joinTableField
-     * @return SelectBuilder
+     * @return $this
      */
     public function join($table, $fromTableField, $joinTableField)
     {
@@ -61,7 +61,7 @@ class SelectBuilder extends AbstractWhereBuilder
      * @param $table
      * @param $fromTableField
      * @param $joinTableField
-     * @return SelectBuilder
+     * @return $this
      */
     public function joinSelect($selectSQL, $alias, $fromTableField, $joinTableField, $operator = '=')
     {
@@ -72,7 +72,7 @@ class SelectBuilder extends AbstractWhereBuilder
     /**
      * Sets group by statement
      * @param $sql
-     * @return SelectBuilder
+     * @return $this
      */
     public function group($sql)
     {
@@ -82,7 +82,7 @@ class SelectBuilder extends AbstractWhereBuilder
     /**
      * Sets having statement
      * @param $sql
-     * @return SelectBuilder
+     * @return $this
      */
     public function having($sql)
     {
@@ -92,7 +92,7 @@ class SelectBuilder extends AbstractWhereBuilder
     /**
      * Sets order by statement
      * @param $sql
-     * @return SelectBuilder
+     * @return $this
      */
     public function order($sql)
     {
@@ -103,7 +103,7 @@ class SelectBuilder extends AbstractWhereBuilder
      * Sets limit statements
      * @param $from
      * @param $limit
-     * @return SelectBuilder
+     * @return $this
      */
     public function limit($from, $limit)
     {

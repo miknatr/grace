@@ -22,7 +22,7 @@ class InsertBuilder extends AbstractBuilder
     /**
      * Prepares values for inserting into db
      * @param array $values
-     * @return InsertBuilder
+     * @return $this
      */
     public function values(array $values)
     {
