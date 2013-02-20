@@ -130,7 +130,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
      * New instance of SelectBuilder
      * @return \Grace\SQLBuilder\SelectBuilder
      */
-    final public function getSelectBuilder()
+    public function getSelectBuilder()
     {
         return new SelectBuilder($this->tableName, $this);
     }
