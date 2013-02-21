@@ -74,9 +74,9 @@ abstract class AbstractConnection implements InterfaceConnection
     public function replacePlaceholders($query, array $arguments)
     {
         //firstly, we replace named placeholders like ?i:name: where "i" is escaping type and "name" is parameter name
-        $onMatch = function($matches) use ($arguments) {
-            if (!isset($arguments[$matches[2]])) {
-                throw new ExceptionQuery("Placeholder named '$matches[2]' is not presented in \$arguments");
+        $onMatch = function($matches) use ($arguments, $query, $arguments) {
+            if (!array_key_exists($matches[2], $arguments)) {
+                throw new ExceptionQuery("Placeholder named '$matches[2]' is not presented in \$arguments\n$query\n" . print_r($arguments, true));
             }
             return $this->escapeValueByType($arguments[$matches[2]], $matches[1]);
         };
@@ -84,10 +84,10 @@ abstract class AbstractConnection implements InterfaceConnection
 
         //secondly, we replace ordered placeholders like ?i where "i" is escaping type
         $counter = -1;
-        $onMatch = function($matches) use ($arguments, &$counter) {
+        $onMatch = function($matches) use ($arguments, &$counter, $query, $arguments) {
             $counter++;
-            if (!isset($arguments[$counter])) {
-                throw new ExceptionQuery("Placeholder number '$counter' is not presented in \$arguments");
+            if (!array_key_exists($counter, $arguments)) {
+                throw new ExceptionQuery("Placeholder number '$counter' is not presented in \$arguments\n$query\n" . print_r($arguments, true));
             }
             return $this->escapeValueByType($arguments[$counter], $matches[1]);
         };
