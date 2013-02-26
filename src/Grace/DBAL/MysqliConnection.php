@@ -67,7 +67,7 @@ class MysqliConnection extends AbstractConnection
                 $this->rollback();
             }
             throw new ExceptionQuery(
-                'Query error ' . $this->dbh->errno . ' - ' . $this->dbh->error . ". \nSQL:\n" . $query);
+               'Query error ' . $this->dbh->errno . ' - ' . $this->dbh->error . ". \nSQL:\n" . $query);
         } elseif (is_object($result)) {
             return new MysqliResult($result);
         } else {
@@ -175,6 +175,7 @@ class MysqliConnection extends AbstractConnection
         $this->dbh->query('SET character_set_results = utf8');
         $this->dbh->query('SET character_set_connection = utf8');
         $this->dbh->query("SET SESSION collation_connection = 'utf8_general_ci'");
+        $this->dbh->query("SET sql_mode = ''");
         $this
             ->getLogger()
             ->stopConnection();
