@@ -40,6 +40,7 @@ services:
   grace_orm:
     class: %grace.namespace.common_prefix_without_slash%\%grace.namespace.manager_class%
     calls:
+      - [ setSqlBuilderPrefix, [ %grace.namespace.common_prefix_without_slash% ] ]
       - [ setSqlReadOnlyConnection, [ @grace_db ] ]
       - [ setCrudConnection, [ @grace_crud_db ] ]
 

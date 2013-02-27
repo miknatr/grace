@@ -11,11 +11,27 @@ class SubObjectPlugin extends RecordMethodsPluginAbstract
     protected function getGetterBody($fieldName, $fieldConfig)
     {
         $fieldStr = '$this->fields[\'' . $fieldName . '\']';
-        return "return is_object($fieldStr) ? $fieldStr : $fieldStr = new \\{$fieldConfig['subObject']}($fieldStr);";
+        return <<<PHP
+if (!is_object($fieldStr)) {
+    $fieldStr = new \\{$fieldConfig['subObject']}($fieldStr);
+}
+return $fieldStr;
+PHP;
     }
     protected function getSetterBody($fieldName, $fieldConfig)
     {
-        return "\$this->fields['$fieldName'] = is_object(\$$fieldName) ? \$$fieldName : new \\{$fieldConfig['subObject']}(\$$fieldName);" .
-            "\n" . '$this->markAsChanged();' . "\n" . 'return $this;';
+        $fieldStr = '$this->fields[\'' . $fieldName . '\']';
+        return <<<PHP
+if (is_object(\$$fieldName)) {
+    if (\$$fieldName instanceof \Grace\ORM\FieldObjectAbstract) {
+        $fieldStr = \$$fieldName;
+    } else {
+        throw new \LogicException('Field object must be instance of FieldObjectAbstract');
+    }
+} else {
+    $fieldStr = new \\{$fieldConfig['subObject']}(\$$fieldName);
+}
+return \$this;
+PHP;
     }
 }

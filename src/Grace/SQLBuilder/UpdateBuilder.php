@@ -21,12 +21,21 @@ class UpdateBuilder extends AbstractWhereBuilder
      */
     public function values(array $values)
     {
-        $fieldQueryParts = array();
+        $this->fieldsSql = array();
+        $this->fieldValues = array();
+
         foreach ($values as $k => $v) {
-            $fieldQueryParts[] = '`' . $k . '`=?q';
+            if (is_object($v) and $v instanceof SqlValueInterface) {
+                $this->fieldsSql[] = '`' . $k . '`=' . $v->getSql();
+                $this->fieldValues = array_merge($this->fieldValues, $v->getValues());
+            } else {
+                $this->fieldsSql[] = '`' . $k . '`=?q';
+                $this->fieldValues[] = $v;
+            }
         }
-        $this->fieldsSql   = implode(', ', $fieldQueryParts);
-        $this->fieldValues = array_values($values);
+
+        $this->fieldsSql = implode(', ', $this->fieldsSql);
+
         return $this;
     }
     protected function getQueryString()

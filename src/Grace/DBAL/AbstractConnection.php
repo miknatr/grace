@@ -109,8 +109,8 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     private function escapeValueByType($value, $type)
     {
-        if (is_object($value)) {
-            $value = (string) $value;
+        if (is_object($value) or is_array($value)) {
+            throw new ExceptionQuery('Value must be string: ' . print_r($value, true));
         }
 
         switch ($type) {

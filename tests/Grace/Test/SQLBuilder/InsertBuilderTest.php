@@ -3,6 +3,7 @@
 namespace Grace\Test\SQLBuilder;
 
 use Grace\SQLBuilder\InsertBuilder;
+use Grace\SQLBuilder\SqlValue;
 
 class InsertBuilderTest extends \PHPUnit_Framework_TestCase
 {
@@ -31,11 +32,12 @@ class InsertBuilderTest extends \PHPUnit_Framework_TestCase
                           'id'    => 123,
                           'name'  => 'Mike',
                           'phone' => '123-123',
+                          'point' => new SqlValue('POINT(?q, ?q)', array(1, 2)),
                      ))
             ->execute();
 
         $this->assertEquals(
-            'INSERT INTO `TestTable`' . ' (`id`, `name`, `phone`)' . ' VALUES (?q, ?q, ?q)', $this->plug->query);
-        $this->assertEquals(array(123, 'Mike', '123-123'), $this->plug->arguments);
+            'INSERT INTO `TestTable`' . ' (`id`, `name`, `phone`, `point`)' . ' VALUES (?q, ?q, ?q, POINT(?q, ?q))', $this->plug->query);
+        $this->assertEquals(array(123, 'Mike', '123-123', 1, 2), $this->plug->arguments);
     }
 }
