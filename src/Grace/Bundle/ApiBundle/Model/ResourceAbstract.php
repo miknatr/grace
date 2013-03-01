@@ -200,7 +200,6 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                             } elseif ($value instanceof ApiFieldObjectAbstract) {
                                 $value = $value->getApiValue();
                             } else {
-                                p($value);
                                 throw new \LogicException('Api field object must be instance of ApiFieldObjectAbstract');
                             }
                         }
