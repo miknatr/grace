@@ -13,6 +13,7 @@ namespace Grace\ORM;
 use Grace\DBAL\InterfaceConnection;
 use Grace\DBAL\InterfaceExecutable;
 use Grace\DBAL\InterfaceResult;
+use Grace\SQLBuilder\Factory;
 use Grace\SQLBuilder\SelectBuilder;
 use Grace\DBAL\ExceptionNoResult as ExceptionNoResultDB;
 
@@ -132,7 +133,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
      */
     public function getSelectBuilder()
     {
-        return new SelectBuilder($this->tableName, $this);
+        return (new Factory($this))->select($this->tableName);
     }
 
 

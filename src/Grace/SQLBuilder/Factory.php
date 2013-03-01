@@ -17,6 +17,27 @@ use Grace\DBAL\InterfaceExecutable;
  */
 class Factory
 {
+    /**
+     * @var string
+     */
+    static private $namespacePrefix;
+
+    /**
+     * @param string $customSelectBuilderPrefix
+     */
+    public static function setNamespacePrefix($customSelectBuilderPrefix)
+    {
+        self::$namespacePrefix = $customSelectBuilderPrefix;
+    }
+    /**
+     * @return string
+     */
+    public static function getNamespacePrefix()
+    {
+        return self::$namespacePrefix;
+    }
+
+
     private $executable;
     /**
      * @param \Grace\DBAL\InterfaceExecutable $executable
@@ -38,7 +59,12 @@ class Factory
      */
     public function select($table)
     {
-        return new SelectBuilder($table, $this->executable);
+        $class = '\\' . self::$namespacePrefix . '\\SelectBuilder\\' . $table . 'SelectBuilder';
+        if (class_exists($class)) {
+            return new $class($table, $this->executable);
+        } else {
+            return new SelectBuilder($table, $this->executable);
+        }
     }
     /**
      * @param $table

@@ -27,8 +27,22 @@ class InsertBuilder extends AbstractBuilder
     public function values(array $values)
     {
         $this->fieldsSql   = '`' . implode('`, `', array_keys($values)) . '`';
-        $this->valuesSql   = substr(str_repeat('?q, ', count($values)), 0, -2);
-        $this->fieldValues = array_values($values);
+
+        $this->valuesSql   = array();
+        $this->fieldValues = array();
+
+        foreach ($values as $k => $v) {
+            if (is_object($v) and $v instanceof SqlValueInterface) {
+                $this->valuesSql[] = $v->getSql();
+                $this->fieldValues = array_merge($this->fieldValues, $v->getValues());
+            } else {
+                $this->valuesSql[] = '?q';
+                $this->fieldValues[] = $v;
+            }
+        }
+
+        $this->valuesSql = implode(', ', $this->valuesSql);
+
         return $this;
     }
     /**

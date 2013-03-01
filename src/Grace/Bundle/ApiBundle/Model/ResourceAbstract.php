@@ -2,6 +2,7 @@
 
 namespace Grace\Bundle\ApiBundle\Model;
 
+use Grace\Bundle\ApiBundle\Type\ApiFieldObjectAbstract;
 use Grace\ORM\Record;
 use Grace\Bundle\ApiBundle\Model\User;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -188,15 +189,11 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                             //$value = $this->fields[$fieldName];
                         }
 
-                        if(is_object($value)) {
-                            if(method_exists($value, 'asArrayByUser')) {
-                                $value = $value->asArrayByUser($user);
-                            } elseif (method_exists($value, 'asArray')) {
-                                $value = $value->asArray($user);
-                            } elseif (method_exists($value, '__toString')) {
-                                $value = (string) $value;
+                        if (is_object($value)) {
+                            if ($value instanceof ApiFieldObjectAbstract) {
+                                $value = $value->getApiValue();
                             } else {
-                                throw new \LogicException('Подобъект должен иметь метод asArrayByUser(User $user) или asArray()');
+                                throw new \LogicException('Api field object must be instance of ApiFieldObjectAbstract');
                             }
                         }
                         $r[$fieldName] = $value;

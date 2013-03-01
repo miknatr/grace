@@ -2,6 +2,7 @@
 
 namespace Grace\Test\SQLBuilder;
 
+use Grace\SQLBuilder\SqlValue;
 use Grace\SQLBuilder\UpdateBuilder;
 
 class UpdateBuilderTest extends \PHPUnit_Framework_TestCase
@@ -31,11 +32,12 @@ class UpdateBuilderTest extends \PHPUnit_Framework_TestCase
                           'id'    => 123,
                           'name'  => 'Mike',
                           'phone' => '123-123',
+                          'point' => new SqlValue('POINT(?q, ?q)', array(1, 2)),
                      ))
             ->execute();
 
-        $this->assertEquals('UPDATE `TestTable` SET' . ' `id`=?q, `name`=?q, `phone`=?q', $this->plug->query);
-        $this->assertEquals(array(123, 'Mike', '123-123'), $this->plug->arguments);
+        $this->assertEquals('UPDATE `TestTable` SET' . ' `id`=?q, `name`=?q, `phone`=?q, `point`=POINT(?q, ?q)', $this->plug->query);
+        $this->assertEquals(array(123, 'Mike', '123-123', 1, 2), $this->plug->arguments);
     }
     public function testUpdateWithWhereStatement()
     {

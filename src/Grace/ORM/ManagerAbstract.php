@@ -11,6 +11,7 @@
 namespace Grace\ORM;
 
 use Grace\DBAL\InterfaceConnection;
+use Grace\SQLBuilder\Factory;
 use Grace\CRUD\CRUDInterface;
 use Grace\CRUD\CRUDCommitableInterface;
 use Grace\CRUD\DBMasterDriver;
@@ -292,6 +293,11 @@ abstract class ManagerAbstract
         return isset($this->sqlReadOnlyConnections[$name]);
     }
 
+    public function setSqlBuilderPrefix($prefix)
+    {
+        Factory::setNamespacePrefix($prefix);
+        return $this;
+    }
 
 
     //ORM STORAGES AND SERVICES
