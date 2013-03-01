@@ -33,7 +33,15 @@ abstract class AbstractBuilder implements InterfaceResult
         $this->executable = $executable;
     }
     /**
+     * @return $this
+     */
+    public function getClone()
+    {
+        return clone $this;
+    }
+    /**
      * @param $fromTable
+     * @return $this
      */
     public function setFrom($fromTable)
     {
