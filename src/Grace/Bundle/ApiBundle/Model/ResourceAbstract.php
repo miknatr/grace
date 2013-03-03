@@ -2,13 +2,11 @@
 
 namespace Grace\Bundle\ApiBundle\Model;
 
-use Grace\Bundle\ApiBundle\Collection\CollectionAbstract;
-use Grace\Bundle\ApiBundle\Type\ApiFieldObjectAbstract;
+use Grace\Bundle\ApiBundle\Type\ApiFieldObjectInterface;
 use Grace\ORM\Collection;
 use Grace\ORM\Record;
 use Grace\Bundle\ApiBundle\Model\User;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Serializer\Tests\Model;
 
 /**
  * Класс для управления доступом на уровне полей модели
@@ -193,11 +191,13 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                         }
 
                         if (is_object($value)) {
-                            if ($value instanceof ResourceInterface or $value instanceof CollectionAbstract) {
+                            if ($value instanceof ApiAsArrayAccessibleInterface) {
                                 $value = $value->asArrayByUser($user);
-                            } elseif ($value instanceof Model or $value instanceof Collection) {
+                            } elseif ($value instanceof Record) {
                                 $value = $value->asArray();
-                            } elseif ($value instanceof ApiFieldObjectAbstract) {
+                            } elseif ($value instanceof Collection) {
+                                $value = $value->asArray();
+                            } elseif ($value instanceof ApiFieldObjectInterface) {
                                 $value = $value->getApiValue();
                             } else {
                                 throw new \LogicException('Api field object must be instance of ApiFieldObjectAbstract');

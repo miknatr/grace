@@ -4,7 +4,7 @@ namespace Grace\Bundle\ApiBundle\Model;
 
 use Grace\Bundle\ApiBundle\Model\User;
 
-interface ResourceInterface
+interface ResourceInterface extends ApiAsArrayAccessibleInterface
 {
     /**
      * @abstract
@@ -19,12 +19,6 @@ interface ResourceInterface
      * @return bool
      */
     public function deleteByUser(User $user);
-    /**
-     * @abstract
-     * @param User $user
-     * @return array fields
-     */
-    public function asArrayByUser(User $user);
     /**
      * @abstract
      * @param User $user

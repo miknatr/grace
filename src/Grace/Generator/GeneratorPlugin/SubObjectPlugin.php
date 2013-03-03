@@ -23,10 +23,10 @@ PHP;
         $fieldStr = '$this->fields[\'' . $fieldName . '\']';
         return <<<PHP
 if (is_object(\$$fieldName)) {
-    if (\$$fieldName instanceof \Grace\ORM\FieldObjectAbstract) {
+    if (\$$fieldName instanceof \Grace\SQLBuilder\SqlValueInterface) {
         $fieldStr = \$$fieldName;
     } else {
-        throw new \LogicException('Field object must be instance of FieldObjectAbstract');
+        throw new \LogicException('Field object must be instance of SqlValueInterface');
     }
 } else {
     $fieldStr = new \\{$fieldConfig['subObject']}(\$$fieldName);
