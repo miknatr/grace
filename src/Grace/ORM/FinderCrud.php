@@ -63,14 +63,6 @@ abstract class FinderCrud
     }
 
     /**
-     * @return MapperInterface
-     */
-    final private function getMapper()
-    {
-        return ManagerAbstract::getCurrent()->getMapper($this->tableName);
-    }
-
-    /**
      * @return IdentityMap
      */
     final private function getIdentityMap()
@@ -176,18 +168,17 @@ abstract class FinderCrud
      */
     protected function convertRowToRecord(array $row, $isNew, array $newParams = array())
     {
-        $recordArray = $this->getMapper()->convertDbRowToRecordArray($row);
         $recordClass = $this->getClassNameProvider()->getModelClass($this->tableName);
 
         //TODO magic string 'id'
 
         //if already exists in IdentityMap -  we get from IdentityMap because we don't want different objects related to one db row
         $identityMap = $this->getIdentityMap();
-        if ($identityMap->issetRecord($this->tableName, $recordArray['id'])) {
-            $record = $identityMap->getRecord($this->tableName, $recordArray['id']);
+        if ($identityMap->issetRecord($this->tableName, $row['id'])) {
+            $record = $identityMap->getRecord($this->tableName, $row['id']);
         } else {
-            $record = new $recordClass($recordArray['id'], $recordArray, $isNew, $newParams);
-            $identityMap->setRecord($this->tableName, $recordArray['id'], $record);
+            $record = new $recordClass($row['id'], $row, $isNew, $newParams);
+            $identityMap->setRecord($this->tableName, $row['id'], $record);
         }
 
         return $record;

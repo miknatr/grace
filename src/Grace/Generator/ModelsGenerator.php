@@ -18,11 +18,10 @@ class ModelsGenerator
     const BASE_CLASS_RECORD         = '\\Grace\\ORM\\Record';
     const BASE_CLASS_FINDER_SQL     = '\\Grace\\ORM\\FinderSql';
     const BASE_CLASS_FINDER_CRUD    = '\\Grace\\ORM\\FinderCrud';
-    const BASE_CLASS_MAPPER         = '\\Grace\\ORM\\Mapper';
     const BASE_CLASS_COLLECTION     = '\\Grace\\ORM\\Collection';
     const CONCRETE_CLASS_MANAGER    = 'ORMManager';
-    const MAPPER_FIELDS_ARRAY       = 'fields';
-    const MAPPER_NO_DB_FIELDS_ARRAY = 'noDbFields';
+    const MAPPER_FIELDS_ARRAY       = 'fieldNames';
+    const MAPPER_NO_DB_FIELDS_ARRAY = 'noDbFieldNames';
 
     private $modelConfigResources;
     private $namespace;
@@ -140,7 +139,6 @@ class ModelsGenerator
         $this->generateManager($config, $configFull['extra-finders'], $managerClass, $this->containerClass, $nsFinder);
         $this->generateRecords($config, $managerClass, $this->containerClass, $nsRecord, $annotationReader);
         $this->generateFinders($config, $managerClass, $this->containerClass, $nsFinder, $nsRecord, $nsCollection);
-        $this->generateMappers($config, $nsMapper);
         $this->generateCollections($config, $nsCollection, $nsRecord);
 
 
@@ -331,6 +329,37 @@ class ModelsGenerator
 
             $fields = $modelConfig[self::CONFIG_PROPERTIES];
 
+
+            $fieldsPropertyArray     = array();
+            $noDbFieldsPropertyArray = array();
+            foreach ($fields as $fieldName => $fieldConfig) {
+                //$fieldsPropertyArray[] = "\n\t'" . $fieldName . "',";
+                if (empty($fieldConfig['mapping'])) {
+                    $noDbFieldsPropertyArray[] = $fieldName;
+                } else {
+                    $fieldsPropertyArray[] = $fieldName;
+                }
+            }
+
+
+            $fieldsProperty = (new \Zend_CodeGenerator_Php_Property)
+                ->setName(self::MAPPER_FIELDS_ARRAY)
+                ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED)
+                ->setStatic(true)
+                ->setDefaultValue((new \Zend_CodeGenerator_Php_Property_DefaultValue)->setValue($fieldsPropertyArray));
+
+            $noDbFieldsProperty = (new \Zend_CodeGenerator_Php_Property)
+                ->setName(self::MAPPER_NO_DB_FIELDS_ARRAY)
+                ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED)
+                ->setStatic(true)
+                ->setDefaultValue((new \Zend_CodeGenerator_Php_Property_DefaultValue)->setValue($noDbFieldsPropertyArray));
+
+
+            $recordAbstract->setProperty($fieldsProperty);
+            $recordAbstract->setProperty($noDbFieldsProperty);
+
+
+
             foreach ($fields as $fieldName => $fieldConfig) {
                 if ($fieldName != 'id') {
 
@@ -444,57 +473,6 @@ class ModelsGenerator
 
             $this->writeFile($modelName . 'FinderAbstract.php', $namespace, $finderAbstract);
             $this->writeFile($modelName . 'Finder.php', $namespace, $finderConcrete);
-        }
-    }
-    private function generateMappers($config, $namespace)
-    {
-        foreach ($config as $modelName => $modelConfig) {
-            $fields = $modelConfig[self::CONFIG_PROPERTIES];
-
-            $fieldsPropertyArray     = array();
-            $noDbFieldsPropertyArray = array();
-            foreach ($fields as $fieldName => $fieldConfig) {
-                //$fieldsPropertyArray[] = "\n\t'" . $fieldName . "',";
-                if (empty($fieldConfig['mapping'])) {
-                    $noDbFieldsPropertyArray[] = $fieldName;
-                } else {
-                    $fieldsPropertyArray[] = $fieldName;
-                }
-            }
-
-
-            $fieldsPropertyDefaultValue = new \Zend_CodeGenerator_Php_Property_DefaultValue;
-            $fieldsPropertyDefaultValue->setValue($fieldsPropertyArray);
-            $fieldsProperty = new \Zend_CodeGenerator_Php_Property;
-            $fieldsProperty
-                ->setName(self::MAPPER_FIELDS_ARRAY)
-                ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED)
-                ->setDefaultValue($fieldsPropertyDefaultValue);
-
-            $noDbFieldsPropertyDefaultValue = new \Zend_CodeGenerator_Php_Property_DefaultValue;
-            $noDbFieldsPropertyDefaultValue->setValue($noDbFieldsPropertyArray);
-            $noDbFieldsProperty = new \Zend_CodeGenerator_Php_Property;
-            $noDbFieldsProperty
-                ->setName(self::MAPPER_NO_DB_FIELDS_ARRAY)
-                ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED)
-                ->setDefaultValue($noDbFieldsPropertyDefaultValue);
-
-
-            $mapperAbstract = new \Zend_CodeGenerator_Php_Class();
-            $mapperAbstract
-                ->setName($modelName . 'MapperAbstract')
-                ->setAbstract(true)
-                ->setProperty($fieldsProperty)
-                ->setProperty($noDbFieldsProperty)
-                ->setExtendedClass(self::BASE_CLASS_MAPPER);
-
-            $mapperConcrete = new \Zend_CodeGenerator_Php_Class();
-            $mapperConcrete
-                ->setName($modelName . 'Mapper')
-                ->setExtendedClass($modelName . 'MapperAbstract');
-
-            $this->writeFile($modelName . 'MapperAbstract.php', $namespace, $mapperAbstract);
-            $this->writeFile($modelName . 'Mapper.php', $namespace, $mapperConcrete);
         }
     }
     private function generateCollections($config, $namespace, $recordNamespace)

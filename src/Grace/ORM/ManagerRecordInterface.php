@@ -17,6 +17,18 @@ interface ManagerRecordInterface
 {
     /**
      * @abstract
+     * @return array
+     */
+    public function asArray();
+    /**
+     * Method for mapper usage only
+     * @abstract
+     * @return array
+     */
+    public function getFields();
+
+    /**
+     * @abstract
      */
     public function onCommitInsert();
     /**

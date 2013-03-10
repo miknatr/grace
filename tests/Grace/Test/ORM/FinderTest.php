@@ -18,8 +18,6 @@ class FinderTest extends \PHPUnit_Framework_TestCase
     protected $container;
     /** @var IdentityMap */
     protected $identityMap;
-    /** @var OrderMapper */
-    protected $mapper;
     /** @var MysqliConnection */
     protected $connection;
     /** @var DBMasterDriver */
@@ -34,7 +32,6 @@ class FinderTest extends \PHPUnit_Framework_TestCase
         $this->connection  = new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud        = new DBMasterDriver($this->connection);
         $this->identityMap = new IdentityMap;
-        $this->mapper      = new OrderMapper;
 
         $this->finder      = new OrderFinder('Order');
         $this->finder->setCrud($this->crud);

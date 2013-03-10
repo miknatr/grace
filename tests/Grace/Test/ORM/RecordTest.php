@@ -58,10 +58,6 @@ class RecordTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWork()->getChangedRecords()));
 
-        $defaults = $this->orm->getDefaultFieldsStorage()->getFields(get_class($this->order), $this->order->getId());
-        $this->assertEquals('Mike', $defaults['name']);
-        $this->assertEquals('+79991234567', $defaults['phone']);
-
         $recordArray = $this->order->asArray();
         $this->assertEquals('John', $recordArray['name']);
         $this->assertEquals('+1234546890', $recordArray['phone']);

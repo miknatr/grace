@@ -13,8 +13,75 @@ namespace Grace\ORM;
 /**
  * Base model class
  */
-abstract class Record implements MapperRecordInterface, ManagerRecordInterface
+abstract class Record implements ManagerRecordInterface
 {
+    static protected $fieldNames = array();
+    static protected $noDbFieldNames = array();
+
+    /**
+     * Converts from db row to record array
+     * @abstract
+     * @param array $row
+     * @return array
+     */
+    protected function convertDbRowToRecordArray(array $row)
+    {
+        $recordArray = array();
+        foreach (static::$fieldNames as $field) {
+            if (isset($row[$field])) {
+                $recordArray[$field] = $row[$field];
+            } else {
+                $recordArray[$field] = null;
+            }
+        }
+        foreach (static::$noDbFieldNames as $field) {
+            $recordArray[$field] = null;
+        }
+        return $recordArray;
+    }
+    /**
+     * Converts from record array to db row
+     * @abstract
+     * @param array $recordArray
+     * @return array
+     */
+    public function getAsDbRow()
+    {
+        $recordArray = $this->getFields();
+        $row = array();
+        foreach (static::$fieldNames as $field) {
+            if (isset($recordArray[$field])) {
+                $row[$field] = $recordArray[$field];
+            } else {
+                $row[$field] = null;
+            }
+        }
+        return $row;
+    }
+    /**
+     * Gets differs between record and defaults
+     * @abstract
+     * @param array $recordArray
+     * @param array $defaults
+     * @return array
+     */
+    public function getAsDbRowChangesOnlyAndCleanDefaultFields()
+    {
+        $recordArray = $this->getFields();
+        $defaults = $this->defaults;
+
+        $changes = array();
+        foreach (static::$fieldNames as $field) {
+            if (isset($recordArray[$field]) and (!isset($defaults[$field]) or $recordArray[$field] != $defaults[$field])) {
+                $changes[$field] = $recordArray[$field];
+            }
+        }
+
+        $this->defaults = $this->getAsDbRow();
+
+        return $changes;
+    }
+
 
     //SERVICES GETTERS (one service - one method, access via getOrm()->getService() is not allowed for dependency control reasons)
 
@@ -43,14 +110,6 @@ abstract class Record implements MapperRecordInterface, ManagerRecordInterface
     }
 
     /**
-     * @return DefaultFieldsStorage
-     */
-    final private function getDefaultFieldsStorage()
-    {
-        return ManagerAbstract::getCurrent()->getDefaultFieldsStorage();
-    }
-
-    /**
      * @return UnitOfWork
      */
     final private function getUnitOfWork()
@@ -65,6 +124,7 @@ abstract class Record implements MapperRecordInterface, ManagerRecordInterface
     private $id;
     private $isNew = false;
     protected $fields = array();
+    protected $defaults = array();
 
     /**
      * @param            $id
@@ -75,9 +135,8 @@ abstract class Record implements MapperRecordInterface, ManagerRecordInterface
     {
         $this->id     = $id;
         $this->isNew  = $isNew;
-        $this->fields = $fields;
-
-        $this->getDefaultFieldsStorage()->setFields(get_class($this), $this->getId(), $fields);
+        $this->defaults = $fields;
+        $this->fields = $this->convertDbRowToRecordArray($fields);
 
         if ($this->isNew) { //if it is a new object
             $this->onCreate($newParams);
@@ -138,7 +197,7 @@ abstract class Record implements MapperRecordInterface, ManagerRecordInterface
     final public function revert()
     {
         $this->getUnitOfWork()->revert($this);
-        $this->fields = $this->getDefaultFieldsStorage()->getFields(get_class($this), $this->getId());
+        $this->fields = $this->defaults;
 
         return $this;
     }

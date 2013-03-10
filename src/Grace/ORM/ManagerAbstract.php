@@ -58,28 +58,18 @@ abstract class ManagerAbstract
             foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
                 $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
                 $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-                $changes   = $this ->getMapper($className)->convertRecordArrayToDbRow($record->getFields());
-                $crud->insertById($className, $record->getId(), $changes);
+                $crud->insertById($className, $record->getId(), $record->getAsDbRow());
             }
 
 
             foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
                 $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
-                $classNameFull = get_class($record);
                 $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
 
-                if ($this->getDefaultFieldsStorage()->issetFields($classNameFull, $record->getId())) {
-                    $defaults = $this->getDefaultFieldsStorage()->getFields($classNameFull, $record->getId());
-                } else {
-                    $defaults = $crud->selectById($className, $record->getId());
-                }
-
-                $changes = $this->getMapper($className)->getRecordChanges($record->getFields(), $defaults);
+                $changes = $record->getAsDbRowChangesOnlyAndCleanDefaultFields();
                 if (count($changes) > 0) {
                     $crud->updateById($className, $record->getId(), $changes);
                 }
-
-                //$this->getDefaultFieldsStorage()->unsetFields($classNameFull, $record->getId());
             }
 
 
@@ -127,7 +117,6 @@ abstract class ManagerAbstract
     {
         $this->getUnitOfWork()->clean();
         $this->getIdentityMap()->clean();
-        $this->getDefaultFieldsStorage()->clean();
     }
 
 
@@ -164,22 +153,6 @@ abstract class ManagerAbstract
         }
 
         return $this->finders[$finderClassName];
-    }
-
-    private $mappers = array();
-    /**
-     * Gets mapper which associated with model $className
-     * @param string $className
-     * @return MapperInterface
-     */
-    public function getMapper($className)
-    {
-        if (!isset($this->mappers[$className])) {
-            $fullClassName = $this->getClassNameProvider()->getMapperClass($className);
-            $this->mappers[$className] = new $fullClassName;
-        }
-
-        return $this->mappers[$className];
     }
 
 
@@ -349,20 +322,6 @@ abstract class ManagerAbstract
             $this->identityMap = new IdentityMap;
         }
         return $this->identityMap;
-    }
-
-
-    private $defaultFieldsStorage;
-    /**
-     * Gets DefaultFieldsStorage
-     * @return DefaultFieldsStorage
-     */
-    final public function getDefaultFieldsStorage()
-    {
-        if (empty($this->defaultFieldsStorage)) {
-            $this->defaultFieldsStorage = new DefaultFieldsStorage;
-        }
-        return $this->defaultFieldsStorage;
     }
 
 

@@ -6,6 +6,9 @@ use Grace\ORM\Record;
 
 class Order extends Record
 {
+    static protected $fieldNames = array('id', 'name', 'phone');
+    static protected $noDbFieldNames = array();
+
     public function getName()
     {
         return $this->fields['name'];
