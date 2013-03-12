@@ -8,6 +8,12 @@ use Symfony\Component\Security\Core\Role\Role;
 
 use Grace\Bundle\ApiBundle\Security\Core\ApiUserInterface;
 
+/**
+ * Class User
+ * @package Grace\Bundle\ApiBundle\Model
+ *
+ * @method string getRole()
+ */
 abstract class User extends ResourceAbstract implements ApiUserInterface, EquatableInterface
 {
     protected function initCreationFieldsOnCreateByUser(User $user, array $fields)
