@@ -106,6 +106,16 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
     }
 
 
+
+    final public function getOrderUsersWithPrivileges()
+    {
+        foreach (static::$aclPrivileges as $privilege => $conditions) {
+            foreach ($conditions as $condition) {
+
+            }
+        }
+
+    }
     final public function getPrivilegeForUser(User $user)
     {
         $resource = $this;
@@ -118,7 +128,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
 //                    print_r($syntax);
 //                    die('DIE');
 //                }
-                if (eval('return (' . $condition[1] . ');')) {
+                if (eval('return ((' . $condition[1] . (isset($condition[2]) ? ') and (' . $condition[2] : '') . '));')) {
                     return $privilege;
                 }
             }
@@ -168,6 +178,48 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
         $this->throwIfNotAccessOnResource('delete', $this->getPrivilegeForUser($user));
         $this->delete();
     }
+
+    final public function asArrayForNodejs()
+    {
+        $key = 'as_array_for_nodejs_' . md5(json_encode($this->fields));
+        return $this->getContainer()->getCache()->get($key, 30, function() {
+            $r = array();
+            foreach ($this->fields as $fieldName => $v) {
+                if (static::$aclFieldsView[$fieldName]) {
+
+                    $getter = 'get' . ucfirst($fieldName);
+                    $getterByUser = $getter . 'ByUser';
+
+                    if (method_exists($this, $getterByUser)) {
+
+                        //$value = $this->$getterByUser($user);
+                        //$value = $this->fields[$fieldName];
+                    } else {
+                        $value = $this->$getter();
+                        //$value = $this->fields[$fieldName];
+                    }
+
+                    if (is_object($value)) {
+                        if ($value instanceof ApiAsArrayAccessibleInterface) {
+                            $value = $value->asArrayForNodejs();
+                        } elseif ($value instanceof Record) {
+                            $value = $value->asArray();
+                        } elseif ($value instanceof Collection) {
+                            $value = $value->asArray();
+                        } elseif ($value instanceof ApiFieldObjectInterface) {
+                            $value = $value->getApiValue();
+                        } else {
+                            throw new \LogicException('Api field object must be instance of ApiFieldObjectAbstract');
+                        }
+                    }
+                    $r[$fieldName] = $value;
+
+                }
+            }
+
+            return $r;
+        });
+    }
     final public function asArrayByUser(User $user)
     {
         $privilege = $this->getPrivilegeForUser($user);
@@ -177,7 +229,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
         return $this->getContainer()->getCache()->get($key, 30, function() use ($user, $privilege) {
                 $r = array();
                 foreach ($this->fields as $fieldName => $v) {
-                    if ($this->hasAccess(static::$aclFieldsView[$fieldName], $privilege)) {
+                    if (static::$aclFieldsView[$fieldName]) {
 
                         $getter = 'get' . ucfirst($fieldName);
                         $getterByUser = $getter . 'ByUser';

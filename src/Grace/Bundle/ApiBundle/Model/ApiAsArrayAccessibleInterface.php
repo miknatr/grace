@@ -12,4 +12,9 @@ interface ApiAsArrayAccessibleInterface
      * @return array fields
      */
     public function asArrayByUser(User $user);
+    /**
+     * @abstract
+     * @return array fields
+     */
+    public function asArrayForNodejs();
 }
