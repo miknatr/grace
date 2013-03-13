@@ -37,7 +37,7 @@ class InsertBuilderTest extends \PHPUnit_Framework_TestCase
             ->execute();
 
         $this->assertEquals(
-            'INSERT INTO `TestTable`' . ' (`id`, `name`, `phone`, `point`)' . ' VALUES (?q, ?q, ?q, POINT(?q, ?q))', $this->plug->query);
-        $this->assertEquals(array(123, 'Mike', '123-123', 1, 2), $this->plug->arguments);
+            'INSERT INTO ?f (?i)' . ' VALUES (?q, ?q, ?q, POINT(?q, ?q))', $this->plug->query);
+        $this->assertEquals(array('TestTable', array('id', 'name', 'phone', 'point'), 123, 'Mike', '123-123', 1, 2), $this->plug->arguments);
     }
 }

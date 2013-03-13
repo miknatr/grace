@@ -1,7 +1,9 @@
 <?php
 
+// TODO config from .my.cnf
+
 /* CONFIGURATION FOR MySQL tests */
-define('TEST_MYSQLI_HOST', 'localhost');
+define('TEST_MYSQLI_HOST', '127.0.0.1');
 define('TEST_MYSQLI_PORT', 3306);
 define('TEST_MYSQLI_NAME', 'root');
 define('TEST_MYSQLI_PASSWORD', '1');

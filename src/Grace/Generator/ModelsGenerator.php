@@ -296,15 +296,19 @@ class ModelsGenerator
         foreach ($config as $modelName => $modelConfig) {
             $docblock = new PhpDoc;
             $docblock->setTags(array(
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $managerClass . ' getOrm()'
-                                    ),
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $containerClass . ' getContainer()'
-                                    ),
-                               ));
+                array(
+                    'name' => 'method',
+                    'description' => '\\' . $namespace . '\\' . $modelName . ' getOriginalRecord()'
+                ),
+                array(
+                    'name' => 'method',
+                    'description' => '\\' . $managerClass . ' getOrm()'
+                ),
+                array(
+                    'name' => 'method',
+                    'description' => '\\' . $containerClass . ' getContainer()'
+                ),
+            ));
 
             $parent = isset($modelConfig['extends']) ? $modelConfig['extends'] : self::BASE_CLASS_RECORD;
 
@@ -363,7 +367,7 @@ class ModelsGenerator
             foreach ($fields as $fieldName => $fieldConfig) {
                 if ($fieldName != 'id') {
 
-                    if (!method_exists($parent, 'get' . ucfirst($fieldName)) and $recordAbstract->getMethod('get' . ucfirst($fieldName)) === false) {
+                    if (!static::nonAbstractMethodExists($parent, 'get' . ucfirst($fieldName)) and $recordAbstract->getMethod('get' . ucfirst($fieldName)) === false) {
 
                         $typeStr = isset($fieldConfig['type']) ? '(' . $fieldConfig['type'] . ')' : '';
                         $body    = 'return ' . $typeStr . ' $this->fields[\'' . $fieldName . '\'];';
@@ -376,7 +380,7 @@ class ModelsGenerator
                         $recordAbstract->setMethod($method);
                     }
 
-                    if (!method_exists($parent, 'set' . ucfirst($fieldName)) and $recordAbstract->getMethod('set' . ucfirst($fieldName)) === false) {
+                    if (!static::nonAbstractMethodExists($parent, 'set' . ucfirst($fieldName)) and $recordAbstract->getMethod('set' . ucfirst($fieldName)) === false) {
                         $parameter = new \Zend_CodeGenerator_Php_Parameter;
                         $parameter->setName($fieldName);
                         $method = new \Zend_CodeGenerator_Php_Method;
@@ -404,6 +408,22 @@ class ModelsGenerator
             $this->writeFile($modelName . '.php', $namespace, $recordConcrete, $annotationReader);
         }
     }
+
+    private static function nonAbstractMethodExists($class, $method)
+    {
+        if (!method_exists($class, $method)) {
+            return false;
+        }
+
+        $rc = new \ReflectionClass($class);
+        $rm = $rc->getMethod($method);
+        if ($rm->isAbstract()) {
+            return false;
+        }
+
+        return true;
+    }
+
     private function generateFinders($config, $managerClass, $containerClass, $namespace, $recordNamespace, $collectionNamespace)
     {
         foreach ($config as $modelName => $modelConfig) {
@@ -427,7 +447,7 @@ class ModelsGenerator
                                     ),
                                     array(
                                         'name'        => 'method',
-                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . ' create()'
+                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . ' create(array $newParams = array(), $idWhenNecessary = null)'
                                     ),
                                     array(
                                         'name'        => 'method',

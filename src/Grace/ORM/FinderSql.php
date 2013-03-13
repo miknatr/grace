@@ -16,6 +16,7 @@ use Grace\DBAL\InterfaceResult;
 use Grace\SQLBuilder\Factory;
 use Grace\SQLBuilder\SelectBuilder;
 use Grace\DBAL\ExceptionNoResult as ExceptionNoResultDB;
+use Grace\CRUD\ExceptionNoResult as ExceptionNoResultCRUD;
 
 /**
  * Finds records by id
@@ -127,13 +128,65 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
         $this->queryResult = $this->sqlReadOnly->execute($query, $arguments);
         return $this;
     }
+
+    const TABLE_ALIAS = 'Resource';
     /**
      * New instance of SelectBuilder
      * @return \Grace\SQLBuilder\SelectBuilder
      */
     public function getSelectBuilder()
     {
-        return (new Factory($this))->select($this->tableName);
+        return (new Factory($this))->select($this->tableName)->setFromAlias(self::TABLE_ALIAS)->setAdditionalTables($this->getAdditionalTables());
+    }
+    protected function getAdditionalTables()
+    {
+        return array();
+    }
+    /**
+     * Fetches record object
+     * @param $id
+     * @return Record|bool
+     * @throws ExceptionUndefinedConnection
+     */
+    public function getByIdOrFalse($id)
+    {
+        if (empty($this->crud)) {
+            throw new ExceptionUndefinedConnection('CRUD connection is not defined');
+        }
+
+        if ($this->getIdentityMap()->issetRecord($this->tableName, $id)) {
+            return $this->getIdentityMap()->getRecord($this->tableName, $id);
+        }
+
+        $tables = $this->getAdditionalTables();
+        if (count($tables) > 0) {
+            array_unshift($tables, $this->tableName);
+
+            $row = null;
+
+            foreach ($tables as $table) {
+                try {
+                    $row = $this->crud->selectById($table, $id);
+                    if ($row) {
+                        break;
+                    }
+                } catch (ExceptionNoResultCRUD $e) {
+                    ;
+                }
+            }
+
+            if (!$row) {
+                return false;
+            }
+        } else {
+            try {
+                $row = $this->crud->selectById($this->tableName, $id);
+            } catch (ExceptionNoResultCRUD $e) {
+                return false;
+            }
+        }
+
+        return $this->convertRowToRecord($row, false);
     }
 
 

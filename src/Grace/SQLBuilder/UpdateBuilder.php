@@ -26,10 +26,12 @@ class UpdateBuilder extends AbstractWhereBuilder
 
         foreach ($values as $k => $v) {
             if (is_object($v) and $v instanceof SqlValueInterface) {
-                $this->fieldsSql[] = '`' . $k . '`=' . $v->getSql();
-                $this->fieldValues = array_merge($this->fieldValues, $v->getValues());
+                $this->fieldsSql[]   = '?f=' . $v->getSql();
+                $this->fieldValues[] = $k;
+                $this->fieldValues   = array_merge($this->fieldValues, $v->getValues());
             } else {
-                $this->fieldsSql[] = '`' . $k . '`=?q';
+                $this->fieldsSql[]   = '?f=?q';
+                $this->fieldValues[] = $k;
                 $this->fieldValues[] = $v;
             }
         }
@@ -43,10 +45,10 @@ class UpdateBuilder extends AbstractWhereBuilder
         if (count($this->fieldValues) == 0) {
             throw new ExceptionCallOrder('Set values for update before execute');
         }
-        return 'UPDATE `' . $this->from . '` SET ' . $this->fieldsSql . $this->getWhereSql();
+        return 'UPDATE ?f SET ' . $this->fieldsSql . $this->getWhereSql();
     }
     protected function getQueryArguments()
     {
-        return array_merge($this->fieldValues, parent::getQueryArguments());
+        return array_merge(array($this->from), $this->fieldValues, parent::getQueryArguments());
     }
 }

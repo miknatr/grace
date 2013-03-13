@@ -20,6 +20,15 @@ class DeleteBuilder extends AbstractWhereBuilder
      */
     protected function getQueryString()
     {
-        return 'DELETE FROM `' . $this->from . '`' . $this->getWhereSql();
+        return 'DELETE FROM ?f' . $this->getWhereSql();
+    }
+    /**
+     * @inheritdoc
+     */
+    protected function getQueryArguments()
+    {
+        $arguments = parent::getQueryArguments();
+        array_unshift($arguments, $this->from);
+        return $arguments;
     }
 }

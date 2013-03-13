@@ -26,10 +26,12 @@ class InsertBuilder extends AbstractBuilder
      */
     public function values(array $values)
     {
-        $this->fieldsSql   = '`' . implode('`, `', array_keys($values)) . '`';
+        $this->fieldValues = array();
+
+        $this->fieldsSql   = '?i';
+        $this->fieldValues[] = array_keys($values);
 
         $this->valuesSql   = array();
-        $this->fieldValues = array();
 
         foreach ($values as $k => $v) {
             if (is_object($v) and $v instanceof SqlValueInterface) {
@@ -53,13 +55,15 @@ class InsertBuilder extends AbstractBuilder
         if (count($this->fieldValues) == 0) {
             throw new ExceptionCallOrder('Set values for insert before execute');
         }
-        return 'INSERT INTO `' . $this->from . '` (' . $this->fieldsSql . ')' . ' VALUES (' . $this->valuesSql . ')';
+        return 'INSERT INTO ?f (' . $this->fieldsSql . ')' . ' VALUES (' . $this->valuesSql . ')';
     }
     /**
      * @inheritdoc
      */
     protected function getQueryArguments()
     {
-        return $this->fieldValues;
+        $arguments = $this->fieldValues;
+        array_unshift($arguments, $this->from);
+        return $arguments;
     }
 }

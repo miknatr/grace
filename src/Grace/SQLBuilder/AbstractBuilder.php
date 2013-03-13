@@ -22,6 +22,7 @@ abstract class AbstractBuilder implements InterfaceResult
     private $executable;
     private $result;
     protected $from;
+    protected $alias;
 
     /**
      * @param                                 $fromTable
@@ -45,7 +46,16 @@ abstract class AbstractBuilder implements InterfaceResult
      */
     public function setFrom($fromTable)
     {
-        $this->from = $fromTable;
+        $this->from  = $fromTable;
+        return $this;
+    }
+    /**
+     * @param $alias
+     * @return $this
+     */
+    public function setFromAlias($alias)
+    {
+        $this->alias = $alias;
         return $this;
     }
     /**

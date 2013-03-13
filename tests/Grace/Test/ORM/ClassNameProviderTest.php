@@ -17,6 +17,7 @@ class ClassNameProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('\\Finder\\PostFinder', $provider->getFinderClass('Post'));
         $this->assertEquals('\\Mapper\\PostMapper', $provider->getMapperClass('Post'));
         $this->assertEquals('\\Collection\\PostCollection', $provider->getCollectionClass('Post'));
+        $this->assertEquals('Post', $provider->getBaseClassFromFinderClass('\\Finder\\PostFinder'));
     }
     public function testCommonNamespace()
     {

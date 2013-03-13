@@ -21,6 +21,14 @@ class SelectBuilder extends AbstractWhereBuilder
     protected $havingSql = '';
     protected $orderSql = '';
     protected $limitSql;
+    protected $additionalTables = array();
+
+
+    public function setAdditionalTables(array $tables)
+    {
+        $this->additionalTables = $tables;
+        return $this;
+    }
 
     /**
      * Sets count syntax
@@ -115,8 +123,48 @@ class SelectBuilder extends AbstractWhereBuilder
      */
     protected function getQueryString()
     {
-        return 'SELECT ' . $this->fields . ' FROM `' . $this->from . '`' . $this->joinSql . $this->getWhereSql() .
-            $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;
+        $aliasSql = ($this->alias != '' ? ' AS ?f' : '');
+
+        if (count($this->additionalTables) > 0) {
+            $tables = $this->additionalTables;
+            array_unshift($tables, $this->from);
+
+            $queries = array();
+            foreach ($tables as $table) {
+                $queries[] = 'SELECT ' . $this->fields . ' FROM ?f' . $aliasSql . $this->joinSql . $this->getWhereSql() .
+                    $this->groupSql . $this->havingSql;
+            }
+
+            return '( ' . implode(' ) UNION ALL ( ', $queries) . ' )' . $this->orderSql . $this->limitSql;
+        } else {
+            return 'SELECT ' . $this->fields . ' FROM ?f' . $aliasSql . $this->joinSql . $this->getWhereSql() .
+                $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;
+        }
     }
+    /**
+     * @inheritdoc
+     */
+    protected function getQueryArguments()
+    {
+        $aliasPlaceholders = ($this->alias != '' ? array($this->alias) : array());
+
+        $arguments = parent::getQueryArguments();
+
+        if (count($this->additionalTables) > 0) {
+            $tables = $this->additionalTables;
+            array_unshift($tables, $this->from);
+
+            $newArguments = array();
+            foreach ($tables as $table) {
+                $newArguments = array_merge($newArguments, array($table), $aliasPlaceholders, $arguments);
+            }
+
+            return $newArguments;
+        } else {
+            $arguments = array_merge(array($this->from), $aliasPlaceholders, $arguments);
+            return $arguments;
+        }
+    }
+
 }
 

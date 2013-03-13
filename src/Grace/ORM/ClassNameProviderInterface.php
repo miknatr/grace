@@ -23,6 +23,13 @@ interface ClassNameProviderInterface
      */
     public function getBaseClass($modelClass);
     /**
+     * Gets base class name by full finder class name
+     * @abstract
+     * @param string $finderClass
+     * @return string base class name
+     */
+    public function getBaseClassFromFinderClass($finderClass);
+    /**
      * Gets full model class name by base class name
      * @abstract
      * @param string $baseClass

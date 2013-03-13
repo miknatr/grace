@@ -16,7 +16,7 @@ use Grace\ORM\ExceptionNoResult;
  * Grace param converter
  * Examples:
  * Company
- * Order,OrderArchive
+ * Order
  * newCompany
  * collectionCompany:ActivatedCompanies
  */

@@ -36,8 +36,8 @@ class UpdateBuilderTest extends \PHPUnit_Framework_TestCase
                      ))
             ->execute();
 
-        $this->assertEquals('UPDATE `TestTable` SET' . ' `id`=?q, `name`=?q, `phone`=?q, `point`=POINT(?q, ?q)', $this->plug->query);
-        $this->assertEquals(array(123, 'Mike', '123-123', 1, 2), $this->plug->arguments);
+        $this->assertEquals('UPDATE ?f SET' . ' ?f=?q, ?f=?q, ?f=?q, ?f=POINT(?q, ?q)', $this->plug->query);
+        $this->assertEquals(array('TestTable', 'id', 123, 'name', 'Mike', 'phone', '123-123', 'point', 1, 2), $this->plug->arguments);
     }
     public function testUpdateWithWhereStatement()
     {
@@ -51,8 +51,8 @@ class UpdateBuilderTest extends \PHPUnit_Framework_TestCase
             ->between('category', 10, 20) //test with AbstractWhereBuilder
             ->execute();
 
-        $this->assertEquals('UPDATE `TestTable` SET' . ' `id`=?q, `name`=?q, `phone`=?q' .
+        $this->assertEquals('UPDATE ?f SET' . ' ?f=?q, ?f=?q, ?f=?q' .
                                 ' WHERE isPublished=?q AND category BETWEEN ?q AND ?q', $this->plug->query);
-        $this->assertEquals(array(123, 'Mike', '123-123', 1, 10, 20), $this->plug->arguments);
+        $this->assertEquals(array('TestTable', 'id', 123, 'name', 'Mike', 'phone', '123-123', 1, 10, 20), $this->plug->arguments);
     }
 }

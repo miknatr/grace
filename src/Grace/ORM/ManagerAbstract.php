@@ -58,25 +58,38 @@ abstract class ManagerAbstract
             foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
                 $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
                 $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-                $crud->insertById($className, $record->getId(), $record->getAsDbRow());
+                $finder    = $this->getFinder($className);
+                $table     = $finder->getTableName($record);
+                $crud->insertById($table, $record->getId(), $record->getAsDbRow());
             }
 
 
             foreach ($this->getUnitOfWork()->getChangedRecords() as $record) {
                 $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
                 $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
+                $finder    = $this->getFinder($className);
 
                 $changes = $record->getAsDbRowChangesOnlyAndCleanDefaultFields();
+
                 if (count($changes) > 0) {
-                    $crud->updateById($className, $record->getId(), $changes);
+                    $newTable = $finder->getTableName($record);
+                    $oldTable = $finder->getTableName($record->getOriginalRecord());
+                    if ($newTable == $oldTable) {
+                        $crud->updateById($newTable, $record->getId(), $changes);
+                    } else {
+                        $crud->insertById($newTable, $record->getId(), $record->getAsDbRow());
+                        $crud->deleteById($oldTable, $record->getId());
+                    }
                 }
             }
 
 
             foreach ($this->getUnitOfWork()->getDeletedRecords() as $record) {
-                $className = $this ->getClassNameProvider()->getBaseClass(get_class($record));
+                $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
                 $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
-                $crud->deleteById($className, $record->getId());
+                $finder    = $this->getFinder($className);
+                $table     = $finder->getTableName($record->getOriginalRecord());
+                $crud->deleteById($table, $record->getId());
             }
 
 

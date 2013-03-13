@@ -30,6 +30,8 @@ class InitDbCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        //TODO партиции в орм
+
         /** @var $db InterfaceConnection */
         $db = $this
             ->getContainer()

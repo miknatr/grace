@@ -23,16 +23,16 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSelectWithoutParams()
     {
         $this->builder->execute();
-        $this->assertEquals('SELECT * FROM `TestTable`', $this->plug->query);
-        $this->assertEquals(array(), $this->plug->arguments);
+        $this->assertEquals('SELECT * FROM ?f', $this->plug->query);
+        $this->assertEquals(array('TestTable'), $this->plug->arguments);
     }
     public function testCountSelectWithoutParams()
     {
         $this->builder
             ->count()
             ->execute();
-        $this->assertEquals('SELECT COUNT(id) FROM `TestTable`', $this->plug->query);
-        $this->assertEquals(array(), $this->plug->arguments);
+        $this->assertEquals('SELECT COUNT(id) FROM ?f', $this->plug->query);
+        $this->assertEquals(array('TestTable'), $this->plug->arguments);
     }
     public function testSelectAllParams()
     {
@@ -65,14 +65,14 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
             ->_close()
             ->execute();
         $this->assertEquals(
-            'SELECT id, name FROM `TestTable`' . ' JOIN `Test2Table` ON `TestTable`.`test2Id`=`Test2Table`.`id`' .
+            'SELECT id, name FROM ?f' . ' JOIN `Test2Table` ON `TestTable`.`test2Id`=`Test2Table`.`id`' .
                 ' WHERE isPublished=?q AND category BETWEEN ?q AND ?q OR category BETWEEN ?q AND ?q' .
                 ' AND ( isPublished=?q AND isPublished=?q OR isPublished=?q )' .
                 ' AND NOT ( NOT isPublished=?q AND NOT isPublished=?q OR NOT isPublished=?q )' .
                 ' GROUP BY region' . ' HAVING region > 123' .
                 ' ORDER BY id DESC' . ' LIMIT 5,15', $this->plug->query);
 
-        $this->assertEquals(array(1, 10, 20, 40, 50, 1, 1, 1, 1, 1, 1), $this->plug->arguments);
+        $this->assertEquals(array('TestTable', 1, 10, 20, 40, 50, 1, 1, 1, 1, 1, 1), $this->plug->arguments);
     }
     public function testFetchAll()
     {

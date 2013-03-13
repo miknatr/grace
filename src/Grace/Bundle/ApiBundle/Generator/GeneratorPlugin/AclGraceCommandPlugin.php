@@ -34,8 +34,8 @@ class AclGraceCommandPlugin extends PluginAbstract
             return array();
         }
 
-        if (!isset($modelConfig['api_generation'])) {
-            throw new \LogicException('Model ' . $modelName . ' must contain "api_generation" section');
+        if (!isset($modelConfig['api_privileges']) or !isset($modelConfig['api_actions'])) {
+            throw new \LogicException('Model ' . $modelName . ' must contain "api_generation" and "api_actions" sections');
         }
 
 
@@ -43,11 +43,8 @@ class AclGraceCommandPlugin extends PluginAbstract
 
 
         //обработка привилегий
-        if (!isset($modelConfig['api_generation']['privileges'])) {
-            throw new \LogicException('Model ' . $modelName . ' must contain "privileges" section');
-        }
 
-        $aclPrivileges = $this->preparePrivileges($modelConfig['api_generation']['privileges']);
+        $aclPrivileges = $modelConfig['api_privileges'];
         $privilegesDefValue = new \Zend_CodeGenerator_Php_Property_DefaultValue();
         $privilegesDefValue->setValue($aclPrivileges);
 
@@ -60,13 +57,26 @@ class AclGraceCommandPlugin extends PluginAbstract
         $properties[] = $privilegesProperty;
 
 
+        //api_broadcast_changes (aka nodejs-able)
+
+        $broadcastChangesProperty = new \Zend_CodeGenerator_Php_Property();
+        $broadcastChangesProperty
+            ->setDefaultValue((new \Zend_CodeGenerator_Php_Property_DefaultValue())->setValue(!empty($modelConfig['api_broadcast_changes'])))
+            ->setName('apiBroadcastChanges')
+            ->setStatic(true)
+            ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED);
+        $properties[] = $broadcastChangesProperty;
+
+
         //видимость и редактируемость полей
         $aclActionForResource = array();
+        $modelConfig['api_actions']['view'] = array_keys($modelConfig['api_privileges']);
+
         foreach (array('view', 'add', 'edit', 'delete') as $action) {
-            if (!isset($modelConfig['api_generation']['actions'][$action])) {
+            if (!isset($modelConfig['api_actions'][$action])) {
                 throw new \LogicException('Model ' . $modelName . ' must contain "' . $action . '" section');
             }
-            $aclActionForResource[$action] = $modelConfig['api_generation']['actions'][$action];
+            $aclActionForResource[$action] = $modelConfig['api_actions'][$action];
 
             $actionDefValue = new \Zend_CodeGenerator_Php_Property_DefaultValue();
             $actionDefValue->setValue($aclActionForResource[$action]);
@@ -118,27 +128,5 @@ class AclGraceCommandPlugin extends PluginAbstract
 
 
         return $properties;
-    }
-
-    private function preparePrivileges(array $privileges)
-    {
-        foreach ($privileges as $privilege => &$cases) {
-            foreach ($cases as &$case) {
-                $case = static::prepareCase($case);
-            }
-        }
-        return $privileges;
-    }
-
-    public static function prepareCase($case)
-    {
-        $case = preg_replace('/ROLE_[A-Z_]+/', '$user->isRole("$0")', $case);
-        #$case = preg_replace('/type:([A-Za-z0-9_]+)/', '$user->isType("$1")', $case);
-        $case = preg_replace_callback('/same:([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()' . ' == ' . '$resource->get' . ucfirst($match[1]) . '()'; }, $case);
-        $case = preg_replace_callback('/user:([A-Za-z0-9_]+):([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()->get' . ucfirst($match[2]) . '()'; }, $case);
-        $case = preg_replace_callback('/user:([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()'; }, $case);
-        $case = preg_replace_callback('/resource:([A-Za-z0-9_]+):([A-Za-z0-9_]+)/', function ($match) { return '$resource->get' . ucfirst($match[1]) . '()->get' . ucfirst($match[2]) . '()'; }, $case);
-        $case = preg_replace_callback('/resource:([A-Za-z0-9_]+)/', function ($match) { return '$resource->get' . ucfirst($match[1]) . '()'; }, $case);
-        return $case;
     }
 }

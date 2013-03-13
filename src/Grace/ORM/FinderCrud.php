@@ -33,7 +33,10 @@ abstract class FinderCrud
     {
         $this->tableName = $tableName;
     }
-
+    public function getTableName(Record $record)
+    {
+        return $this->tableName;
+    }
 
 
     //SERVICES GETTERS (one service - one method, access via getOrm()->getService() is not allowed for dependency control reasons)
@@ -65,7 +68,7 @@ abstract class FinderCrud
     /**
      * @return IdentityMap
      */
-    final private function getIdentityMap()
+    final protected function getIdentityMap()
     {
         return ManagerAbstract::getCurrent()->getIdentityMap();
     }
@@ -74,6 +77,9 @@ abstract class FinderCrud
 
     //DB CONNECTIONS
 
+    /**
+     * @var \Grace\CRUD\CRUDInterface
+     */
     protected $crud;
     /**
      * @param \Grace\CRUD\CRUDInterface $crud

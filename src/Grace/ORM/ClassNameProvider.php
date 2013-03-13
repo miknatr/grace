@@ -52,10 +52,33 @@ class ClassNameProvider implements ClassNameProviderInterface
         $baseClass = trim($modelClass, '\\');
         $baseClass = substr($baseClass, $namespaceLen);
         if (strlen($this->{$type . 'Prefix'}) > 0) {
-            $baseClass = substr($modelClass, strlen($this->{$type . 'Prefix'}));
+            $baseClass = substr($baseClass, strlen($this->{$type . 'Prefix'}));
         }
         if (strlen($this->{$type . 'Postfix'}) > 0) {
-            $baseClass = substr($modelClass, 0, -$this->{$type . 'Postfix'});
+            $baseClass = substr($baseClass, 0, -strlen($this->{$type . 'Postfix'}));
+        }
+        return $baseClass;
+    }
+    /**
+     * @inheritdoc
+     */
+    public function getBaseClassFromFinderClass($finderClass)
+    {
+        $type         = 'finder';
+        $namespaceLen = 0;
+        if ($this->commonNamespace != '') {
+            $namespaceLen += strlen($this->commonNamespace) + 1;
+        }
+        if ($this->{$type . 'Namespace'} != '') {
+            $namespaceLen += strlen($this->{$type . 'Namespace'}) + 1;
+        }
+        $baseClass = trim($finderClass, '\\');
+        $baseClass = substr($baseClass, $namespaceLen);
+        if (strlen($this->{$type . 'Prefix'}) > 0) {
+            $baseClass = substr($baseClass, strlen($this->{$type . 'Prefix'}));
+        }
+        if (strlen($this->{$type . 'Postfix'}) > 0) {
+            $baseClass = substr($baseClass, 0, -strlen($this->{$type . 'Postfix'}));
         }
         return $baseClass;
     }

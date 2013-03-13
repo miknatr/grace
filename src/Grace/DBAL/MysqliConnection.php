@@ -87,6 +87,19 @@ class MysqliConnection extends AbstractConnection
     /**
      * @inheritdoc
      */
+    public function escapeField($value)
+    {
+        if (!is_object($this->dbh)) {
+            $this->connect();
+        }
+        if (!is_scalar($value) || strpos('`', $value)) {
+            throw new ExceptionQuery('Possible SQL injection in field name');
+        }
+        return '`' . $value . '`';
+    }
+    /**
+     * @inheritdoc
+     */
     public function getLastInsertId()
     {
         if (!is_object($this->dbh)) {

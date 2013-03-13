@@ -22,8 +22,8 @@ class DeleteBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSelectWithoutParams()
     {
         $this->builder->execute();
-        $this->assertEquals('DELETE FROM `TestTable`', $this->plug->query);
-        $this->assertEquals(array(), $this->plug->arguments);
+        $this->assertEquals('DELETE FROM ?f', $this->plug->query);
+        $this->assertEquals(array('TestTable'), $this->plug->arguments);
     }
     public function testSelectAllParams()
     {
@@ -33,7 +33,7 @@ class DeleteBuilderTest extends \PHPUnit_Framework_TestCase
             ->execute();
 
         $this->assertEquals(
-            'DELETE FROM `TestTable`' . ' WHERE isPublished=?q AND category BETWEEN ?q AND ?q', $this->plug->query);
-        $this->assertEquals(array(1, 10, 20), $this->plug->arguments);
+            'DELETE FROM ?f WHERE isPublished=?q AND category BETWEEN ?q AND ?q', $this->plug->query);
+        $this->assertEquals(array('TestTable', 1, 10, 20), $this->plug->arguments);
     }
 }

@@ -42,7 +42,7 @@ class ControllerListener
     public function onKernelResponse(FilterResponseEvent $event)
     {
         if ($this->kernel and $this->kernel->getEnvironment() == 'dev') {
-            $queries = $this->orm->getSqlReadOnlyConnection()->getLogger()->getQueries();
+//            $queries = $this->orm->getSqlReadOnlyConnection()->getLogger()->getQueries();
 
             //variant 1
             //if (count($queries) > 0) {
@@ -53,9 +53,9 @@ class ControllerListener
             //$this->logger->info(count($queries) . ' queries', $queries);
 
             //variant 3
-            foreach ($queries as $query) {
-                $this->logger->info(number_format($query['time'], 5) . ' ' . $query['query']);
-            }
+//            foreach ($queries as $query) {
+//                $this->logger->info(number_format($query['time'], 5) . ' ' . $query['query']);
+//            }
         }
 
         //нужно для изолированности объектов UnitOfWork и IdentityMap в тестах, но думаю лишним не будет и вообще

@@ -11,11 +11,11 @@ use Grace\Bundle\ApiBundle\Security\Core\ApiUserInterface;
 /**
  * Class User
  * @package Grace\Bundle\ApiBundle\Model
- *
- * @method string getRole()
  */
 abstract class User extends ResourceAbstract implements ApiUserInterface, EquatableInterface
 {
+    abstract public function getRole();
+
     protected function initCreationFieldsOnCreateByUser(User $user, array $fields)
     {
         $this->setCreatedAt(dt());

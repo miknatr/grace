@@ -120,6 +120,7 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
                 '\'plain\'',
         ));
         $this->assertEquals("SELECT '\'quoted\'', '\'escaped\'', \"'plain'\", '\'named quoted\'' FROM DUAL", $r);
+        $this->markTestIncomplete('Добавить тесты на плейсхолдеры f, F, l, i');
     }
     public function testTransactionCommitBeforeAnyQueries()
     {

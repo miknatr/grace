@@ -25,6 +25,13 @@ interface InterfaceConnection extends InterfaceExecutable
      */
     public function escape($value);
     /**
+     * Escapes field name for sql statement
+     * @abstract
+     * @param $value
+     * @return string escaped value
+     */
+    public function escapeField($value);
+    /**
      * Replaces and escapes arguments in query
      *
      * Query can contain named and ordered placeholders like ?i:name: and ?i respectively

@@ -10,6 +10,8 @@
 
 namespace Grace\ORM;
 
+use Grace\Bundle\ApiBundle\Model\ResourceAbstract;
+
 /**
  * Base model class
  */
@@ -125,6 +127,14 @@ abstract class Record implements ManagerRecordInterface
     private $isNew = false;
     protected $fields = array();
     protected $defaults = array();
+    protected $originalRecord;
+
+
+    /** @return Record */
+    public function getOriginalRecord()
+    {
+        return $this->originalRecord;
+    }
 
     /**
      * @param            $id
@@ -142,6 +152,9 @@ abstract class Record implements ManagerRecordInterface
             $this->onCreate($newParams);
             $this->getUnitOfWork()->markAsNew($this);
         }
+
+        //TODO оптимизировать
+        $this->originalRecord = clone $this;
 
         $this->onInit();
     }
@@ -205,7 +218,7 @@ abstract class Record implements ManagerRecordInterface
      * Marks record as delete
      * @return Record
      */
-    final public function delete()
+    public function delete()
     {
         $this->getUnitOfWork()->markAsDeleted($this);
 
@@ -241,7 +254,7 @@ abstract class Record implements ManagerRecordInterface
      * Marks record as changed
      * @return Record
      */
-    final protected function markAsChanged()
+    public function markAsChanged()
     {
         if (!$this->isNew) {
             $this->getUnitOfWork()->markAsChanged($this);

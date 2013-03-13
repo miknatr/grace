@@ -95,6 +95,7 @@ abstract class AbstractConnection implements InterfaceConnection
 
         return $query;
     }
+
     /**
      * Escapes value in compliance with type
      *
@@ -102,15 +103,20 @@ abstract class AbstractConnection implements InterfaceConnection
      * "p" - plain value, no escaping
      * "e" - escaping by "db-escape" function, but not quoting
      * "q" - escaping by "db-escape" function and quoting
+     * "l" - escaping by "db-escape" function and quoting for arrays ('1', '2', '3')
+     * "f" - escaping by field name ('field' => `field`)
+     * "F" - escaping by fully-qualified field name ('table.field' => `table`.`field`)
+     * "i" - escaping by field name for arrays
      *
      * @param mixed $value
-     * @param char  $type
+     * @param string $type
+     * @throws ExceptionQuery
      * @return string
      */
     private function escapeValueByType($value, $type)
     {
-        if (is_object($value) or is_array($value)) {
-            throw new ExceptionQuery('Value must be string: ' . print_r($value, true));
+        if ($type != 'l' and $type != 'i' and (is_object($value) or is_array($value))) {
+            throw new ExceptionQuery('Value of type ' . $type . ' must be string: ' . print_r($value, true));
         }
 
         switch ($type) {
@@ -122,6 +128,36 @@ abstract class AbstractConnection implements InterfaceConnection
                 break;
             case 'q':
                 $r = "'" . $this->escape($value) . "'";
+                break;
+            case 'l':
+                $r = '';
+                if (!is_array($value)) {
+                    throw new ExceptionQuery('Value must be array: ' . print_r($value, true));
+                }
+                foreach ($value as $part) {
+                    $r .= ", '" . $this->escape($part) . "'";
+                }
+                $r = substr($r, 2);
+                break;
+            case 'f':
+                $r = $this->escapeField($value);
+                break;
+            case 'F':
+                $r = '';
+                foreach (explode('.', $value) as $part) {
+                    $r .= '.' . $this->escapeField($part);
+                }
+                $r = substr($r, 1);
+                break;
+            case 'i':
+                $r = '';
+                if (!is_array($value)) {
+                    throw new ExceptionQuery('Value must be array: ' . print_r($value, true));
+                }
+                foreach ($value as $part) {
+                    $r .= ", " . $this->escapeField($part) . "";
+                }
+                $r = substr($r, 2);
                 break;
             default:
                 throw new ExceptionQuery('Placeholder has incorrect type: ' . $type);

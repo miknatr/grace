@@ -72,6 +72,13 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
     }
 
 
+
+    protected static $apiBroadcastChanges = false; // is set by code generator
+    public static function apiBroadcastChanges()
+    {
+        return static::$apiBroadcastChanges;
+    }
+
     final protected function onCreate(array $params = array())
     {
         if (!isset($params['user'])) {
@@ -107,28 +114,50 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
 
 
 
-    final public function getOrderUsersWithPrivileges()
-    {
-        foreach (static::$aclPrivileges as $privilege => $conditions) {
-            foreach ($conditions as $condition) {
-
-            }
-        }
-
-    }
     final public function getPrivilegeForUser(User $user)
     {
-        $resource = $this;
+        //TODO убрать дебаг
+//        if (strpos(get_class($this), 'Company')) {
+//            echo '===============================================================================================';
+//            p($user);
+//        }
+
         foreach (static::$aclPrivileges as $privilege => $conditions) {
-            foreach ($conditions as $condition) {
-//                file_put_contents('/tmp/grace_check_syntax', '<?php return (' . $condition[1] . ');');
+            foreach ($conditions as $condName => $cond) {
+                //TODO убрать дебаг
+//                file_put_contents('/tmp/grace_check_syntax', '<?php return (' . $params[1] . ');');
 //                $syntax = shell_exec('php -l /tmp/grace_check_syntax');
 //                if (strpos($syntax, 'No syntax errors detected') === false) {
-//                    print_r($condition[1]);
+//                    print_r($params[1]);
 //                    print_r($syntax);
 //                    die('DIE');
 //                }
-                if (eval('return ((' . $condition[1] . (isset($condition[2]) ? ') and (' . $condition[2] : '') . '));')) {
+
+//                $str = 'return ((' . $params['resourceMatchPhp'] . (isset($params['accessConditionPhp']) ? ') and (' . $params['accessConditionPhp'] : '') . '));';
+//                $ev = eval($str);
+//
+//                if(strpos(get_class($this), 'Company'))
+//                echo "
+//                === EVAL ===
+//                $str
+//                -> {$ev}
+//                ";
+
+
+                //use in evals, don't delete
+                $resource = $this;
+
+                $case = $cond;
+
+                $case = preg_replace('/ROLE_[A-Z_]+/', '$user->isRole("$0")', $case);
+                #$case = preg_replace('/type:([A-Za-z0-9_]+)/', '$user->isType("$1")', $case);
+                $case = preg_replace_callback('/same:([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()' . ' == ' . '$resource->get' . ucfirst($match[1]) . '()'; }, $case);
+                //$case = preg_replace_callback('/user:([A-Za-z0-9_]+):([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()->get' . ucfirst($match[2]) . '()'; }, $case);
+                $case = preg_replace_callback('/user:([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()'; }, $case);
+                $case = preg_replace_callback('/resource:([A-Za-z0-9_]+):([A-Za-z0-9_]+)/', function ($match) { return '$resource->get' . ucfirst($match[1]) . '()->get' . ucfirst($match[2]) . '()'; }, $case);
+                $case = preg_replace_callback('/resource:([A-Za-z0-9_]+)/', function ($match) { return '$resource->get' . ucfirst($match[1]) . '()'; }, $case);
+
+                if (eval("return ($case);")) {
                     return $privilege;
                 }
             }
@@ -179,6 +208,67 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
         $this->delete();
     }
 
+    public static function getParentsDefinition()
+    {
+        return static::$parents;
+    }
+
+    public static function getAccessDefinition()
+    {
+        $r = array();
+        foreach (static::$aclPrivileges as $conditions) {
+            foreach($conditions as $condName => $cond) {
+                $r[] = $cond;
+            }
+        }
+        return '((' . join(') or (', $r) . '))';
+    }
+
+	public function getReceiversNodejsSql()
+	{
+        $sql = array();
+		foreach (static::$aclPrivileges as $conditions) {
+			foreach($conditions as $condName => $cond) {
+                $sql[] = "\n   /* $condName */ " . $cond;
+			}
+		}
+
+		$sql =  '(' . join(') OR (', $sql) . ')';
+        $sql = preg_replace('/same:([A-Za-z0-9_]+)/', 'user:$1 == resource:$1', $sql);
+        // @todo сделать парсинг/конфиг нормально
+        $sql = preg_replace('/==/', '=', $sql);
+
+        $sql = preg_replace_callback(
+            '/ROLE_[A-Z_]+/',
+            function ($match) {
+                return 'find_in_set("'.$match[0].'", role) > 0';
+            },
+            $sql
+        );
+        $sql = preg_replace('/user:([A-Za-z0-9_]+)/', '$1', $sql);
+
+
+        $placeholders = array();
+        $sql = preg_replace_callback(
+            '/resource:([A-Za-z0-9_]+):([A-Za-z0-9_]+)/',
+            function ($match) use (&$placeholders) {
+                $placeholders[] = $this->{'get' . ucfirst($match[1])}()->{'get' . ucfirst($match[2])}();
+                return '?';
+            },
+            $sql
+        );
+        $sql = preg_replace_callback(
+            '/resource:([A-Za-z0-9_]+)/',
+            function ($match) use (&$placeholders) {
+                $placeholders[] = $this->{'get' . ucfirst($match[1])}();
+                return '?';
+            },
+            $sql
+        );
+
+        return array($sql, $placeholders);
+	}
+
     final public function asArrayForNodejs()
     {
         $key = 'as_array_for_nodejs_' . md5(json_encode($this->fields));
@@ -188,15 +278,14 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                 if (static::$aclFieldsView[$fieldName]) {
 
                     $getter = 'get' . ucfirst($fieldName);
-                    $getterByUser = $getter . 'ByUser';
+                    $nodejsGetter = $getter . 'ForNodejs';
 
-                    if (method_exists($this, $getterByUser)) {
-
-                        //$value = $this->$getterByUser($user);
-                        //$value = $this->fields[$fieldName];
+                    if (method_exists($this, $nodejsGetter)) {
+						$value = array(
+							'evalMe' => $this->$nodejsGetter(),
+						);
                     } else {
                         $value = $this->$getter();
-                        //$value = $this->fields[$fieldName];
                     }
 
                     if (is_object($value)) {

@@ -99,6 +99,20 @@ class PgsqlConnection extends AbstractConnection
     /**
      * @inheritdoc
      */
+    public function escapeField($value)
+    {
+        if (!is_resource($this->resource)) {
+            $this->connect();
+        }
+        if (!is_scalar($value) || strpos('"', $value)) {
+            throw new ExceptionQuery('Possible SQL injection in field name');
+        }
+        return '"' . $value . '"';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getAffectedRows()
     {
         if (!is_resource($this->last_result)) {

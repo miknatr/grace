@@ -1,4 +1,5 @@
-mkdir vendor
+#!/bin/sh
+[ ! -e vendor ] && mkdir vendor
 cd vendor
 
 rm -fR ./zf1

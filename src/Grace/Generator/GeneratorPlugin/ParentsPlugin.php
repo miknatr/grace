@@ -40,4 +40,20 @@ class ParentsPlugin extends PluginAbstract
     {
         return '$id = $this->get' . ucfirst($fieldName) . '(); return empty($id) ? false : $this->getOrm()->get' . $parentTable . 'Finder()->getByIdOrFalse($id);';
     }
+
+    public function getAbstractRecordProperties($modelName, $modelConfig, $recordNamespace, $parent)
+    {
+        $properties = array();
+        if (isset($modelConfig[self::CONFIG_PARENTS])) {
+            $privilegesProperty = new \Zend_CodeGenerator_Php_Property();
+            $privilegesProperty
+                ->setDefaultValue($modelConfig[self::CONFIG_PARENTS])
+                ->setName('parents')
+                ->setStatic(true)
+                ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED);
+            $properties[] = $privilegesProperty;
+        }
+        return $properties;
+    }
+
 }
