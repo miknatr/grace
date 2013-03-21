@@ -17,4 +17,6 @@ interface ApiFinderInterface
      * @return CollectionAbstract
      */
     public function get(User $user, array $params = array(), $start = null, $number = null);
+
+    public function getFilters();
 }

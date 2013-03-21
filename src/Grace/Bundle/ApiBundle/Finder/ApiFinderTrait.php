@@ -137,10 +137,24 @@ trait ApiFinderTrait
             $case
         );
 
-
-
         $builder->sql($case, $placeholders);
 
+        foreach ($this->getFilters() as $filter) {
+            $filter->prepareBuilder($builder, $user, $params);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * @return FilterInterface[]
+     */
+    public function getFilters()
+    {
+        $baseClass  = $this->getClassNameProvider()->getBaseClassFromFinderClass(get_class($this));
+        $modelClass = $this->getClassNameProvider()->getModelClass($baseClass);
+
+        $filters = array();
 
         //TODO сделать получение неймспейса фильтров нормально
         $filterNamespace = str_replace('Model\\', 'Filter\\', $modelClass) . '\\';
@@ -150,11 +164,8 @@ trait ApiFinderTrait
         foreach (glob($filterDirectory . '/*.php') as $filename) {
             $class = $filterNamespace . basename($filename, '.php');
             /** @var $filter FilterInterface */
-            $filter = new $class;
-            $filter->prepareBuilder($builder, $user, $params);
+            $filters[] = new $class;
         }
-
-
-        return $builder;
+        return $filters;
     }
 }
