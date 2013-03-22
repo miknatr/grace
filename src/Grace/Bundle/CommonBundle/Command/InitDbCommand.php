@@ -2,6 +2,8 @@
 
 namespace Grace\Bundle\CommonBundle\Command;
 
+use Grace\ORM\FinderSql;
+use Grace\ORM\ManagerAbstract;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,66 +17,63 @@ use Grace\DBAL\InterfaceConnection;
 class InitDbCommand extends ContainerAwareCommand
 {
     const DBTYPE_FIELD = 'mapping';
+    const DB_NAME_FROM_ENVIRONMENT = 'db_name_from_enviroment';
 
     protected function configure()
     {
         $this
             ->setName('grace:init_db')
             ->setDescription('Initialize DB structure from Grace models file')
-            ->addArgument('table', InputArgument::OPTIONAL, 'Table name (create only one table)')
-            ->addOption('db', 'd', InputOption::VALUE_OPTIONAL, 'DB name', 'intertos_test')
+            ->addOption('create-db', 'c', InputOption::VALUE_NONE, 'Create database if need')
             ->addOption('force-drop', 'f', InputOption::VALUE_NONE, 'Use "DROP TABLE IF EXISTS"')
             ->addOption('insert-fakes', 'i', InputOption::VALUE_NONE, 'Insert sample data from config ("fakes")')
+            ->addArgument('db', InputArgument::OPTIONAL, 'DB name', self::DB_NAME_FROM_ENVIRONMENT)
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        //TODO партиции в орм
-
+        /** @var $orm ManagerAbstract */
+        $orm = $this->getContainer()->get('grace_orm');
         /** @var $db InterfaceConnection */
-        $db = $this
-            ->getContainer()
-            ->get('grace_db');
+        $db = $this->getContainer()->get('grace_db');
 
-        $configFull = $this
-            ->getContainer()
-            ->get('grace_generator')
-            ->getConfig();
+
+        $createDb = $input->getOption('create-db');
+        $forceDrop = $input->getOption('force-drop');
+        $dbName = $input->getArgument('db') == self::DB_NAME_FROM_ENVIRONMENT ? $this->getContainer()->getParameter('database_name') : $input->getArgument('db');
+
+        if ($createDb) {
+            $this->createDb($db, $output, $dbName);
+        }
+
+
+        $configFull = $this->getContainer()->get('grace_generator')->getConfig();
 
         if (!isset($configFull['models'])) {
             throw new \LogicException('Models config must contain "models" section');
         }
 
         $config = $configFull['models'];
-        $finders = $configFull['extra-finders'];
 
-        $dbName = $input->getOption('db');
         $output->writeln("Using database '{$dbName}'.\n");
         $db->execute("USE `?e`", array($dbName));
 
-        $singleTable = $input->getArgument('table');
-        if($singleTable) {
-            if(empty($config[$singleTable])) {
-                $output->writeln("Table '{$singleTable}' definition not found in config.yml!");
-            } else {
-                $result = $this->createTable($db, $singleTable, $config[$singleTable], $input->getOption('force-drop'));
-                $output->writeln($result);
-            }
-        } else {
-            foreach ($config as $modelName => $modelContent) {
-                $result = $this->createTable($db, $modelName, $modelContent, $input->getOption('force-drop'));
-                $output->writeln($result);
-            }
-            foreach ($finders as $finder => $finderConfig) {
-                if (isset($finderConfig['table'])) {
-                    $result = $this->createTable($db, $finderConfig['table'], $config[$finderConfig['class']], $input->getOption('force-drop'));
-                    $output->writeln($result);
+
+        foreach ($config as $modelName => $modelContent) {
+            $result = $this->createTable($db, $modelName, $modelContent, $forceDrop);
+            /** @var $finderClass FinderSql */
+            $finderClass = $orm->getClassNameProvider()->getFinderClass($modelName);
+            //TODO здесь лучше на интерфейс
+            if (method_exists($finderClass, 'getAdditionalTables')) {
+                foreach ($finderClass::getAdditionalTables() as $additionalModelName) {
+                    $result = $this->createTable($db, $additionalModelName, $modelContent, $forceDrop);
                 }
             }
+            $output->writeln($result);
         }
-
         $output->writeln("\nTables have been created");
+
 
         if($input->getOption('insert-fakes')) {
             $output->writeln("\nInserting fakes...");
@@ -89,7 +88,38 @@ class InitDbCommand extends ContainerAwareCommand
             }
         }
 
+
         $output->writeln("\nAll tasks complete.");
+    }
+
+    private function createDb(InterfaceConnection $db, OutputInterface $output, $database)
+    {
+        //TODO mysql-specific code in orm
+        $mysqli = new \mysqli(
+            $this->getContainer()->getParameter('database_host'),
+            $this->getContainer()->getParameter('database_user'),
+            $this->getContainer()->getParameter('database_password'),
+            null,
+            $this->getContainer()->getParameter('database_port')
+        );
+
+        if ($mysqli->connect_error) {
+            if ($output) {
+                $output->write('Mysql connection error (' . $mysqli->connect_errno . '): ' . $mysqli->connect_error);
+            }
+            exit(1);
+        }
+
+        $result = $mysqli->query("CREATE DATABASE IF NOT EXISTS `$database`");
+
+        if (!$result) {
+            if ($output) {
+                $output->write('Mysql query error (' . $mysqli->errno . '): ' . $mysqli->error);
+            }
+            exit(1);
+        }
+
+        $mysqli->close();
     }
 
     private function getFieldsSQL(InterfaceConnection $db, array $fields, $indexes = array())
