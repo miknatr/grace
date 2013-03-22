@@ -136,9 +136,9 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
      */
     public function getSelectBuilder()
     {
-        return (new Factory($this))->select($this->tableName)->setFromAlias(self::TABLE_ALIAS)->setAdditionalTables($this->getAdditionalTables());
+        return (new Factory($this))->select($this->tableName)->setFromAlias(self::TABLE_ALIAS)->setAdditionalTables($this::getAdditionalTables());
     }
-    protected function getAdditionalTables()
+    public static function getAdditionalTables()
     {
         return array();
     }
@@ -158,7 +158,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
             return $this->getIdentityMap()->getRecord($this->tableName, $id);
         }
 
-        $tables = $this->getAdditionalTables();
+        $tables = $this::getAdditionalTables();
         if (count($tables) > 0) {
             array_unshift($tables, $this->tableName);
 
