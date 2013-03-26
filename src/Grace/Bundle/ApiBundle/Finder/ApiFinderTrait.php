@@ -9,7 +9,7 @@ use Grace\ORM\ClassNameProviderInterface;
 use Grace\ORM\Collection;
 use Grace\ORM\FinderSql;
 use Grace\SQLBuilder\SelectBuilder;
-use Intertos\ApiBundle\Filter\FilterInterface;
+use Intertos\ApiBundle\Filter\FilterAbstract;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 
 trait ApiFinderTrait
@@ -147,7 +147,7 @@ trait ApiFinderTrait
     }
 
     /**
-     * @return FilterInterface[]
+     * @return FilterAbstract[]
      */
     public function getFilters()
     {
@@ -163,7 +163,7 @@ trait ApiFinderTrait
         $filterDirectory = __DIR__ . '/../../../../../../src/Intertos/ApiBundle/Filter/' . $baseClass;
         foreach (glob($filterDirectory . '/*.php') as $filename) {
             $class = $filterNamespace . basename($filename, '.php');
-            /** @var $filter FilterInterface */
+            /** @var $filter FilterAbstract */
             $filters[] = new $class;
         }
         return $filters;
