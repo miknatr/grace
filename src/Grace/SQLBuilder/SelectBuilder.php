@@ -30,14 +30,17 @@ class SelectBuilder extends AbstractWhereBuilder
         return $this;
     }
 
+    //TODO хак для запросов с юнионом (иначе они вернут набор резалтов, что неподходит)
+    protected $isCountQuery = false;
     /**
      * Sets count syntax
      * @return $this
      */
     public function count()
     {
+        $this->isCountQuery = true;
         //TODO id - magic field
-        $this->fields = 'COUNT(id)';
+        $this->fields = 'COUNT(id) AS counter';
         return $this;
     }
     /**
@@ -135,7 +138,10 @@ class SelectBuilder extends AbstractWhereBuilder
                     $this->groupSql . $this->havingSql;
             }
 
-            return '( ' . implode(' ) UNION ALL ( ', $queries) . ' )' . $this->orderSql . $this->limitSql;
+            return ($this->isCountQuery ? 'SELECT SUM(counter) FROM ( ' : '')
+                . '( ' . implode(' ) UNION ALL ( ', $queries) . ' )'
+                . ($this->isCountQuery ? ' ) AS UnionTableAlias' : '')
+                . $this->orderSql . $this->limitSql;
         } else {
             return 'SELECT ' . $this->fields . ' FROM ?f' . $aliasSql . $this->joinSql . $this->getWhereSql() .
                 $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;
