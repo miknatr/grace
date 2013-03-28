@@ -149,8 +149,8 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
 
                 $case = $cond;
 
-                $case = preg_replace('/now()/', 'dt()', $case);
-                $case = preg_replace('/now([0-9\-]+)/', 'dt(time() - $0)', $case);
+                $case = preg_replace('/now\(\)/', 'dt()', $case);
+                $case = preg_replace('/now\(([0-9\-]+)\)/', 'dt(time() - $1)', $case);
                 $case = preg_replace('/ROLE_[A-Z_]+/', '$user->isRole("$0")', $case);
                 #$case = preg_replace('/type:([A-Za-z0-9_]+)/', '$user->isType("$1")', $case);
                 $case = preg_replace_callback('/same:([A-Za-z0-9_]+)/', function ($match) { return '$user->get' . ucfirst($match[1]) . '()' . ' == ' . '$resource->get' . ucfirst($match[1]) . '()'; }, $case);
@@ -239,6 +239,8 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
         $sql = preg_replace('/same:([A-Za-z0-9_]+)/', 'user:$1 == resource:$1', $sql);
         // @todo сделать парсинг/конфиг нормально
         $sql = preg_replace('/==/', '=', $sql);
+        $sql = preg_replace('/now\(\)/', 'NOW()', $sql);
+        $sql = preg_replace('/now\(([0-9\-]+)\)/', 'date_add(NOW(), interval $1 second)', $sql);
 
         $sql = preg_replace_callback(
             '/ROLE_[A-Z_]+/',
