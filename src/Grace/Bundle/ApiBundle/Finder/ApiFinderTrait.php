@@ -82,6 +82,8 @@ trait ApiFinderTrait
         $case = preg_replace('/same:([A-Za-z0-9_]+)/', 'user:$1 == resource:$1', $case);
         // @todo сделать парсинг/конфиг нормально
         $case = preg_replace('/==/', '=', $case);
+        $case = preg_replace('/now()/', 'NOW()', $case);
+        $case = preg_replace('/now([0-9\-]+)/', 'date_add(NOW(), interval $0 second)', $case);
 
         $case = preg_replace_callback(
             '/ROLE_([A-Z_]+)/',
