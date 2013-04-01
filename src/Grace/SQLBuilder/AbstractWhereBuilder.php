@@ -38,7 +38,8 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      */
     protected function setTwoArgsOperator($field, $value, $operator)
     {
-        $this->whereSqlConditions[] = $field . '' . $operator . '?q';
+        $this->whereSqlConditions[] = '?f' . $operator . '?q';
+        $this->arguments[]          = $field;
         $this->arguments[]          = $value;
         return $this;
     }
@@ -150,9 +151,14 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      */
     protected function setInOperator($field, array $values, $operator)
     {
-        $whereCondition = empty($values) ? 'FALSE' : $field . ' ' . $operator . ' (' . substr(str_repeat('?q,', count($values)), 0, -1) . ')';
-        $this->whereSqlConditions[] = $whereCondition;
-        $this->arguments            = array_merge($this->arguments, $values);
+        if (empty($values)) {
+            $this->whereSqlConditions[] = 'FALSE';
+        } else {
+            $whereCondition =  '?f ' . $operator . ' (' . substr(str_repeat('?q,', count($values)), 0, -1) . ')';
+            $this->whereSqlConditions[] = $whereCondition;
+            $this->arguments            = array_merge($this->arguments, array($field), $values);
+        }
+
         return $this;
     }
     /**
@@ -184,7 +190,8 @@ abstract class AbstractWhereBuilder extends AbstractBuilder
      */
     protected function setBetweenOperator($field, $value1, $value2, $operator)
     {
-        $this->whereSqlConditions[] = $field . ' ' . $operator . ' ?q AND ?q';
+        $this->whereSqlConditions[] = '?f ' . $operator . ' ?q AND ?q';
+        $this->arguments[]          = $field;
         $this->arguments[]          = $value1;
         $this->arguments[]          = $value2;
         return $this;

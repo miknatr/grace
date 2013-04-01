@@ -14,7 +14,7 @@ class OrderFinder extends FinderSql
     {
         return $this
             ->getSelectBuilder()
-            ->fields('name')
+            ->field('name')
             ->fetchColumn();
     }
     /**

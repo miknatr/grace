@@ -37,10 +37,9 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSelectAllParams()
     {
         $this->builder
-            ->fields('id, name')
-            ->group('region')
-            ->having('region > 123')
-            ->order('id DESC')
+            ->fields(array('id', 'name'))
+            ->groupByField('region')
+            ->orderByField('id', 'DESC')
             ->limit(5, 15)
             ->eq('isPublished', 1) //test with AbstractWhereBuilder
             ->between('category', 10, 20) //test with AbstractWhereBuilder
@@ -64,14 +63,44 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
             ->_close()
             ->execute();
         $this->assertEquals(
-            'SELECT id, name FROM ?f' .
-                ' WHERE isPublished=?q AND category BETWEEN ?q AND ?q OR category BETWEEN ?q AND ?q' .
-                ' AND ( isPublished=?q AND isPublished=?q OR isPublished=?q )' .
-                ' AND NOT ( NOT isPublished=?q AND NOT isPublished=?q OR NOT isPublished=?q )' .
-                ' GROUP BY region' . ' HAVING region > 123' .
-                ' ORDER BY id DESC' . ' LIMIT 5,15', $this->plug->query);
+            'SELECT ?f, ?f FROM ?f' .
+                ' WHERE ?f=?q AND ?f BETWEEN ?q AND ?q OR ?f BETWEEN ?q AND ?q' .
+                ' AND ( ?f=?q AND ?f=?q OR ?f=?q )' .
+                ' AND NOT ( NOT ?f=?q AND NOT ?f=?q OR NOT ?f=?q )' .
+                ' GROUP BY ?f' .
+                ' ORDER BY ?f DESC' .
+                ' LIMIT 5,15', $this->plug->query);
 
-        $this->assertEquals(array('TestTable', 1, 10, 20, 40, 50, 1, 1, 1, 1, 1, 1), $this->plug->arguments);
+        $this->assertEquals(
+            array(
+                'id',
+                'name',
+                'TestTable',
+                'isPublished',
+                1,
+                'category',
+                10,
+                20,
+                'category',
+                40,
+                50,
+                'isPublished',
+                1,
+                'isPublished',
+                1,
+                'isPublished',
+                1,
+                'isPublished',
+                1,
+                'isPublished',
+                1,
+                'isPublished',
+                1,
+                'region',
+                'id',
+            ),
+            $this->plug->arguments
+        );
     }
     public function testFetchAll()
     {

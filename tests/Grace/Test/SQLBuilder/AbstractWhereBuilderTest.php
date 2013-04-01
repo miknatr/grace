@@ -25,8 +25,8 @@ class AbstractWhereBuilderTest extends \PHPUnit_Framework_TestCase
     public function testOneCondition()
     {
         $this->builder->eq('id', 123);
-        $this->assertEquals(' WHERE id=?q', $this->builder->getWhereSql());
-        $this->assertEquals(array(123), $this->builder->getQueryArguments());
+        $this->assertEquals(' WHERE ?f=?q', $this->builder->getWhereSql());
+        $this->assertEquals(array('id', 123), $this->builder->getQueryArguments());
     }
     public function testAllConditions()
     {
@@ -45,40 +45,59 @@ class AbstractWhereBuilderTest extends \PHPUnit_Framework_TestCase
             ->notIn('category', array(6, 7, 8, 9, 0))
             ->between('id', 7, 8)
             ->notBetween('id', 9, 10)
-            ->sql('(id > ?q OR id < ?q)', array(100, 200));
-        $this->assertEquals(' WHERE id=?q AND id!=?q' . ' AND id>?q AND id>=?q AND id<?q AND id<=?q' .
-                                ' AND name LIKE ?q AND name NOT LIKE ?q' .
-                                ' AND lastname LIKE ?q AND lastname NOT LIKE ?q' . ' AND category IN (?q,?q,?q,?q,?q)' .
-                                ' AND category NOT IN (?q,?q,?q,?q,?q)' .
-                                ' AND id BETWEEN ?q AND ?q AND id NOT BETWEEN ?q AND ?q' . ' AND (id > ?q OR id < ?q)',
+            ->sql('(?f > ?q OR ?f < ?q)', array('id', 100, 'id', 200));
+        $this->assertEquals(' WHERE ?f=?q AND ?f!=?q' . ' AND ?f>?q AND ?f>=?q AND ?f<?q AND ?f<=?q' .
+                                ' AND ?f LIKE ?q AND ?f NOT LIKE ?q' .
+                                ' AND ?f LIKE ?q AND ?f NOT LIKE ?q' . ' AND ?f IN (?q,?q,?q,?q,?q)' .
+                                ' AND ?f NOT IN (?q,?q,?q,?q,?q)' .
+                                ' AND ?f BETWEEN ?q AND ?q AND ?f NOT BETWEEN ?q AND ?q' . ' AND (?f > ?q OR ?f < ?q)',
                             $this->builder->getWhereSql());
-        $this->assertEquals(array(
-                                 1,
-                                 2,
-                                 3,
-                                 4,
-                                 5,
-                                 6,
-                                 'Mike',
-                                 'John',
-                                 '%Li%',
-                                 '%Fu%',
-                                 1,
-                                 2,
-                                 3,
-                                 4,
-                                 5,
-                                 6,
-                                 7,
-                                 8,
-                                 9,
-                                 0,
-                                 7,
-                                 8,
-                                 9,
-                                 10,
-                                 100,
-                                 200
-                            ), $this->builder->getQueryArguments());
+        $this->assertEquals(
+            array(
+                'id',
+                1,
+                'id',
+                2,
+                'id',
+                3,
+                'id',
+                4,
+                'id',
+                5,
+                'id',
+                6,
+                'name',
+                'Mike',
+                'name',
+                'John',
+                'lastname',
+                '%Li%',
+                'lastname',
+                '%Fu%',
+                'category',
+                1,
+                2,
+                3,
+                4,
+                5,
+                'category',
+                6,
+                7,
+                8,
+                9,
+                0,
+                'id',
+                7,
+                8,
+                'id',
+                9,
+                10,
+                'id',
+                100,
+                'id',
+                200
+                ),
+            $this->builder->getQueryArguments()
+        );
     }
 }

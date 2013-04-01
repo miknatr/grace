@@ -33,7 +33,7 @@ class DeleteBuilderTest extends \PHPUnit_Framework_TestCase
             ->execute();
 
         $this->assertEquals(
-            'DELETE FROM ?f WHERE isPublished=?q AND category BETWEEN ?q AND ?q', $this->plug->query);
-        $this->assertEquals(array('TestTable', 1, 10, 20), $this->plug->arguments);
+            'DELETE FROM ?f WHERE ?f=?q AND ?f BETWEEN ?q AND ?q', $this->plug->query);
+        $this->assertEquals(array('TestTable', 'isPublished', 1, 'category', 10, 20), $this->plug->arguments);
     }
 }
