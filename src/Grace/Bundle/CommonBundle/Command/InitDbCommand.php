@@ -104,7 +104,7 @@ class InitDbCommand extends ContainerAwareCommand
             exit(1);
         }
 
-        $result = $mysqli->query("CREATE DATABASE IF NOT EXISTS `$database`");
+        $result = $mysqli->query("CREATE DATABASE IF NOT EXISTS ?f", array($database));
 
         if (!$result) {
             if ($output) {
@@ -116,16 +116,11 @@ class InitDbCommand extends ContainerAwareCommand
         $mysqli->close();
     }
 
-    private function getFieldsSQL(InterfaceConnection $db, array $fields, $indexes = array())
+    private function getFieldsSQL(InterfaceConnection $db, array $fields)
     {
         $sql = array();
         foreach($fields as $fieldName => $fieldProps) {
-            $sql[] = $db->replacePlaceholders("`?e` ?p NOT NULL", array($fieldName, $fieldProps));
-        }
-
-        if(!empty($indexes)) {
-            $indexes = array_unique($indexes);
-            $sql[] = implode(",\n", $indexes);
+            $sql[] = $db->replacePlaceholders("?f ?p NOT NULL", array($fieldName, $fieldProps));
         }
 
         return implode(",\n", $sql);
@@ -135,7 +130,6 @@ class InitDbCommand extends ContainerAwareCommand
     {
         $result = "No fields given for table {$name}";
         $fields = array();
-        $indexes = !empty($structure['indexes']) ? $structure['indexes'] : array();
 
         if(!empty($structure['properties'])) {
             foreach ($structure['properties'] as $propName => $propOptions) {
@@ -155,10 +149,10 @@ class InitDbCommand extends ContainerAwareCommand
 
             $is_present = false;
             if($forceDrop) {
-                $db->execute("DROP TABLE IF EXISTS `?e`", array($name));
+                $db->execute("DROP TABLE IF EXISTS ?f", array($name));
             } else {
                 try {
-                    $db->execute("SELECT 1 FROM `?e`", array($name));
+                    $db->execute("SELECT 1 FROM ?f", array($name));
                     $is_present = true;
                 } catch(\Grace\DBAL\ExceptionQuery $e) {}
             }
@@ -166,8 +160,9 @@ class InitDbCommand extends ContainerAwareCommand
             if($is_present) {
                 $result .= "exists!";
             } else {
-                $fieldsSQL = $this->getFieldsSQL($db, $fields, $indexes);
-                $db->execute("CREATE TABLE `?e` (\n?p\n) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", array($name, $fieldsSQL));
+                $fieldsSQL = $this->getFieldsSQL($db, $fields);
+                $db->execute("CREATE TABLE ?f (\n?p\n)", array($name, $fieldsSQL));
+                //ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
                 $result .= "ok.";
             }
         }
@@ -180,9 +175,9 @@ class InitDbCommand extends ContainerAwareCommand
         foreach($fakeList as $fake) {
             $sets = array();
             foreach($fake as $col => $value) {
-                $sets[] = $db->replacePlaceholders("`?e` = ?q", array($col, $value));
+                $sets[] = $db->replacePlaceholders("?f = ?q", array($col, $value));
             }
-            $db->execute("INSERT INTO {$tableName} SET ?p", array(implode(',', $sets)));
+            $db->execute("INSERT INTO ?f SET ?p", array($tableName, implode(',', $sets)));
         }
     }
 }
