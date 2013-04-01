@@ -21,26 +21,18 @@ class SelectBuilder extends AbstractWhereBuilder
     protected $havingSql = '';
     protected $orderSql = '';
     protected $limitSql;
-    protected $additionalTables = array();
+    protected $fieldArguments = array();
 
-
-    public function setAdditionalTables(array $tables)
-    {
-        $this->additionalTables = $tables;
-        return $this;
-    }
-
-    //TODO хак для запросов с юнионом (иначе они вернут набор резалтов, что неподходит)
-    protected $isCountQuery = false;
     /**
      * Sets count syntax
      * @return $this
      */
     public function count()
     {
-        $this->isCountQuery = true;
+        $this->fields = 'COUNT(?f) AS ?f';
         //TODO id - magic field
-        $this->fields = 'COUNT(id) AS counter';
+        $this->fieldArguments[] = 'id';
+        $this->fieldArguments[] = 'counter';
         return $this;
     }
     /**
@@ -128,24 +120,8 @@ class SelectBuilder extends AbstractWhereBuilder
     {
         $aliasSql = ($this->alias != '' ? ' AS ?f' : '');
 
-        if (count($this->additionalTables) > 0) {
-            $tables = $this->additionalTables;
-            array_unshift($tables, $this->from);
-
-            $queries = array();
-            foreach ($tables as $table) {
-                $queries[] = 'SELECT ' . $this->fields . ' FROM ?f' . $aliasSql . $this->joinSql . $this->getWhereSql() .
-                    $this->groupSql . $this->havingSql;
-            }
-
-            return ($this->isCountQuery ? 'SELECT SUM(counter) FROM ( ' : '')
-                . '( ' . implode(' ) UNION ALL ( ', $queries) . ' )'
-                . ($this->isCountQuery ? ' ) AS UnionTableAlias' : '')
-                . $this->orderSql . $this->limitSql;
-        } else {
-            return 'SELECT ' . $this->fields . ' FROM ?f' . $aliasSql . $this->joinSql . $this->getWhereSql() .
-                $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;
-        }
+        return 'SELECT ' . $this->fields . ' FROM ?f' . $aliasSql . $this->joinSql . $this->getWhereSql() .
+            $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;
     }
     /**
      * @inheritdoc
@@ -156,20 +132,7 @@ class SelectBuilder extends AbstractWhereBuilder
 
         $arguments = parent::getQueryArguments();
 
-        if (count($this->additionalTables) > 0) {
-            $tables = $this->additionalTables;
-            array_unshift($tables, $this->from);
-
-            $newArguments = array();
-            foreach ($tables as $table) {
-                $newArguments = array_merge($newArguments, array($table), $aliasPlaceholders, $arguments);
-            }
-
-            return $newArguments;
-        } else {
-            $arguments = array_merge(array($this->from), $aliasPlaceholders, $arguments);
-            return $arguments;
-        }
+        return array_merge($this->fieldArguments, array($this->from), $aliasPlaceholders, $arguments);
     }
 
 }

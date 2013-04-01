@@ -31,8 +31,8 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
         $this->builder
             ->count()
             ->execute();
-        $this->assertEquals('SELECT COUNT(id) FROM ?f', $this->plug->query);
-        $this->assertEquals(array('TestTable'), $this->plug->arguments);
+        $this->assertEquals('SELECT COUNT(?f) AS ?f FROM ?f', $this->plug->query);
+        $this->assertEquals(array('id', 'counter', 'TestTable'), $this->plug->arguments);
     }
     public function testSelectAllParams()
     {

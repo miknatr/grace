@@ -136,11 +136,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
      */
     public function getSelectBuilder()
     {
-        return (new Factory($this))->select($this->tableName)->setFromAlias(self::TABLE_ALIAS)->setAdditionalTables($this::getAdditionalTables());
-    }
-    public static function getAdditionalTables()
-    {
-        return array();
+        return (new Factory($this))->select($this->tableName)->setFromAlias(self::TABLE_ALIAS);
     }
     /**
      * Fetches record object
@@ -158,32 +154,10 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
             return $this->getIdentityMap()->getRecord($this->tableName, $id);
         }
 
-        $tables = $this::getAdditionalTables();
-        if (count($tables) > 0) {
-            array_unshift($tables, $this->tableName);
-
-            $row = null;
-
-            foreach ($tables as $table) {
-                try {
-                    $row = $this->crud->selectById($table, $id);
-                    if ($row) {
-                        break;
-                    }
-                } catch (ExceptionNoResultCRUD $e) {
-                    ;
-                }
-            }
-
-            if (!$row) {
-                return false;
-            }
-        } else {
-            try {
-                $row = $this->crud->selectById($this->tableName, $id);
-            } catch (ExceptionNoResultCRUD $e) {
-                return false;
-            }
+        try {
+            $row = $this->crud->selectById($this->tableName, $id);
+        } catch (ExceptionNoResultCRUD $e) {
+            return false;
         }
 
         return $this->convertRowToRecord($row, false);

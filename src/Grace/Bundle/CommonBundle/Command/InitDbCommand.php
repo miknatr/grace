@@ -64,12 +64,6 @@ class InitDbCommand extends ContainerAwareCommand
             $result = $this->createTable($db, $modelName, $modelContent, $forceDrop);
             /** @var $finderClass FinderSql */
             $finderClass = $orm->getClassNameProvider()->getFinderClass($modelName);
-            //TODO здесь лучше на интерфейс
-            if (method_exists($finderClass, 'getAdditionalTables')) {
-                foreach ($finderClass::getAdditionalTables() as $additionalModelName) {
-                    $result = $this->createTable($db, $additionalModelName, $modelContent, $forceDrop);
-                }
-            }
             $output->writeln($result);
         }
         $output->writeln("\nTables have been created");
