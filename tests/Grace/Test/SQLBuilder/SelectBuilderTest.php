@@ -38,7 +38,6 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->builder
             ->fields('id, name')
-            ->join('Test2Table', 'test2Id', 'id')
             ->group('region')
             ->having('region > 123')
             ->order('id DESC')
@@ -65,7 +64,7 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
             ->_close()
             ->execute();
         $this->assertEquals(
-            'SELECT id, name FROM ?f' . ' JOIN `Test2Table` ON `TestTable`.`test2Id`=`Test2Table`.`id`' .
+            'SELECT id, name FROM ?f' .
                 ' WHERE isPublished=?q AND category BETWEEN ?q AND ?q OR category BETWEEN ?q AND ?q' .
                 ' AND ( isPublished=?q AND isPublished=?q OR isPublished=?q )' .
                 ' AND NOT ( NOT isPublished=?q AND NOT isPublished=?q OR NOT isPublished=?q )' .
