@@ -37,6 +37,12 @@ class PgsqlConnectionTest extends AbstractConnectionTest
         $this->assertTrue($r);
     }
 
+    public function testFieldEscaping()
+    {
+        $r = $this->connection->escapeField("field");
+        $this->assertEquals('"field"', $r);
+    }
+
     public function testEscaping()
     {
         $r = $this->connection->escape("quote ' quote");
@@ -45,12 +51,17 @@ class PgsqlConnectionTest extends AbstractConnectionTest
 
     public function testReplacingPlaceholders()
     {
-        $r = $this->connection->replacePlaceholders("SELECT ?q, '?e', \"?p\" FROM DUAL", array(
+        $r = $this->connection->replacePlaceholders("SELECT ?q, '?e', \"?p\", ?f, ?F, ?l, ?i, ?q:named_pl: FROM DUAL", array(
             '\'quoted\'',
             '\'escaped\'',
             '\'plain\'',
+            'test',
+            'test1.test2',
+            array('t1', 't2'),
+            array('f1', 'f2'),
+            'named_pl' => '\'named quoted\'',
         ));
-        $this->assertEquals("SELECT '''quoted''', '''escaped''', \"'plain'\" FROM DUAL", $r);
+        $this->assertEquals("SELECT '''quoted''', '''escaped''', \"'plain'\", \"test\", \"test1\".\"test2\", 't1', 't2', \"f1\", \"f2\", '''named quoted''' FROM DUAL", $r);
     }
 
     public function testGettingLastInsertIdBeforeConnectionEsbablished()
@@ -129,5 +140,10 @@ class PgsqlConnectionTest extends AbstractConnectionTest
         $this->connection->execute('INSERT INTO test VALUES (3, \'Bill\')');
         $this->connection->execute('UPDATE test SET name=\'Human\'');
         $this->assertEquals(3, $this->connection->getAffectedRows());
+    }
+
+    public function testGettingAffectedRowsBeforeConnectionEsbablished()
+    {
+        $this->assertEquals(false, $this->connection->getAffectedRows());
     }
 }
