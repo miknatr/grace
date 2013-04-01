@@ -12,6 +12,6 @@ define('TEST_MYSQLI_DATABASE', 'tests');
 /* CONFIGURATION FOR PostgreSQL tests */
 define('TEST_PGSQL_HOST', 'localhost');
 define('TEST_PGSQL_PORT', 5432);
-define('TEST_PGSQL_NAME', 'test');
+define('TEST_PGSQL_NAME', 'postgres');
 define('TEST_PGSQL_PASSWORD', '1');
 define('TEST_PGSQL_DATABASE', 'tests');

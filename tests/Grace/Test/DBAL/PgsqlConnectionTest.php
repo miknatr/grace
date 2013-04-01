@@ -13,7 +13,6 @@ class PgsqlConnectionTest extends AbstractConnectionTest
 
     protected function setUp()
     {
-        $this->markTestSkipped('pg'); //TODO если нет конекта нужно бы помечать скипнутыми, а не зафейлеными
         $this->connection =
             new PgsqlConnection(TEST_PGSQL_HOST, TEST_PGSQL_PORT, TEST_PGSQL_NAME, TEST_PGSQL_PASSWORD, TEST_PGSQL_DATABASE);
     }
