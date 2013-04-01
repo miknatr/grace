@@ -57,7 +57,7 @@ class InitDbCommand extends ContainerAwareCommand
         $config = $configFull['models'];
 
         $output->writeln("Using database '{$dbName}'.\n");
-        $db->execute("USE `?e`", array($dbName));
+        $db->execute("USE ?f", array($dbName));
 
 
         foreach ($config as $modelName => $modelContent) {
