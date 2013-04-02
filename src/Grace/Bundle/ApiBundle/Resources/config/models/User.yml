@@ -25,7 +25,7 @@ properties:
     mapping: 'integer'
   isBlocked:
     type: bool
-    mapping: 'boolean'
+    mapping: 'integer'
   role:
     mapping: varchar(100)
 indexes:

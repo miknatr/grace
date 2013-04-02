@@ -65,6 +65,7 @@ trait ApiFinderTrait
      * @param User $user
      * @param array $params
      * @return SelectBuilder
+     * @throws \LogicException
      */
     protected function prepareBuilder(User $user, array $params = array())
     {
