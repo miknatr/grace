@@ -16,7 +16,7 @@ namespace Grace\DBAL;
 class PgsqlConnection extends AbstractConnection
 {
     private $resource;
-    private $last_result;
+    private $lastResult;
     private $transactionProcess = false;
     private $host;
     private $port;
@@ -44,45 +44,41 @@ class PgsqlConnection extends AbstractConnection
 
     /**
      * @inheritdoc
-     * @return mixed
-     * @throws ExceptionQuery
      */
     public function execute($query, array $arguments = array())
     {
+        //define if it command or fetch query
+        $needResult = preg_match('/^(SELECT)/', ltrim($query));
+
         $query = $this->replacePlaceholders($query, $arguments);
 
         if (!is_resource($this->resource)) {
             $this->connect();
         }
 
-        $this
-            ->getLogger()
-            ->startQuery($query);
-        $this->last_result = @pg_query($this->resource, $query);
-        $this
-            ->getLogger()
-            ->stopQuery();
+        $this->getLogger()->startQuery($query);
+        $this->lastResult = @pg_query($this->resource, $query);
+        $this->getLogger()->stopQuery();
 
-        if ($this->last_result === false) {
+        if ($this->lastResult === false) {
             if ($this->transactionProcess) {
                 $this->rollback();
             }
             throw new ExceptionQuery('Query error ' . pg_errormessage($this->resource) . ". \nSQL:\n" . $query);
-        } elseif($this->getNumRows()) {
-            return new PgsqlResult($this->last_result);
-        }
-        else {
+        } elseif ($needResult) {
+            return new PgsqlResult($this->lastResult);
+        } else {
             return true;
         }
     }
 
     private function getNumRows()
     {
-        if (!is_resource($this->last_result)) {
+        if (!is_resource($this->lastResult)) {
             return false;
         }
 
-        return pg_num_rows($this->last_result);
+        return pg_num_rows($this->lastResult);
     }
 
     /**
@@ -115,11 +111,11 @@ class PgsqlConnection extends AbstractConnection
      */
     public function getAffectedRows()
     {
-        if (!is_resource($this->last_result)) {
+        if (!is_resource($this->lastResult)) {
             return false;
         }
 
-        return pg_affected_rows($this->last_result);
+        return pg_affected_rows($this->lastResult);
     }
     /**
      * @inheritdoc
@@ -156,13 +152,21 @@ class PgsqlConnection extends AbstractConnection
     // А сюда надо.
     public function getLastInsertId()
     {
-        throw new ExceptionConnection('UndefinedBehavior.');
+        throw new ExceptionConnection('Undefined behavior');
     }
 
     /**
      * @inheritdoc
      */
     public function __destruct()
+    {
+        $this->close();
+    }
+    /**
+     * Establishes connection
+     * @throws ExceptionConnection
+     */
+    private function close()
     {
         if ($this->resource) {
             pg_close($this->resource);
@@ -172,20 +176,19 @@ class PgsqlConnection extends AbstractConnection
      * Establishes connection
      * @throws ExceptionConnection
      */
-    private function connect()
+    private function connect($selectDb = true)
     {
         if (!function_exists("pg_connect")) {
             throw new ExceptionConnection("Function pg_connect doesn't exists");
         }
 
-        $timer = time() + microtime(false);
         //Can throw warning, if have incorrect connection params
         //So we need '@'
         $this
             ->getLogger()
             ->startConnection('Pgsql connection');
-        $connect_string = $this->generateConnectionString();
-        $this->resource = @\pg_connect($connect_string);
+        $connectString = $this->generateConnectionString($selectDb);
+        $this->resource = @\pg_connect($connectString);
         $this
             ->getLogger()
             ->stopConnection();
@@ -196,40 +199,23 @@ class PgsqlConnection extends AbstractConnection
         }
     }
 
-    private function generateConnectionString()
+    private function generateConnectionString($selectDb = true)
     {
-        $connectionString  =  '';
-        $params = array(
-            'host',
-            'port',
-            'user',
-            'password',
-            'database',
-        );
-
-        foreach($params  as  $param_name){
-
-            $value = $this->$param_name;
-
-            if(!$value){
-                continue;
-            }
-
-            switch($param_name){
-                case 'database':
-                    $connectionString .= 'dbname='.$value;
-                break;
-
-                default:
-                    $connectionString  .=  $param_name.'='.$value;
-                    break;
-            }
-
-            $connectionString  .=  ' ';
+        return "host={$this->host} port={$this->port} user={$this->user} password={$this->password}"
+            . ($selectDb ? " dbname={$this->database}" : '')
+            . " options='--client_encoding=UTF8'";
+    }
+    /**
+     * @inheritdoc
+     */
+    public function createDatabaseIfNotExist()
+    {
+        $this->connect(false);
+        $isExist = $this->execute("SELECT ?f FROM ?f WHERE ?f=?q", array('datname', 'pg_database', 'datname', $this->database))->fetchResult();
+        if (!$isExist) {
+            $this->execute('CREATE DATABASE ?f', array($this->database));
         }
-
-
-        $connectionString  .=  'options=\'--client_encoding=UTF8\'';
-        return  rtrim($connectionString);
+        $this->close();
+        $this->connect();
     }
 }

@@ -43,8 +43,6 @@ abstract class Record implements ManagerRecordInterface
     }
     /**
      * Converts from record array to db row
-     * @abstract
-     * @param array $recordArray
      * @return array
      */
     public function getAsDbRow()
@@ -53,18 +51,19 @@ abstract class Record implements ManagerRecordInterface
         $row = array();
         foreach (static::$fieldNames as $field) {
             if (isset($recordArray[$field])) {
-                $row[$field] = $recordArray[$field];
+                if (is_bool($recordArray[$field])) {
+                    $row[$field] = $recordArray[$field] ? '1' : '0';
+                } else {
+                    $row[$field] = $recordArray[$field];
+                }
             } else {
-                $row[$field] = null;
+                //$row[$field] = null; //default values in db must be used
             }
         }
         return $row;
     }
     /**
      * Gets differs between record and defaults
-     * @abstract
-     * @param array $recordArray
-     * @param array $defaults
      * @return array
      */
     public function getAsDbRowChangesOnlyAndCleanDefaultFields()
@@ -75,7 +74,11 @@ abstract class Record implements ManagerRecordInterface
         $changes = array();
         foreach (static::$fieldNames as $field) {
             if (isset($recordArray[$field]) and (!isset($defaults[$field]) or $recordArray[$field] != $defaults[$field])) {
-                $changes[$field] = $recordArray[$field];
+                if (is_bool($recordArray[$field])) {
+                    $changes[$field] = $recordArray[$field] ? '1' : '0';
+                } else {
+                    $changes[$field] = $recordArray[$field];
+                }
             }
         }
 
@@ -137,9 +140,10 @@ abstract class Record implements ManagerRecordInterface
     }
 
     /**
-     * @param            $id
-     * @param array      $fields
-     * @param            $isNew
+     * @param       $id
+     * @param array $fields
+     * @param       $isNew
+     * @param array $newParams
      */
     final public function __construct($id, array $fields, $isNew, array $newParams = array())
     {

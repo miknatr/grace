@@ -2,6 +2,7 @@
 
 namespace Grace\Bundle\CommonBundle\Command;
 
+use Grace\DBAL\ExceptionQuery;
 use Grace\ORM\FinderSql;
 use Grace\ORM\ManagerAbstract;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -17,7 +18,6 @@ use Grace\DBAL\InterfaceConnection;
 class InitDbCommand extends ContainerAwareCommand
 {
     const DBTYPE_FIELD = 'mapping';
-    const DB_NAME_FROM_ENVIRONMENT = 'db_name_from_enviroment';
 
     protected function configure()
     {
@@ -27,7 +27,6 @@ class InitDbCommand extends ContainerAwareCommand
             ->addOption('create-db', 'c', InputOption::VALUE_NONE, 'Create database if need')
             ->addOption('force-drop', 'f', InputOption::VALUE_NONE, 'Use "DROP TABLE IF EXISTS"')
             ->addOption('insert-fakes', 'i', InputOption::VALUE_NONE, 'Insert sample data from config ("fakes")')
-            ->addArgument('db', InputArgument::OPTIONAL, 'DB name', self::DB_NAME_FROM_ENVIRONMENT)
         ;
     }
 
@@ -41,10 +40,13 @@ class InitDbCommand extends ContainerAwareCommand
 
         $createDb = $input->getOption('create-db');
         $forceDrop = $input->getOption('force-drop');
-        $dbName = $input->getArgument('db') == self::DB_NAME_FROM_ENVIRONMENT ? $this->getContainer()->getParameter('database_name') : $input->getArgument('db');
+        $dbName = $this->getContainer()->getParameter('grace_db');
+        $dbName = $dbName['database'];
+        $output->writeln("Database '{$dbName}'");
 
         if ($createDb) {
-            $this->createDb($db, $output, $dbName);
+            $output->writeln("Creating database '{$dbName}'");
+            $db->createDatabaseIfNotExist();
         }
 
 
@@ -56,8 +58,6 @@ class InitDbCommand extends ContainerAwareCommand
 
         $config = $configFull['models'];
 
-        $output->writeln("Using database '{$dbName}'.\n");
-        $db->execute("USE ?f", array($dbName));
 
 
         foreach ($config as $modelName => $modelContent) {
@@ -66,11 +66,11 @@ class InitDbCommand extends ContainerAwareCommand
             $finderClass = $orm->getClassNameProvider()->getFinderClass($modelName);
             $output->writeln($result);
         }
-        $output->writeln("\nTables have been created");
+        $output->writeln("Tables have been created");
 
 
         if($input->getOption('insert-fakes')) {
-            $output->writeln("\nInserting fakes...");
+            $output->writeln("Inserting fakes");
             if(!empty($configFull['fakes'])) {
                 foreach($configFull['fakes'] as $tableName => $fakeList) {
                     $this->insertFakes($db, $tableName, $fakeList);
@@ -83,44 +83,52 @@ class InitDbCommand extends ContainerAwareCommand
         }
 
 
-        $output->writeln("\nAll tasks complete.");
+        $output->writeln("All tasks complete.");
     }
 
-    private function createDb(InterfaceConnection $db, OutputInterface $output, $database)
+    private function getDefaultValueByDbType($dbType)
     {
-        //TODO mysql-specific code in orm
-        $mysqli = new \mysqli(
-            $this->getContainer()->getParameter('database_host'),
-            $this->getContainer()->getParameter('database_user'),
-            $this->getContainer()->getParameter('database_password'),
-            null,
-            $this->getContainer()->getParameter('database_port')
-        );
-
-        if ($mysqli->connect_error) {
-            if ($output) {
-                $output->write('Mysql connection error (' . $mysqli->connect_errno . '): ' . $mysqli->connect_error);
-            }
-            exit(1);
+        if (preg_match('/^(integer|int|bigint|float|real|double|numeric|decimal|tinyint)/i', $dbType)) {
+            return '0';
+        }
+        if (preg_match('/^(bool|boolean)/i', $dbType)) {
+            return "'0'";
+        }
+        if (preg_match('/^(char|varchar|text)/i', $dbType)) {
+            return "''";
+        }
+        if (preg_match('/^(datetime)/i', $dbType)) {
+            return "'0000-00-00 00:00:00'";
+        }
+        if (preg_match('/^(timestamp)/i', $dbType)) {
+            return "'1970-01-01 00:00:00'";
+        }
+        if (preg_match('/^(time)/i', $dbType)) {
+            return "'00:00:00'";
+        }
+        if (preg_match('/^(date)/i', $dbType)) {
+            return "'0000-00-00'";
+        }
+        if (preg_match('/^(point)/i', $dbType)) {//TODO только для постгреса
+            return "'(0,0)'";
         }
 
-        $result = $mysqli->query("CREATE DATABASE IF NOT EXISTS ?f", array($database));
-
-        if (!$result) {
-            if ($output) {
-                $output->write('Mysql query error (' . $mysqli->errno . '): ' . $mysqli->error);
-            }
-            exit(1);
-        }
-
-        $mysqli->close();
+        throw new \Exception('Unsupported db type ' . $dbType);
     }
-
-    private function getFieldsSQL(InterfaceConnection $db, array $fields)
+    private function getFieldsSQL(InterfaceConnection $db, $structure)
     {
+        $fields = array();
+
+        foreach ($structure['properties'] as $propName => $propOptions) {
+            if (!empty($propOptions[self::DBTYPE_FIELD]) && $propOptions[self::DBTYPE_FIELD] !== true) { //если нет, то поле виртуальное, если тру, то только для крад-файндеров
+                $fields[$propName]['type'] = $propOptions[self::DBTYPE_FIELD];
+                $fields[$propName]['default'] = $this->getDefaultValueByDbType($fields[$propName]['type']);
+            }
+        }
+
         $sql = array();
         foreach($fields as $fieldName => $fieldProps) {
-            $sql[] = $db->replacePlaceholders("?f ?p NOT NULL", array($fieldName, $fieldProps));
+            $sql[] = $db->replacePlaceholders("?f ?p DEFAULT ?p NOT NULL", array($fieldName, $fieldProps['type'], $fieldProps['default']));
         }
 
         return implode(",\n", $sql);
@@ -128,43 +136,30 @@ class InitDbCommand extends ContainerAwareCommand
 
     private function createTable(InterfaceConnection $db, $name, $structure, $forceDrop = false)
     {
-        $result = "No fields given for table {$name}";
-        $fields = array();
+        $fieldsSQL = $this->getFieldsSQL($db, $structure);
 
-        if(!empty($structure['properties'])) {
-            foreach ($structure['properties'] as $propName => $propOptions) {
-                //здесь надо вводить тип коннекта, и на осн. типа решать создавать или нет
-                if (!empty($propOptions[self::DBTYPE_FIELD]) && $propOptions[self::DBTYPE_FIELD] !== true) {
-                    if(is_array($propOptions[self::DBTYPE_FIELD])) {
-                        $fields[$propName] = end($propOptions[self::DBTYPE_FIELD]);
-                    } else {
-                        $fields[$propName] = $propOptions[self::DBTYPE_FIELD];
-                    }
-                }
-            }
+        if ($fieldsSQL == '') {
+            return "Model {$name} is not sql";
         }
 
-        if (!empty($fields)) {
-            $result = "Creating table {$name}... ";
+        $result = "Creating table {$name}... ";
 
-            $is_present = false;
-            if($forceDrop) {
-                $db->execute("DROP TABLE IF EXISTS ?f", array($name));
-            } else {
-                try {
-                    $db->execute("SELECT 1 FROM ?f", array($name));
-                    $is_present = true;
-                } catch(\Grace\DBAL\ExceptionQuery $e) {}
-            }
+        $is_present = false;
+        if ($forceDrop) {
+            $db->execute("DROP TABLE IF EXISTS ?f", array($name));
+        } else {
+            try {
+                $db->execute("SELECT 1 FROM ?f", array($name));
+                $is_present = true;
+            } catch (ExceptionQuery $e) {}
+        }
 
-            if($is_present) {
-                $result .= "exists!";
-            } else {
-                $fieldsSQL = $this->getFieldsSQL($db, $fields);
-                $db->execute("CREATE TABLE ?f (\n?p\n)", array($name, $fieldsSQL));
-                //ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-                $result .= "ok.";
-            }
+        if ($is_present) {
+            $result .= "exists!";
+        } else {
+            $db->execute("CREATE TABLE ?f (\n$fieldsSQL\n)", array($name));
+            //ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+            $result .= "ok.";
         }
 
         return $result;
@@ -173,11 +168,7 @@ class InitDbCommand extends ContainerAwareCommand
     private function insertFakes(InterfaceConnection $db, $tableName, $fakeList)
     {
         foreach($fakeList as $fake) {
-            $sets = array();
-            foreach($fake as $col => $value) {
-                $sets[] = $db->replacePlaceholders("?f = ?q", array($col, $value));
-            }
-            $db->execute("INSERT INTO ?f SET ?p", array($tableName, implode(',', $sets)));
+            $db->getSQLBuilder()->insert($tableName)->values($fake)->execute();
         }
     }
 }

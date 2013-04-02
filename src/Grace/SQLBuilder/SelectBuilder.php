@@ -143,7 +143,7 @@ class SelectBuilder extends AbstractWhereBuilder
      */
     public function limit($from, $limit)
     {
-        $this->limitSql = ' LIMIT ' . $from . ',' . $limit;
+        $this->limitSql = ' LIMIT ' . $from . ' OFFSET ' . $limit;
         return $this;
     }
     /**

@@ -19,8 +19,10 @@ services:
   grace_query_logger:
     class: Grace\DBAL\QueryLogger
   grace_db:
-    class: Grace\DBAL\MysqliConnection
-    arguments: [%database_host%, %database_port%, %database_user%, %database_password%, %database_name%]
+    class: Grace\DBAL\InterfaceConnection
+    factory_class: Grace\DBAL\ConnectionFactory
+    factory_method: getConnection
+    arguments: [%grace_db%]
     calls:
       - [ setLogger, [ @grace_query_logger ] ]
       - [ setCache, [ @cache ] ]

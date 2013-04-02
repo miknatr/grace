@@ -159,19 +159,18 @@ class MysqliConnection extends AbstractConnection
      * Establishes connection
      * @throws ExceptionConnection
      */
-    private function connect()
+    private function connect($selectDb = true)
     {
         if (!function_exists("mysqli_connect")) {
-            throw new ExceptionConnection("Function mysqli_connect doesn\'t exists");
+            throw new ExceptionConnection("Function mysqli_connect doesn't exists");
         }
 
-        $timer = time() + microtime(false);
         //Can throw warning, if have incorrect connection params
         //So we need '@'
         $this
             ->getLogger()
             ->startConnection('Mysqli connection');
-        $this->dbh = @mysqli_connect($this->host, $this->user, $this->password, $this->database, (int)$this->port);
+        $this->dbh = @mysqli_connect($this->host, $this->user, $this->password, $selectDb ? $this->database : null, (int)$this->port);
         $this
             ->getLogger()
             ->stopConnection();
@@ -192,5 +191,14 @@ class MysqliConnection extends AbstractConnection
         $this
             ->getLogger()
             ->stopConnection();
+    }
+    /**
+     * @inheritdoc
+     */
+    public function createDatabaseIfNotExist()
+    {
+        $this->connect(false);
+        $this->execute('CREATE DATABASE IF NOT EXISTS ?f', array($this->database));
+        $this->dbh->select_db($this->database);
     }
 }

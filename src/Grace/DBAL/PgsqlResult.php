@@ -27,11 +27,11 @@ class PgsqlResult extends AbstractResult
     }
 
     /**
-     * @param \mysqli_result $result
+     * @param $result
      */
     public function __construct($result)
     {
-        if(!is_resource($result)) {
+        if (!is_resource($result)) {
             throw new ExceptionConnection('Result should be a valid resource.');
         }
 

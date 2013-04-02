@@ -10,6 +10,7 @@
 
 namespace Grace\DBAL;
 
+use Grace\Cache\CacheInterface;
 use Grace\SQLBuilder\Factory;
 
 /**
@@ -100,19 +101,24 @@ interface InterfaceConnection extends InterfaceExecutable
     /**
      * Returns instance of \Grace\Cache\CacheInterface
      * @abstract
-     * @return \Grace\Cache\CacheInterface;
+     * @return CacheInterface;
      */
     public function getCache();
     /**
      * Sets cache for this connection
-     * @abstract
-     * @param \Grace\Cache\CacheInterface $logger
+     * @param CacheInterface $logger
      * @return InterfaceConnection
      */
-    public function setCache(\Grace\Cache\CacheInterface $logger);
+    public function setCache(CacheInterface $logger);
     /**
-     * Generate new id for insert
+     * Generates new id for insert
+     * @param string $table
      * @return mixed
      */
     public function generateNewId($table);
+    /**
+     * Creates db if not exist (must be first query in thread)
+     * @return mixed
+     */
+    public function createDatabaseIfNotExist();
 }

@@ -1,7 +1,7 @@
 abstract: true
 properties:
   id:
-    mapping: 'int(10) unsigned AUTO_INCREMENT'
+    mapping: 'integer'
   name:
     mapping: varchar(255)
   phone:
@@ -12,20 +12,20 @@ properties:
   token:
     mapping: varchar(255)
   tokenCreatedAt:
-    mapping: datetime
+    mapping: timestamp
   tokenIp:
     mapping: varchar(255)
   createdAt:
-    mapping: datetime
+    mapping: timestamp
   lastVisitAt:
-    mapping: datetime
+    mapping: timestamp
   lastIp:
     mapping: varchar(255)
   countFailedLogins:
-    mapping: 'tinyint(2) unsigned'
+    mapping: 'integer'
   isBlocked:
     type: bool
-    mapping: 'tinyint(1) unsigned'
+    mapping: 'boolean'
   role:
     mapping: varchar(100)
 indexes:
