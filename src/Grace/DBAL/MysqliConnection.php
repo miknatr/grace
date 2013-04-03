@@ -92,10 +92,11 @@ class MysqliConnection extends AbstractConnection
         if (!is_object($this->dbh)) {
             $this->connect();
         }
-        if (!is_scalar($value) || strpos('`', $value)) {
+        $escapeSymbol = '"'; // '`'
+        if (!is_scalar($value) || strpos($escapeSymbol, $value)) {
             throw new ExceptionQuery('Possible SQL injection in field name');
         }
-        return '`' . $value . '`';
+        return $escapeSymbol . $value . $escapeSymbol;
     }
     /**
      * @inheritdoc
@@ -167,30 +168,22 @@ class MysqliConnection extends AbstractConnection
 
         //Can throw warning, if have incorrect connection params
         //So we need '@'
-        $this
-            ->getLogger()
-            ->startConnection('Mysqli connection');
+        $this->getLogger()->startConnection('Mysqli connection');
         $this->dbh = @mysqli_connect($this->host, $this->user, $this->password, $selectDb ? $this->database : null, (int)$this->port);
-        $this
-            ->getLogger()
-            ->stopConnection();
+        $this->getLogger()->stopConnection();
 
         if (mysqli_connect_error()) {
             throw new ExceptionConnection('Error ' . mysqli_connect_errno() . ' - ' . mysqli_connect_error());
         }
 
-        $this
-            ->getLogger()
-            ->startConnection('Setting utf8 charset');
+        $this->getLogger()->startConnection('Setting utf8 charset');
         $this->dbh->query("SET character SET 'utf8'");
         $this->dbh->query('SET character_set_client = utf8');
         $this->dbh->query('SET character_set_results = utf8');
         $this->dbh->query('SET character_set_connection = utf8');
         $this->dbh->query("SET SESSION collation_connection = 'utf8_general_ci'");
-        $this->dbh->query("SET sql_mode = ''");
-        $this
-            ->getLogger()
-            ->stopConnection();
+        $this->dbh->query("SET sql_mode = 'ANSI'");
+        $this->getLogger()->stopConnection();
     }
     /**
      * @inheritdoc

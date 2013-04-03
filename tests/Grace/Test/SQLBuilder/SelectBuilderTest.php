@@ -69,7 +69,7 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
                 ' AND NOT ( NOT ?f=?q AND NOT ?f=?q OR NOT ?f=?q )' .
                 ' GROUP BY ?f' .
                 ' ORDER BY ?f DESC' .
-                ' LIMIT 5,15', $this->plug->query);
+                ' LIMIT 15 OFFSET 5', $this->plug->query);
 
         $this->assertEquals(
             array(
