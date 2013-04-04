@@ -71,6 +71,16 @@ class SelectBuilder extends AbstractWhereBuilder
      * @param $field
      * @return $this
      */
+    public function fieldSql($field, array $arguments = array())
+    {
+        $this->fields(array(array($field, $arguments)));
+        return $this;
+    }
+    /**
+     * Sets one field in fields statement
+     * @param $field
+     * @return $this
+     */
     public function field($field)
     {
         $this->fields(array($field));
