@@ -48,7 +48,7 @@ class PgsqlConnection extends AbstractConnection
     public function execute($query, array $arguments = array())
     {
         //define if it command or fetch query
-        $needResult = preg_match('/^(SELECT)/', ltrim($query));
+        $needResult = preg_match('/^(SELECT)/i', ltrim($query));
 
         $query = $this->replacePlaceholders($query, $arguments);
 

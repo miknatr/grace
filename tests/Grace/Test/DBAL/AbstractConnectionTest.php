@@ -48,47 +48,27 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
     }
     public function testFetchingOne()
     {
-        $r = $this->connection
-            ->execute('SELECT 1 AS "1", 2 AS "2", 3 AS "3"')
-            ->fetchOne();
-        $this->assertEquals(array(
-            '1'  => '1',
-            '2'  => '2',
-            '3'  => '3'
-        ), $r);
+        $r = $this->connection->execute('SELECT 1 AS "1", 2 AS "2", 3 AS "3"')->fetchOne();
+        $this->assertEquals(array('1' => '1', '2' => '2', '3' => '3'), $r);
     }
     public function testFetchingAll()
     {
-        $r = $this->connection
-            ->execute('select 1 AS "1",2 AS "2",3 AS "3"')
-            ->fetchAll();
-        $this->assertEquals(array(
-            array(
-                '1' => '1',
-                '2' => '2',
-                '3' => '3'
-            )
-        ), $r);
+        $r = $this->connection->execute('select 1 AS "1",2 AS "2",3 AS "3"')->fetchAll();
+        $this->assertEquals(array(array('1' => '1', '2' => '2', '3' => '3')), $r);
     }
     public function testFetchingResult()
     {
-        $r = $this->connection
-            ->execute('select 1 AS "1",2 AS "2",3 AS "3"')
-            ->fetchResult();
+        $r = $this->connection->execute('select 1 AS "1",2 AS "2",3 AS "3"')->fetchResult();
         $this->assertEquals('1', $r);
     }
     public function testFetchingColumn()
     {
-        $r = $this->connection
-            ->execute('SELECT 1 AS "1"')
-            ->fetchColumn();
+        $r = $this->connection->execute('SELECT 1 AS "1"')->fetchColumn();
         $this->assertEquals(array('1'), $r);
     }
     public function testFetchingHash()
     {
-        $r = $this->connection
-            ->execute('SELECT \'kkk\' AS "kkk", \'vvv\' AS "vvv" ')
-            ->fetchHash();
+        $r = $this->connection->execute('SELECT \'kkk\' AS "kkk", \'vvv\' AS "vvv" ')->fetchHash();
         $this->assertEquals(array('kkk' => "vvv"), $r);
     }
     public function testTransactionCommitBeforeAnyQueries()

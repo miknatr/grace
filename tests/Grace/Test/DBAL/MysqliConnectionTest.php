@@ -37,7 +37,7 @@ class MysqliConnectionTest extends AbstractConnectionTest
     {
         $this->connection->execute('DROP TABLE IF EXISTS test');
         $this->connection->execute('CREATE TABLE test (id INT(10) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))');
-        $this->connection->execute('INSERT INTO test VALUES (10, "Mike")');
+        $this->connection->execute("INSERT INTO test VALUES (10, 'Mike')");
         $this->assertEquals('10', $this->connection->getLastInsertId());
         $this->connection->execute('DROP TABLE IF EXISTS test');
     }
@@ -49,17 +49,17 @@ class MysqliConnectionTest extends AbstractConnectionTest
     {
         $this->connection->execute('DROP TABLE IF EXISTS test');
         $this->connection->execute('CREATE TABLE test (id INT(10) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))');
-        $this->connection->execute('INSERT INTO test VALUES (1, "Mike")');
-        $this->connection->execute('INSERT INTO test VALUES (2, "John")');
-        $this->connection->execute('INSERT INTO test VALUES (3, "Bill")');
-        $this->connection->execute('UPDATE test SET name="Human"');
+        $this->connection->execute("INSERT INTO test VALUES (1, 'Mike')");
+        $this->connection->execute("INSERT INTO test VALUES (2, 'John')");
+        $this->connection->execute("INSERT INTO test VALUES (3, 'Bill')");
+        $this->connection->execute("UPDATE test SET name='Human'");
         $this->assertEquals(3, $this->connection->getAffectedRows());
         $this->connection->execute('DROP TABLE IF EXISTS test');
     }
     public function testFieldEscaping()
     {
         $r = $this->connection->escapeField("field");
-        $this->assertEquals("`field`", $r);
+        $this->assertEquals('"field"', $r);
     }
     public function testEscaping()
     {
@@ -79,16 +79,16 @@ class MysqliConnectionTest extends AbstractConnectionTest
                 array('f1', 'f2'),
                 'named_pl' => '\'named quoted\'',
             ));
-        $this->assertEquals("SELECT '\'quoted\'', '\'escaped\'', \"'plain'\", `test`, `test1`.`test2`, 't1', 't2', `f1`, `f2`, '\'named quoted\'' FROM DUAL", $r);
+        $this->assertEquals("SELECT '\'quoted\'', '\'escaped\'', \"'plain'\", \"test\", \"test1\".\"test2\", 't1', 't2', \"f1\", \"f2\", '\'named quoted\'' FROM DUAL", $r);
     }
     public function testTransactionCommit()
     {
         $this->connection->execute('DROP TABLE IF EXISTS test');
         $this->connection->execute('CREATE TABLE test (id INT(10) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255)) ENGINE=InnoDB');
         $this->connection->start();
-        $this->connection->execute('INSERT INTO test VALUES (1, "Mike")');
-        $this->connection->execute('INSERT INTO test VALUES (2, "John")');
-        $this->connection->execute('INSERT INTO test VALUES (3, "Bill")');
+        $this->connection->execute("INSERT INTO test VALUES (1, 'Mike')");
+        $this->connection->execute("INSERT INTO test VALUES (2, 'John')");
+        $this->connection->execute("INSERT INTO test VALUES (3, 'Bill')");
         $this->connection->commit();
         $r = $this->connection
             ->execute('SELECT COUNT(id) FROM test')
@@ -101,9 +101,9 @@ class MysqliConnectionTest extends AbstractConnectionTest
         $this->connection->execute('DROP TABLE IF EXISTS test');
         $this->connection->execute('CREATE TABLE test (id INT(10) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255)) ENGINE=InnoDB');
         $this->connection->start();
-        $this->connection->execute('INSERT INTO test VALUES (1, "Mike")');
-        $this->connection->execute('INSERT INTO test VALUES (2, "John")');
-        $this->connection->execute('INSERT INTO test VALUES (3, "Bill")');
+        $this->connection->execute("INSERT INTO test VALUES (1, 'Mike')");
+        $this->connection->execute("INSERT INTO test VALUES (2, 'John')");
+        $this->connection->execute("INSERT INTO test VALUES (3, 'Bill')");
         $this->connection->rollback();
         $r = $this->connection
             ->execute('SELECT COUNT(id) FROM test')
@@ -116,9 +116,9 @@ class MysqliConnectionTest extends AbstractConnectionTest
         $this->connection->execute('DROP TABLE IF EXISTS test');
         $this->connection->execute('CREATE TABLE test (id INT(10) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255)) ENGINE=InnoDB');
         $this->connection->start();
-        $this->connection->execute('INSERT INTO test VALUES (1, "Mike")');
-        $this->connection->execute('INSERT INTO test VALUES (2, "John")');
-        $this->connection->execute('INSERT INTO test VALUES (3, "Bill")');
+        $this->connection->execute("INSERT INTO test VALUES (1, 'Mike')");
+        $this->connection->execute("INSERT INTO test VALUES (2, 'John')");
+        $this->connection->execute("INSERT INTO test VALUES (3, 'Bill')");
         try {
             $this->connection->execute('NO SQL SYNTAX');
         } catch (ExceptionQuery $e) {

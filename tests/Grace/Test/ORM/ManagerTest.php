@@ -24,9 +24,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->connection->execute('DROP TABLE IF EXISTS `Order`');
         $this->connection->execute('CREATE TABLE `Order` (id INT(10) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), phone VARCHAR(255))');
-        $this->connection->execute('INSERT INTO `Order` VALUES (1, "Mike", "1234567")');
-        $this->connection->execute('INSERT INTO `Order` VALUES (2, "John", "1234567")');
-        $this->connection->execute('INSERT INTO `Order` VALUES (3, "Bill", "1234567")');
+        $this->connection->execute("INSERT INTO `Order` VALUES (1, 'Mike', '1234567')");
+        $this->connection->execute("INSERT INTO `Order` VALUES (2, 'John', '1234567')");
+        $this->connection->execute("INSERT INTO `Order` VALUES (3, 'Bill', '1234567')");
     }
     protected function establishConnection()
     {
@@ -43,7 +43,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
     protected function tearDown()
     {
-        $this->connection->execute('DROP TABLE IF EXISTS `Order`');
+        $this->connection->execute('DROP TABLE IF EXISTS "Order"');
         unset($this->connection);
     }
     public function testFinder()
