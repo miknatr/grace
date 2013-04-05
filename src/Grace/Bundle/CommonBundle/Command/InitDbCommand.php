@@ -157,7 +157,7 @@ class InitDbCommand extends ContainerAwareCommand
         if ($is_present) {
             $result .= "exists!";
         } else {
-            $db->execute("CREATE TABLE ?f (\n$fieldsSQL\n)", array($name));
+            $db->execute("CREATE TABLE ?f (\n$fieldsSQL\n, PRIMARY KEY (\"id\"))", array($name));
             //ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
             $result .= "ok.";
         }
