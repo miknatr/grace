@@ -146,7 +146,7 @@ class InitDbCommand extends ContainerAwareCommand
 
         $is_present = false;
         if ($forceDrop) {
-            $db->execute("DROP TABLE IF EXISTS ?f", array($name));
+            $db->execute("DROP TABLE IF EXISTS ?f CASCADE", array($name));
         } else {
             try {
                 $db->execute("SELECT 1 FROM ?f", array($name));
