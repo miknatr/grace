@@ -175,7 +175,7 @@ abstract class AbstractConnection implements InterfaceConnection
     {
         //TODO будет логично для постгреса юзать последовательности
         if (!isset($this->idCounterByTable[$table])) {
-            $this->idCounterByTable[$table] = $this->getSQLBuilder()->select($table)->field('id')->orderByField('id', 'DESC')->limit(0, 1)->fetchResult();
+            $this->idCounterByTable[$table] = $this->getSQLBuilder()->select($table)->field('id')->orderDesc('id')->limit(0, 1)->fetchResult();
         }
 
         for ($i = 0; $i < 50; $i++) {

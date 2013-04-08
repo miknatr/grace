@@ -58,7 +58,7 @@ trait ApiFinderTrait
             $builder->limit(0, 1000);
         }
 
-        return $builder->orderByField('id', 'DESC')->fetchAll();
+        return $builder->orderDesc('id')->fetchAll();
     }
 
     /**

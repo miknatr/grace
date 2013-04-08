@@ -100,38 +100,37 @@ class SelectBuilder extends AbstractWhereBuilder
     }
     /**
      * Sets group by statement
-     * @param $fields
-     * @return $this
-     */
-    public function group(array $fields)
-    {
-        $this->groupSql       = ' GROUP BY ' . substr(str_repeat('?f, ', count($fields)), 0, -2);
-        $this->groupArguments = $fields;
-        return $this;
-    }
-    /**
-     * Sets group by statement
      * @param $field
      * @return $this
      */
-    public function groupByField($field)
+    public function group($field)
     {
-        $this->group(array($field));
+        if ($this->groupSql == '') {
+            $this->groupSql = ' GROUP BY ?f';
+        } else {
+            $this->groupSql .= ', ?f';
+        }
+        $this->groupArguments[] = $field;
         return $this;
     }
     /**
-     * Sets order by statement
-     * @param $fields
+     * Sets asc order by statement
+     * @param $field
      * @return $this
      */
-    public function order(array $fields)
+    public function orderAsc($field)
     {
-        $sqlArray = array();
-        foreach ($fields as $field => $direction) {
-            $sqlArray[] = '?f ' . $direction;
-        }
-        $this->orderSql       = ' ORDER BY ' . implode(', ', $sqlArray);
-        $this->orderArguments = array_keys($fields);
+        $this->orderByDirection($field, 'ASC');
+        return $this;
+    }
+    /**
+     * Sets desc order by statement
+     * @param $field
+     * @return $this
+     */
+    public function orderDesc($field)
+    {
+        $this->orderByDirection($field, 'DESC');
         return $this;
     }
     /**
@@ -140,10 +139,14 @@ class SelectBuilder extends AbstractWhereBuilder
      * @param $direction
      * @return $this
      */
-    public function orderByField($field, $direction)
+    protected function orderByDirection($field, $direction)
     {
-        $this->order(array($field => $direction));
-        return $this;
+        if ($this->orderSql == '') {
+            $this->orderSql = ' ORDER BY ?f ' . $direction;
+        } else {
+            $this->orderSql .= ', ?f ' . $direction;
+        }
+        $this->orderArguments[] = $field;
     }
     /**
      * Sets limit statements

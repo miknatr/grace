@@ -38,8 +38,8 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->builder
             ->fields(array('id', 'name'))
-            ->groupByField('region')
-            ->orderByField('id', 'DESC')
+            ->group('region')
+            ->orderDesc('id')
             ->limit(5, 15)
             ->eq('isPublished', 1) //test with AbstractWhereBuilder
             ->between('category', 10, 20) //test with AbstractWhereBuilder
