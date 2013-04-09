@@ -31,34 +31,30 @@ class ControllerListener
         //$time = time() + microtime(true);
         //$this->generator->needUpdate();
         //echo time() + microtime(true) - $time;
-        if ($this->kernel and $this->kernel->getEnvironment() == 'dev' and $this->generator->needUpdate()) {
+
+        //TODO переделать бы через команду generate --watch наподобие дампа ассетов
+        #if ($this->kernel and $this->kernel->getEnvironment() == 'dev' and $this->generator->needUpdate()) {
             //автоматическая перегенерация, если конфиг изменялся
             //время на генерацию 1.569
             //$time = time() + microtime(true);
-            $this->generator->generate();
+            #$this->generator->generate();
             //echo time() + microtime(true) - $time;
-        }
+        #}
     }
     public function onKernelResponse(FilterResponseEvent $event)
     {
         if ($this->kernel and $this->kernel->getEnvironment() == 'dev') {
-//            $queries = $this->orm->getSqlReadOnlyConnection()->getLogger()->getQueries();
 
-            //variant 1
-            //if (count($queries) > 0) {
-            //    $this->logger->info(count($queries) . ' queries. ' . '/app_dev.php/_profiler/507adf0718661?panel=grace');
-            //}
+            $queries = $this->orm->getSqlReadOnlyConnection()->getLogger()->getQueries();
+            $time = array_reduce($queries, function($sum, $q) { return $sum += $q['time']; }, 0);
 
-            //variant 2
-            //$this->logger->info(count($queries) . ' queries', $queries);
-
-            //variant 3
-//            foreach ($queries as $query) {
-//                $this->logger->info(number_format($query['time'], 5) . ' ' . $query['query']);
-//            }
+            if (count($queries) > 0) {
+                $this->logger->info(count($queries) . ' queries in  ' . number_format($time, 5));
+            }
         }
 
         //нужно для изолированности объектов UnitOfWork и IdentityMap в тестах, но думаю лишним не будет и вообще
+        //TODO с другой стороны, если делаем подзапросы, то вроде нет смысла чистить IdentityMap, как быть?
         $this->orm->clean();
     }
 }
