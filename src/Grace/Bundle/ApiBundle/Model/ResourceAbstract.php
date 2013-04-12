@@ -2,7 +2,6 @@
 
 namespace Grace\Bundle\ApiBundle\Model;
 
-use Grace\Bundle\ApiBundle\Type\ApiFieldObjectInterface;
 use Grace\ORM\Collection;
 use Grace\ORM\Record;
 use Grace\Bundle\ApiBundle\Model\User;
@@ -299,10 +298,8 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                             $value = $value->asArray();
                         } elseif ($value instanceof Collection) {
                             $value = $value->asArray();
-                        } elseif ($value instanceof ApiFieldObjectInterface) {
-                            $value = $value->getApiValue();
                         } else {
-                            throw new \LogicException('Api field object must be instance of ApiFieldObjectAbstract');
+                            $value = (string) $value;
                         }
                     }
                     $r[$fieldName] = $value;
@@ -342,10 +339,8 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                                 $value = $value->asArray();
                             } elseif ($value instanceof Collection) {
                                 $value = $value->asArray();
-                            } elseif ($value instanceof ApiFieldObjectInterface) {
-                                $value = $value->getApiValue();
                             } else {
-                                throw new \LogicException('Api field object must be instance of ApiFieldObjectAbstract');
+                                $value = (string) $value;
                             }
                         }
                         $r[$fieldName] = $value;
