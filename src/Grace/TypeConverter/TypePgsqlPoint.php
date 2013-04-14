@@ -14,15 +14,15 @@ use Grace\SQLBuilder\SqlValue;
 
 class TypePgsqlPoint implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'pgsql_point';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return '\Grace\TypeConverter\PgsqlPointValue';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'point';
     }

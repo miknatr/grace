@@ -12,15 +12,15 @@ namespace Grace\TypeConverter;
 
 class TypeBool implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'bool';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return 'bool';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'boolean';
     }
@@ -34,6 +34,10 @@ class TypeBool implements TypeInterface
     }
     public function convertOnSetter($value)
     {
+        if ($value == 'f' or $value == 'off') {
+            return false;
+        }
+
         return (bool) $value;
     }
     public function convertPhpToDb($value)

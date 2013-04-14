@@ -12,15 +12,15 @@ namespace Grace\TypeConverter;
 
 class TypeFloat implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'float';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return 'float';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'double';
     }

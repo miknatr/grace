@@ -12,15 +12,15 @@ namespace Grace\TypeConverter;
 
 class TypePercent implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'percent';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return 'string';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'numeric(3,1)';
     }

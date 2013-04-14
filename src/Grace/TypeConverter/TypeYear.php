@@ -12,15 +12,15 @@ namespace Grace\TypeConverter;
 
 class TypeYear implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'year';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return 'string';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'numeric(4,0)';
     }

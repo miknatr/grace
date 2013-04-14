@@ -12,15 +12,15 @@ namespace Grace\TypeConverter;
 
 class TypeInt implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'int';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return 'int';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'integer';
     }

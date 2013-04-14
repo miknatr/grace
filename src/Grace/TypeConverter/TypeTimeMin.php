@@ -12,15 +12,15 @@ namespace Grace\TypeConverter;
 
 class TypeTimeMin implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'time_min';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return 'string';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'char(5)';
     }

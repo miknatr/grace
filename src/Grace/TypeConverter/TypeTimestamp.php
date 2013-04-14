@@ -12,15 +12,15 @@ namespace Grace\TypeConverter;
 
 class TypeTimestamp implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'timestamp';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return 'string';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'timestamp';
     }

@@ -15,6 +15,7 @@ use Grace\SQLBuilder\Factory;
 use Grace\CRUD\CRUDInterface;
 use Grace\CRUD\CRUDCommitableInterface;
 use Grace\CRUD\DBMasterDriver;
+use Grace\TypeConverter\Converter;
 
 /**
  * Orm manager
@@ -372,5 +373,19 @@ abstract class ManagerAbstract
             $this->recordObserver = new RecordObserver;
         }
         return $this->recordObserver;
+    }
+
+
+    private $typeConverter;
+    /**
+     * Gets service container
+     * @return Converter
+     */
+    final public function getTypeConverter()
+    {
+        if (empty($this->typeConverter)) {
+            $this->typeConverter = new Converter();
+        }
+        return $this->typeConverter;
     }
 }

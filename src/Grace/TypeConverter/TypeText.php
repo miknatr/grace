@@ -12,15 +12,15 @@ namespace Grace\TypeConverter;
 
 class TypeString implements TypeInterface
 {
-    public function getTypeName()
+    public function getAlias()
     {
         return 'text';
     }
-    public function getPhpTypeName()
+    public function getPhpType()
     {
         return 'string';
     }
-    public function getDbTypeName()
+    public function getDbType()
     {
         return 'text';
     }

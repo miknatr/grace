@@ -12,9 +12,9 @@ namespace Grace\TypeConverter;
 
 interface TypeInterface
 {
-    public function getTypeName();
-    public function getPhpTypeName();
-    public function getDbTypeName();
+    public function getAlias();
+    public function getPhpType();
+    public function getDbType();
     public function convertDbToPhp($value);
     public function convertOnSetter($value);
     public function convertPhpToDb($value);
