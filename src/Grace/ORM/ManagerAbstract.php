@@ -388,4 +388,15 @@ abstract class ManagerAbstract
         }
         return $this->typeConverter;
     }
+
+
+    static protected $modelsConfig = array(); //generator overrides this
+    /**
+     * Gets config
+     * @return array
+     */
+    final public function getModelsConfig()
+    {
+        return static::$modelsConfig;
+    }
 }

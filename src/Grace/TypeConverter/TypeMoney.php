@@ -10,7 +10,7 @@
 
 namespace Grace\TypeConverter;
 
-class TypeInt implements TypeInterface
+class TypeMoney implements TypeInterface
 {
     public function getAlias()
     {

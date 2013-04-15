@@ -12,6 +12,24 @@ namespace Grace\TypeConverter;
 
 class Converter
 {
+    public function __construct()
+    {
+        //STOPPER это нужно в конфигурацию
+        $this->addType(new TypeBool);
+        $this->addType(new TypeFloat);
+        $this->addType(new TypeInt);
+        $this->addType(new TypeMoney);
+        $this->addType(new TypePercent);
+        $this->addType(new TypePgsqlPoint);
+        $this->addType(new TypeString);
+        $this->addType(new TypeText);
+        $this->addType(new TypeTimeMin);
+        $this->addType(new TypeTimestamp);
+        $this->addType(new TypeYear);
+
+        //STOPPER тип для тарифа и прочей хуйни
+    }
+
     /** @var TypeInterface[] */
     protected $types = array();
     public function addType(TypeInterface $type)

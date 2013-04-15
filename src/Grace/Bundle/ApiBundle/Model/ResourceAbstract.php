@@ -274,6 +274,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
 
     final public function asArrayForNodejs()
     {
+        //STOPPER здесь и выше геттеры больше не нужны, модель консистны в массиве
         $key = 'as_array_for_nodejs_' . md5(json_encode($this->fields));
         return $this->getContainer()->getCache()->get($key, 30, function() {
             $r = array();
@@ -312,6 +313,9 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
     }
     final public function asArrayByUser(User $user)
     {
+        //STOPPER здесь и выше геттеры больше не нужны, модель консистны в массиве
+        //STOPPER сделать сетеры и геттеры финальными и не делать сетеры для noMapping-полей
+
         $privilege = $this->getPrivilegeForUser($user);
         $this->throwIfNotAccessOnResource('view', $privilege);
 

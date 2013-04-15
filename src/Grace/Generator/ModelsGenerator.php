@@ -20,8 +20,6 @@ class ModelsGenerator
     const BASE_CLASS_FINDER_CRUD    = '\\Grace\\ORM\\FinderCrud';
     const BASE_CLASS_COLLECTION     = '\\Grace\\ORM\\Collection';
     const CONCRETE_CLASS_MANAGER    = 'ORMManager';
-    const MAPPER_FIELDS_ARRAY       = 'fieldNames';
-    const MAPPER_NO_DB_FIELDS_ARRAY = 'noDbFieldNames';
 
     private $modelConfigResources;
     private $namespace;
@@ -71,6 +69,7 @@ class ModelsGenerator
         $loader = new ConfigLoader;
         $config = $loader->load($this->modelConfigResources);
 
+        //STOPPER вроде только моделс и должно быть, что еще за хуйня
         //если используется extends_config, то конфиг модели extends_config рекурсивно мержиться с текущим
         foreach ($config['models'] as $mName => $mConfig) {
             if (isset($mConfig['extends_config'])) {
@@ -122,6 +121,7 @@ class ModelsGenerator
         $nsRecord     = $nsp . $nsConfig['record'];
         $nsFinder     = $nsp . $nsConfig['finder'];
         $nsCollection = $nsp . $nsConfig['collection'];
+        //STOPPER выпилить к хуям
         $nsMapper     = $nsp . $nsConfig['mapper'];
 
         $this->cleanOutputDir();
@@ -158,6 +158,7 @@ class ModelsGenerator
             $this->plugins[] = $plugin;
         }
     }
+    //STOPPER выпилить в хуям
     private function getExtraFindersConfig($finderNamespace)
     {
         $config = array();
@@ -235,6 +236,18 @@ class ModelsGenerator
             ->setDocblock($docblock)
             ->setName(self::CONCRETE_CLASS_MANAGER)
             ->setExtendedClass(self::BASE_CLASS_MANAGER);
+
+        //Config
+        $realManager->setProperty(
+            (new \Zend_CodeGenerator_Php_Property)
+            ->setName('modelsConfig')
+            ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED)
+            ->setStatic(true)
+            ->setDefaultValue((new \Zend_CodeGenerator_Php_Property_DefaultValue)
+                ->setValue($config)
+            )
+        );
+
 
         //Connections and finders
         $connections = array();
@@ -332,36 +345,6 @@ class ModelsGenerator
 
 
             $fields = $modelConfig[self::CONFIG_PROPERTIES];
-
-
-            $fieldsPropertyArray     = array();
-            $noDbFieldsPropertyArray = array();
-            foreach ($fields as $fieldName => $fieldConfig) {
-                //$fieldsPropertyArray[] = "\n\t'" . $fieldName . "',";
-                if (empty($fieldConfig['mapping'])) {
-                    $noDbFieldsPropertyArray[] = $fieldName;
-                } else {
-                    $fieldsPropertyArray[] = $fieldName;
-                }
-            }
-
-
-            $fieldsProperty = (new \Zend_CodeGenerator_Php_Property)
-                ->setName(self::MAPPER_FIELDS_ARRAY)
-                ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED)
-                ->setStatic(true)
-                ->setDefaultValue((new \Zend_CodeGenerator_Php_Property_DefaultValue)->setValue($fieldsPropertyArray));
-
-            $noDbFieldsProperty = (new \Zend_CodeGenerator_Php_Property)
-                ->setName(self::MAPPER_NO_DB_FIELDS_ARRAY)
-                ->setVisibility(\Zend_CodeGenerator_Php_Property::VISIBILITY_PROTECTED)
-                ->setStatic(true)
-                ->setDefaultValue((new \Zend_CodeGenerator_Php_Property_DefaultValue)->setValue($noDbFieldsPropertyArray));
-
-
-            $recordAbstract->setProperty($fieldsProperty);
-            $recordAbstract->setProperty($noDbFieldsProperty);
-
 
 
             foreach ($fields as $fieldName => $fieldConfig) {

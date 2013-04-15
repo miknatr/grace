@@ -1,34 +1,29 @@
 abstract: true
 properties:
   id:
-    mapping: 'integer'
+    mapping: int
   name:
-    mapping: varchar(255)
+    mapping: string
   phone:
-    mapping: varchar(20)
+    mapping: string
   password:
-    mapping: varchar(255)
+    mapping: string
     filter: {when: onSet, function: md5}
   token:
-    mapping: varchar(255)
+    mapping: string
   tokenCreatedAt:
     mapping: timestamp
   tokenIp:
-    mapping: varchar(255)
+    mapping: string
   createdAt:
     mapping: timestamp
   lastVisitAt:
     mapping: timestamp
   lastIp:
-    mapping: varchar(255)
+    mapping: string
   countFailedLogins:
     mapping: 'integer'
   isBlocked:
-    type: bool
-    mapping: 'integer'
+    mapping: bool
   role:
-    mapping: varchar(100)
-indexes:
-  - 'PRIMARY KEY (`id`)'
-  - 'KEY `token` (`token`)'
-  - 'KEY `phone` (`phone`)'
+    mapping: string

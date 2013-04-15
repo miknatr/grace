@@ -10,7 +10,7 @@
 
 namespace Grace\TypeConverter;
 
-class TypeString implements TypeInterface
+class TypeText implements TypeInterface
 {
     public function getAlias()
     {

@@ -11,6 +11,7 @@
 namespace Grace\ORM;
 
 use Grace\Bundle\ApiBundle\Model\ResourceAbstract;
+use Grace\TypeConverter\Converter;
 
 /**
  * Base model class
@@ -26,19 +27,23 @@ abstract class Record implements ManagerRecordInterface
      * @param array $row
      * @return array
      */
+    //STOPPER эти методы должны переехать в какие то универсальные мэперы, нехуй им здесь делать
     protected function convertDbRowToRecordArray(array $row)
     {
+        //STOPPER конфиг лучше объектом с паблик полями, тогда все будет ок пожизни
+        $properties = $this->getModelConfig()['properties'];
+
         $recordArray = array();
-        foreach (static::$fieldNames as $field) {
-            if (isset($row[$field])) {
-                $recordArray[$field] = $row[$field];
+        foreach ($properties as $property => $propertyOptions) {
+            if ($propertyOptions['mapping']) {
+                $this->getTypeConverter()->convertDbToPhp($propertyOptions['mapping'], $row[$property]);
             } else {
-                $recordArray[$field] = null;
+                //STOPPER вообще вычисляемые поля должны быть определены именно здесь, но откуда? да мне похуй откуда, здесь и все
+                //то что нет доступа на поле или его надо высчитывать от юзера это вопрос апи-мэперов, а не этих
+                $recordArray[$property] = null;
             }
         }
-        foreach (static::$noDbFieldNames as $field) {
-            $recordArray[$field] = null;
-        }
+
         return $recordArray;
     }
     /**
@@ -47,17 +52,19 @@ abstract class Record implements ManagerRecordInterface
      */
     public function getAsDbRow()
     {
+        //STOPPER конфиг лучше объектом с паблик полями, тогда все будет ок пожизни
+        $properties = $this->getModelConfig()['properties'];
+
         $recordArray = $this->getFields();
         $row = array();
-        foreach (static::$fieldNames as $field) {
-            if (isset($recordArray[$field])) {
-                if (is_bool($recordArray[$field])) {
-                    $row[$field] = $recordArray[$field] ? '1' : '0';
+        foreach ($properties as $property => $propertyOptions) {
+            if ($propertyOptions['mapping']) {
+                if (isset($recordArray[$property])) {
+                    $this->getTypeConverter()->convertPhpToDb($propertyOptions['mapping'], $recordArray[$property]);
                 } else {
-                    $row[$field] = $recordArray[$field];
+                    //STOPPER выбрать стратегию, или дефолт или нулы
+                    //$row[$field] = null; //default values in db must be used
                 }
-            } else {
-                //$row[$field] = null; //default values in db must be used
             }
         }
         return $row;
@@ -68,16 +75,17 @@ abstract class Record implements ManagerRecordInterface
      */
     public function getAsDbRowChangesOnlyAndCleanDefaultFields()
     {
+        //STOPPER конфиг лучше объектом с паблик полями, тогда все будет ок пожизни
+        $properties = $this->getModelConfig()['properties'];
+
         $recordArray = $this->getFields();
         $defaults = $this->defaults;
 
         $changes = array();
-        foreach (static::$fieldNames as $field) {
-            if (isset($recordArray[$field]) and (!isset($defaults[$field]) or $recordArray[$field] != $defaults[$field])) {
-                if (is_bool($recordArray[$field])) {
-                    $changes[$field] = $recordArray[$field] ? '1' : '0';
-                } else {
-                    $changes[$field] = $recordArray[$field];
+        foreach ($properties as $property => $propertyOptions) {
+            if ($propertyOptions['mapping']) {
+                if (isset($recordArray[$property]) and $recordArray[$property] != $defaults[$property]) {
+                    $this->getTypeConverter()->convertPhpToDb($propertyOptions['mapping'], $recordArray[$property]);
                 }
             }
         }
@@ -96,6 +104,24 @@ abstract class Record implements ManagerRecordInterface
     final protected function getOrm()
     {
         return ManagerAbstract::getCurrent();
+    }
+
+    //STOPPER это бы ваще нахуй отсюда конечно
+    /**
+     * @return array
+     */
+    final protected function getModelConfig()
+    {
+        return ManagerAbstract::getCurrent()->getModelsConfig()[$this->getClassNameProvider()->getBaseClass(get_class($this))];
+    }
+
+    //STOPPER это бы ваще нахуй отсюда конечно
+    /**
+     * @return Converter
+     */
+    final protected function getTypeConverter()
+    {
+        return ManagerAbstract::getCurrent()->getTypeConverter();
     }
 
     /**
