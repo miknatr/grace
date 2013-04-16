@@ -128,18 +128,13 @@ abstract class ManagerAbstract
     /**
      * Gets finder which associated with model $className
      * @param $className
-     * @param $finderClassName for extra-finders (like "OrderMyArchive")
      * @return FinderSql
      */
-    public function getFinder($className, $finderClassName = '')
+    public function getFinder($className)
     {
-        if ($finderClassName == '') {
-            $finderClassName = $className;
-        }
-
-        if (!isset($this->finders[$finderClassName])) {
+        if (!isset($this->finders[$className])) {
             $connectionName = $this->getConnectionNameByClass($className);
-            $fullFinderClassName = $this->getClassNameProvider()->getFinderClass($finderClassName);
+            $fullFinderClassName = $this->getClassNameProvider()->getFinderClass($className);
 
             $finder = new $fullFinderClassName($className);
 
@@ -150,10 +145,10 @@ abstract class ManagerAbstract
                 $finder->setSqlReadOnly($this->getSqlReadOnlyConnection($connectionName));
             }
 
-            $this->finders[$finderClassName] = $finder;
+            $this->finders[$className] = $finder;
         }
 
-        return $this->finders[$finderClassName];
+        return $this->finders[$className];
     }
 
 

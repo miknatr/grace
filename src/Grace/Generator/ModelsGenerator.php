@@ -91,8 +91,6 @@ class ModelsGenerator
             }
         }
 
-        $config['extra-finders'] = $this->getExtraFindersConfig($this->namespace['common_prefix_without_slash'] . '\\' . $this->namespace['finder']);
-
         return $config;
     }
     public function generate()
@@ -134,7 +132,7 @@ class ModelsGenerator
         }
 
         $this->generateValidators($config, $nsRecord, $validatorsFile);
-        $this->generateManager($config, $configFull['extra-finders'], $managerClass, $this->containerClass, $nsFinder);
+        $this->generateManager($config, $managerClass, $this->containerClass, $nsFinder);
         $this->generateRecords($config, $managerClass, $this->containerClass, $nsRecord, $annotationReader);
         $this->generateFinders($config, $managerClass, $this->containerClass, $nsFinder, $nsRecord);
 
@@ -154,49 +152,6 @@ class ModelsGenerator
             }
             $this->plugins[] = $plugin;
         }
-    }
-    //STOPPER выпилить в хуям
-    private function getExtraFindersConfig($finderNamespace)
-    {
-        $config = array();
-
-        $namespaceDir = str_replace('\\', '/', $finderNamespace);
-        $dir = $this->realClassDirectory . '/' . $namespaceDir . '/';
-
-        $d = dir($dir);
-
-        while (false !== ($filename = $d->read())) {
-
-            if (is_dir($dir . $filename) and $filename != '..' and $filename != '.') {
-                $baseFinder = $filename;
-                $subdir = $dir . $filename . '/';
-
-                $d2 = dir($subdir);
-
-                while (false !== ($filename2 = $d2->read())) {
-
-                    $baseFilename = pathinfo($filename2, PATHINFO_FILENAME);
-
-                    if (is_dir($subdir . $filename2)) {
-                        continue;
-                    }
-
-                    if (substr($baseFilename, -6) != 'Finder') {
-                        continue;
-                    } else {
-                        $baseFilename = substr($baseFilename, 0, -6);
-                    }
-
-                    $config[$baseFinder . '\\' . $baseFilename] = $baseFinder;
-                }
-
-                $d2->close();
-            }
-        }
-
-        $d->close();
-
-        return $config;
     }
     private function generateValidators($config, $modelNamespace, $validatorsFile)
     {
@@ -218,7 +173,7 @@ class ModelsGenerator
 
         file_put_contents($validatorsFile, Yaml::dump($validators, 4));
     }
-    private function generateManager($config, $extraFindersConfig, $managerClass, $containerClass, $finderNamespace)
+    private function generateManager($config, $managerClass, $containerClass, $finderNamespace)
     {
         $docblock = new PhpDoc;
         $docblock->setTags(array(
@@ -274,21 +229,6 @@ class ModelsGenerator
                 ->setDocblock($docblock)
                 ->setName('get' . $modelName . 'Finder')
                 ->setBody('return $this->getFinder(\'' . $modelName . '\');');
-            $realManager->setMethod($managerMethod);
-        }
-
-        //Extra finders
-        foreach ($extraFindersConfig as $extraFinderName => $extraFinderClassName) {
-            $docblock = new PhpDoc();
-            $docblock->setTag(array(
-                                   'name'        => 'return',
-                                   'description' => '\\' . $finderNamespace . '\\' . $extraFinderName . 'Finder'
-                              ));
-            $managerMethod = new \Zend_CodeGenerator_Php_Method;
-            $managerMethod
-                ->setDocblock($docblock)
-                ->setName('get' . str_replace('\\', '', $extraFinderName) . 'Finder')
-                ->setBody("return \$this->getFinder('$extraFinderClassName', '$extraFinderName');");
             $realManager->setMethod($managerMethod);
         }
 
