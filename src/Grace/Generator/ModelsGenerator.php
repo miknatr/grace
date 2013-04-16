@@ -406,49 +406,6 @@ class ModelsGenerator
             $this->writeFile($modelName . 'Finder.php', $namespace, $finderConcrete);
         }
     }
-    private function getModelMethods($namespace, $modelName)
-    {
-        $modelClass = $namespace . '\\' . $modelName;
-        if (class_exists($modelClass)) {
-            //сначала нужно отфильтровать методы родителей и оставить только методы конкретного класса
-            $abstractRefClass = new \Zend_Reflection_Class($modelClass . 'Abstract');
-            $abstractMethods  = $abstractRefClass->getMethods(\ReflectionMethod::IS_PUBLIC);
-
-            $refClass   = new \Zend_Reflection_Class($modelClass);
-            $allMethods = $refClass->getMethods(\ReflectionMethod::IS_PUBLIC);
-
-            //исключение статических методов через фильтр не работает (\ReflectionMethod::IS_PUBLIC & ~\ReflectionMethod::IS_STATIC
-            //поэтому ниже проверка руками
-
-            $abstractMethodsNames = array();
-            foreach ($abstractMethods as $abstractMethod) {
-                $abstractMethodsNames[] = $abstractMethod->name;
-            }
-
-            $methods = array();
-            foreach ($allMethods as $method) {
-                /* @var \Zend_Reflection_Method $method */
-                if (!in_array($method->name, $abstractMethodsNames) and !$this->isGetter($method->name) and
-                    !$method->isAbstract() and !$method->isStatic()
-                ) {
-                    $methods[] = $method;
-                }
-            }
-
-            return $methods;
-        }
-        return array();
-    }
-    private function isGetter($methodName)
-    {
-        $getterPrefixes = explode(',', 'get,fetch,is,has');
-        foreach ($getterPrefixes as $prefix) {
-            if (strpos($methodName, $prefix) === 0) {
-                return true;
-            }
-        }
-        return false;
-    }
     private function cleanOutputDir()
     {
         if (!is_dir($this->outputDir)) {
