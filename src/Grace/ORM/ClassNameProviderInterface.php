@@ -50,11 +50,4 @@ interface ClassNameProviderInterface
      * @return string model class name
      */
     public function getMapperClass($baseClass);
-    /**
-     * Gets full collection class name by base class name
-     * @abstract
-     * @param string $baseClass
-     * @return string model class name
-     */
-    public function getCollectionClass($baseClass);
 }

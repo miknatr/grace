@@ -73,7 +73,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
     }
     /**
      * Fetches collection of records
-     * @return Collection
+     * @return Record[]
      */
     public function fetchAll()
     {
@@ -85,8 +85,7 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
         while ($row = $this->queryResult->fetchOneOrFalse()) {
             $records[] = $this->convertRowToRecord($row, false);
         }
-        $collectionClassName = $this->getClassNameProvider()->getCollectionClass($this->tableName);
-        return new $collectionClassName($records);
+        return $records;
     }
     /**
      * @inheritdoc

@@ -6,7 +6,6 @@ use Grace\Bundle\ApiBundle\Model\ResourceAbstract;
 use Grace\Bundle\ApiBundle\Model\User;
 use Grace\Bundle\CommonBundle\GraceContainer;
 use Grace\ORM\ClassNameProviderInterface;
-use Grace\ORM\Collection;
 use Grace\ORM\FinderSql;
 use Grace\SQLBuilder\SelectBuilder;
 use Intertos\ApiBundle\Filter\FilterAbstract;
@@ -46,7 +45,7 @@ trait ApiFinderTrait
      * @param array $params
      * @param int $start
      * @param int $number
-     * @return Collection
+     * @return ResourceAbstract[]
      */
     public function get(User $user, array $params = array(), $start = null, $number = null)
     {

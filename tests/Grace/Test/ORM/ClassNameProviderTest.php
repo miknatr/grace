@@ -16,7 +16,6 @@ class ClassNameProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('\\Model\\Post', $provider->getModelClass('Post'));
         $this->assertEquals('\\Finder\\PostFinder', $provider->getFinderClass('Post'));
         $this->assertEquals('\\Mapper\\PostMapper', $provider->getMapperClass('Post'));
-        $this->assertEquals('\\Collection\\PostCollection', $provider->getCollectionClass('Post'));
         $this->assertEquals('Post', $provider->getBaseClassFromFinderClass('\\Finder\\PostFinder'));
     }
     public function testCommonNamespace()
@@ -25,9 +24,9 @@ class ClassNameProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Post', $provider->getBaseClass('\\Some\\AppBundle\\Model\\Post'));
         $this->assertEquals('\\Some\\AppBundle\\Model\\Post', $provider->getModelClass('Post'));
         $this->assertEquals('\\Some\\AppBundle\\Finder\\PostFinder', $provider->getFinderClass('Post'));
+        //STOPPER нахуй это безумие
         $this->assertEquals('\\Some\\AppBundle\\Mapper\\PostMapper', $provider->getMapperClass('Post'));
-        $this->assertEquals('\\Some\\AppBundle\\Collection\\PostCollection', $provider->getCollectionClass('Post'));
-
+        //STOPPER нахуй это безумие
         $this->assertEquals('\\Some\\AppBundle\\Finder\\Post\\ExtraPostFinder', $provider->getFinderClass('Post\\ExtraPost'));
     }
 }

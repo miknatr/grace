@@ -16,7 +16,7 @@ interface PaginationFinderInterface
     /**
      * @param $start
      * @param $number
-     * @return CollectionAbstract
+     * @return ResourceAbstract[]
      */
     public function get($start, $number, array $params = array());
 }

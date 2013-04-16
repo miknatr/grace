@@ -18,7 +18,7 @@ class OrderFinder extends FinderSql
             ->fetchColumn();
     }
     /**
-     * @return OrderCollection
+     * @return Order[]
      */
     public function getAllRecords()
     {

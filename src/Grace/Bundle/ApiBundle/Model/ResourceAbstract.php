@@ -2,7 +2,6 @@
 
 namespace Grace\Bundle\ApiBundle\Model;
 
-use Grace\ORM\Collection;
 use Grace\ORM\Record;
 use Grace\Bundle\ApiBundle\Model\User;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -297,8 +296,6 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                             $value = $value->asArrayForNodejs();
                         } elseif ($value instanceof Record) {
                             $value = $value->asArray();
-                        } elseif ($value instanceof Collection) {
-                            $value = $value->asArray();
                         } else {
                             $value = (string) $value;
                         }
@@ -340,8 +337,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                             if ($value instanceof ApiAsArrayAccessibleInterface) {
                                 $value = $value->asArrayByUser($user);
                             } elseif ($value instanceof Record) {
-                                $value = $value->asArray();
-                            } elseif ($value instanceof Collection) {
+                                //STOPPER выпилить такую хуйню
                                 $value = $value->asArray();
                             } else {
                                 $value = (string) $value;

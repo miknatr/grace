@@ -18,7 +18,6 @@ class ModelsGenerator
     const BASE_CLASS_RECORD         = '\\Grace\\ORM\\Record';
     const BASE_CLASS_FINDER_SQL     = '\\Grace\\ORM\\FinderSql';
     const BASE_CLASS_FINDER_CRUD    = '\\Grace\\ORM\\FinderCrud';
-    const BASE_CLASS_COLLECTION     = '\\Grace\\ORM\\Collection';
     const CONCRETE_CLASS_MANAGER    = 'ORMManager';
 
     private $modelConfigResources;
@@ -120,7 +119,6 @@ class ModelsGenerator
         $managerClass = $nsp . $nsConfig['manager_class'];
         $nsRecord     = $nsp . $nsConfig['record'];
         $nsFinder     = $nsp . $nsConfig['finder'];
-        $nsCollection = $nsp . $nsConfig['collection'];
         //STOPPER выпилить к хуям
         $nsMapper     = $nsp . $nsConfig['mapper'];
 
@@ -138,8 +136,7 @@ class ModelsGenerator
         $this->generateValidators($config, $nsRecord, $validatorsFile);
         $this->generateManager($config, $configFull['extra-finders'], $managerClass, $this->containerClass, $nsFinder);
         $this->generateRecords($config, $managerClass, $this->containerClass, $nsRecord, $annotationReader);
-        $this->generateFinders($config, $managerClass, $this->containerClass, $nsFinder, $nsRecord, $nsCollection);
-        $this->generateCollections($config, $nsCollection, $nsRecord);
+        $this->generateFinders($config, $managerClass, $this->containerClass, $nsFinder, $nsRecord);
 
 
         spl_autoload_unregister($autoload);
@@ -350,34 +347,26 @@ class ModelsGenerator
             foreach ($fields as $fieldName => $fieldConfig) {
                 if ($fieldName != 'id') {
 
+                    //STOPPER nonAbstractMethodExists нужно для User и ResourceAbstract, выпилить бы к хуям
                     if (!static::nonAbstractMethodExists($parent, 'get' . ucfirst($fieldName)) and $recordAbstract->getMethod('get' . ucfirst($fieldName)) === false) {
-
-                        $typeStr = isset($fieldConfig['type']) ? '(' . $fieldConfig['type'] . ')' : '';
-                        $body    = 'return ' . $typeStr . ' $this->fields[\'' . $fieldName . '\'];';
-
-                        $method = new \Zend_CodeGenerator_Php_Method;
-                        $method
-                            ->setName('get' . ucfirst($fieldName))
-                            ->setBody($body);
-
-                        $recordAbstract->setMethod($method);
+                        $recordAbstract->setMethod((new \Zend_CodeGenerator_Php_Method)->setName('get' . ucfirst($fieldName))->setBody("return \$this->fields['$fieldName'];"));
                     }
 
-                    if (!static::nonAbstractMethodExists($parent, 'set' . ucfirst($fieldName)) and $recordAbstract->getMethod('set' . ucfirst($fieldName)) === false) {
-                        $parameter = new \Zend_CodeGenerator_Php_Parameter;
-                        $parameter->setName($fieldName);
-                        $method = new \Zend_CodeGenerator_Php_Method;
+                    //STOPPER nonAbstractMethodExists нужно для User и ResourceAbstract, выпилить бы к хуям
+                    //STOPPER конфиг лучше объектом с паблик полями, тогда все будет ок пожизни
+                    if ($fieldConfig['mapping'] and !static::nonAbstractMethodExists($parent, 'set' . ucfirst($fieldName)) and $recordAbstract->getMethod('set' . ucfirst($fieldName)) === false) {
+                        //STOPPER конфиг лучше объектом с паблик полями, тогда все будет ок пожизни
+                        $body =
+                            "\$this->fields['$fieldName'] = \$this->getTypeConverter()->convertOnSetter(\$this->getModelConfig()['properties']['$fieldName']['mapping'], \$$fieldName);\n" .
+                            "\$this->markAsChanged();\n" .
+                            "return \$this;";
 
-                        $typeStr = isset($fieldConfig['type']) ? '(' . $fieldConfig['type'] . ')' : '';
-                        $body    =
-                            '$this->fields[\'' . $fieldName . '\'] = ' . $typeStr . ' $' . $fieldName .
-                                ';' . "\n" . '$this->markAsChanged();' . "\n" . 'return $this;';
-
-                        $method
-                            ->setName('set' . ucfirst($fieldName))
-                            ->setParameter($parameter)
-                            ->setBody($body);
-                        $recordAbstract->setMethod($method);
+                        $recordAbstract->setMethod(
+                            (new \Zend_CodeGenerator_Php_Method)
+                                ->setName('set' . ucfirst($fieldName))
+                                ->setParameter((new \Zend_CodeGenerator_Php_Parameter)->setName($fieldName))
+                                ->setBody($body)
+                        );
                     }
 
                     foreach ($this->plugins as $plugin) {
@@ -407,7 +396,7 @@ class ModelsGenerator
         return true;
     }
 
-    private function generateFinders($config, $managerClass, $containerClass, $namespace, $recordNamespace, $collectionNamespace)
+    private function generateFinders($config, $managerClass, $containerClass, $namespace, $recordNamespace)
     {
         foreach ($config as $modelName => $modelConfig) {
             $docblock = new PhpDoc;
@@ -442,8 +431,7 @@ class ModelsGenerator
                                     ),
                                     array(
                                         'name'        => 'method',
-                                        'description' =>
-                                        '\\' . $collectionNamespace . '\\' . $modelName . 'Collection fetchAll()'
+                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . '[] fetchAll()'
                                     ),
                                ));
             $finderAbstract = new \Zend_CodeGenerator_Php_Class();
@@ -476,75 +464,6 @@ class ModelsGenerator
 
             $this->writeFile($modelName . 'FinderAbstract.php', $namespace, $finderAbstract);
             $this->writeFile($modelName . 'Finder.php', $namespace, $finderConcrete);
-        }
-    }
-    private function generateCollections($config, $namespace, $recordNamespace)
-    {
-        foreach ($config as $modelName => $modelConfig) {
-            $fields = $modelConfig[self::CONFIG_PROPERTIES];
-            $parent = isset($modelConfig['extends']) ? $modelConfig['extends'] : self::BASE_CLASS_RECORD;
-
-            $collectionAbstractMethods = array();
-            foreach ($fields as $fieldName => $fieldConfig) {
-                $parameter = new \Zend_CodeGenerator_Php_Parameter;
-                $parameter->setName($fieldName);
-                $method = new \Zend_CodeGenerator_Php_Method;
-                $method
-                    ->setName('set' . ucfirst($fieldName))
-                    ->setParameter($parameter)
-                    ->setBody('foreach ($this as $record) {' . "\n    " . '$record->set' . ucfirst($fieldName) . '($' .
-                                  $fieldName . ');' . "\n" . '}' . "\n" . 'return $this;');
-                $collectionAbstractMethods[] = $method;
-            }
-
-
-            foreach ($this->getModelMethods($recordNamespace, $modelName) as $refMethod) {
-                /* @var \Zend_Reflection_Method $refMethod */
-                $params = array();
-                foreach ($refMethod->getParameters() as $refParam) {
-                    /* @var \Zend_Reflection_Parameter $refParam */
-                    $params[] = '$' . $refParam->getName();
-                }
-                $paramString = implode(', ', $params);
-                $method      = \Zend_CodeGenerator_Php_Method::fromReflection($refMethod);
-                foreach ($method->getParameters() as $param) {
-                    /** @var $param \Zend_CodeGenerator_Php_Parameter */
-                    $paramType = $param->getType();
-                    if (strpos($paramType, '\\') !== false) {
-                        $paramType = '\\' . $paramType;
-                    }
-                    $param->setType($paramType);
-                }
-
-                $method->setBody(
-                    "" . 'foreach ($this as $record) {' . "\n    " . '$record->' . $refMethod->getName() . '(' .
-                        $paramString . ');' . "\n" . '}' . "\n" . 'return $this;');
-
-                $collectionAbstractMethods[] = $method;
-            }
-
-            $collectionAbstract = new \Zend_CodeGenerator_Php_Class();
-            $collectionAbstract
-                ->setName($modelName . 'CollectionAbstract')
-                ->setAbstract(true)
-                ->setExtendedClass(isset($modelConfig['collection_extends']) ? $modelConfig['collection_extends'] : self::BASE_CLASS_COLLECTION)
-                ->setMethods($collectionAbstractMethods);
-
-            $collectionConcrete = new \Zend_CodeGenerator_Php_Class();
-            $collectionConcrete
-                ->setName($modelName . 'Collection')
-                ->setExtendedClass($modelName . 'CollectionAbstract');
-
-
-            foreach ($this->plugins as $plugin) {
-                $collectionAbstract->setProperties($plugin->getAbstractCollectionProperties($modelName, $modelConfig,
-                                                                                        $namespace));
-                $collectionAbstract->setMethods($plugin->getAbstractCollectionMethods($modelName, $modelConfig,
-                                                                                  $namespace));
-            }
-
-            $this->writeFile($modelName . 'CollectionAbstract.php', $namespace, $collectionAbstract);
-            $this->writeFile($modelName . 'Collection.php', $namespace, $collectionConcrete);
         }
     }
     private function getModelMethods($namespace, $modelName)

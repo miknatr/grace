@@ -14,7 +14,7 @@ interface PagelessFinderInterface
      */
     public function count(array $params = array());
     /**
-     * @return CollectionAbstract
+     * @return ResourceAbstract[]
      */
     public function get(array $params = array());
 }

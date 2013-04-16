@@ -7,15 +7,11 @@ use Grace\Generator\GeneratorPlugin\PluginAbstract;
 class AclGraceCommandPlugin extends PluginAbstract
 {
     const ACL_RECORD_BASE_CLASS = '\\Grace\\Bundle\\ApiBundle\\Model\\ResourceAbstract';
-    const ACL_COLLECTION_BASE_CLASS = '\\Grace\\Bundle\\ApiBundle\\Collection\\CollectionAbstract';
 
     public function prepareModelConfig($modelName, $modelConfig)
     {
         if (isset($modelConfig['extends']) and $modelConfig['extends'] == 'api_generation') {
             $modelConfig['extends'] = self::ACL_RECORD_BASE_CLASS;
-        }
-        if (isset($modelConfig['collection_extends']) and $modelConfig['collection_extends'] == 'api_generation') {
-            $modelConfig['collection_extends'] = self::ACL_COLLECTION_BASE_CLASS;
         }
 
         return $modelConfig;

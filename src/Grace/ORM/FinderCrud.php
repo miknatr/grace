@@ -26,8 +26,6 @@ abstract class FinderCrud
 
     /**
      * @param $tableName
-     * @param $fullClassName
-     * @param $fullCollectionClassName
      */
     final public function __construct($tableName)
     {
@@ -98,7 +96,7 @@ abstract class FinderCrud
 
     /**
      * Fetches collection of records
-     * @return Collection
+     * @return Record[]
      */
     public function fetchAll()
     {
@@ -107,8 +105,7 @@ abstract class FinderCrud
         foreach ($rows as $row) {
             $records[] = $this->convertRowToRecord($row, false);
         }
-        $collectionClassName = $this->getClassNameProvider()->getCollectionClass($this->tableName);
-        return new $collectionClassName($records);
+        return $records;
     }
     /**
      * Fetches record object

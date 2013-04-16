@@ -18,14 +18,6 @@ abstract class PluginAbstract
     {
         return array();
     }
-    public function getAbstractCollectionProperties($modelName, $modelConfig, $recordNamespace)
-    {
-        return array();
-    }
-    public function getAbstractCollectionMethods($modelName, $modelConfig, $recordNamespace)
-    {
-        return array();
-    }
     public function updateGetterDoctype($fieldName, $fieldConfig, $getterObject)
     {
         return $getterObject;

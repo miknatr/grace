@@ -2,7 +2,6 @@
 
 namespace Grace\Bundle\ApiBundle\Finder;
 
-use Grace\Bundle\ApiBundle\Collection\CollectionAbstract;
 use Grace\Bundle\ApiBundle\Model\User;
 
 interface ApiFinderInterface
@@ -14,7 +13,7 @@ interface ApiFinderInterface
     /**
      * @param $start
      * @param $number
-     * @return CollectionAbstract
+     * @return ResourceAbstract[]
      */
     public function get(User $user, array $params = array(), $start = null, $number = null);
 

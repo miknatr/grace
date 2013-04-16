@@ -25,9 +25,6 @@ class ClassNameProvider implements ClassNameProviderInterface
     protected $mapperNamespace = 'Mapper';
     protected $mapperPrefix = '';
     protected $mapperPostfix = 'Mapper';
-    protected $collectionNamespace = 'Collection';
-    protected $collectionPrefix = '';
-    protected $collectionPostfix = 'Collection';
 
     /**
      * @param string $commonNamespace common namespace prefix
@@ -102,13 +99,6 @@ class ClassNameProvider implements ClassNameProviderInterface
     public function getMapperClass($baseClass)
     {
         return $this->getClass($baseClass, 'mapper');
-    }
-    /**
-     * @inheritdoc
-     */
-    public function getCollectionClass($baseClass)
-    {
-        return $this->getClass($baseClass, 'collection');
     }
     /**
      * Gets full class name

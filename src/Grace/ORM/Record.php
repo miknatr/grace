@@ -36,7 +36,7 @@ abstract class Record implements ManagerRecordInterface
         $recordArray = array();
         foreach ($properties as $property => $propertyOptions) {
             if ($propertyOptions['mapping']) {
-                $this->getTypeConverter()->convertDbToPhp($propertyOptions['mapping'], $row[$property]);
+                $recordArray[$property] = $this->getTypeConverter()->convertDbToPhp($propertyOptions['mapping'], $row[$property]);
             } else {
                 //STOPPER вообще вычисляемые поля должны быть определены именно здесь, но откуда? да мне похуй откуда, здесь и все
                 //то что нет доступа на поле или его надо высчитывать от юзера это вопрос апи-мэперов, а не этих
@@ -60,7 +60,7 @@ abstract class Record implements ManagerRecordInterface
         foreach ($properties as $property => $propertyOptions) {
             if ($propertyOptions['mapping']) {
                 if (isset($recordArray[$property])) {
-                    $this->getTypeConverter()->convertPhpToDb($propertyOptions['mapping'], $recordArray[$property]);
+                    $row[$property] = $this->getTypeConverter()->convertPhpToDb($propertyOptions['mapping'], $recordArray[$property]);
                 } else {
                     //STOPPER выбрать стратегию, или дефолт или нулы
                     //$row[$field] = null; //default values in db must be used
@@ -85,11 +85,12 @@ abstract class Record implements ManagerRecordInterface
         foreach ($properties as $property => $propertyOptions) {
             if ($propertyOptions['mapping']) {
                 if (isset($recordArray[$property]) and $recordArray[$property] != $defaults[$property]) {
-                    $this->getTypeConverter()->convertPhpToDb($propertyOptions['mapping'], $recordArray[$property]);
+                    $changes[$property] = $this->getTypeConverter()->convertPhpToDb($propertyOptions['mapping'], $recordArray[$property]);
                 }
             }
         }
 
+        //STOPPER сброс дефолтных значений вряд ли должен быть здесь
         $this->defaults = $this->getAsDbRow();
 
         return $changes;

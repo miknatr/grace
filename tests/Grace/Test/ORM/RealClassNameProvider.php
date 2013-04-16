@@ -15,7 +15,4 @@ class RealClassNameProvider extends ClassNameProvider
     protected $mapperNamespace = 'Grace\\Test\\ORM';
     protected $mapperPrefix = '';
     protected $mapperPostfix = 'Mapper';
-    protected $collectionNamespace = 'Grace\\Test\\ORM';
-    protected $collectionPrefix = '';
-    protected $collectionPostfix = 'Collection';
 }

@@ -44,7 +44,7 @@
 
 ## SQLBuilder
 
-* При составлении сложных запросов из различных частей (where, group, having 
+* При составлении сложных запросов из различных частей (where, group, having
 части sql запроса), нужно делать один пробел вначале выражения и осталять
 без пробела после. Пример:
 
@@ -87,22 +87,6 @@ public function getName($name) {
 
 * Создает и записывает по конкретному классу унаследованому от абстрактного (Order extends OrderAbstract)
 * Пишутся в ту же папку для генерации, если не создан класс в папке с классами написаными руками.
-
-
-### Классы коллекций для каждой сущности
-
-* Запоминает все методы абстрастного класса и написаного руками наследника (Record).
-* Генерирует абстрактный и конкретный классы OrderCollection extends OrderCollectionAbstract extends Grace\ORM\Collection.
-* В созданном классе OrderCollectionAbstract для каждого метода Record (кроме начинающихся с get) создает метод с такой же сигнатурой и циклом foreach внутри:
-
-```php
-<?php
-public closeOrder($price, $notifyClient = false) {
-    foreach ($this as $item) {
-        $item->closeOrder($price, $notifyClient);
-    }
-}
-```
 
 
 ### Класс-наследник класса Manager
@@ -151,7 +135,7 @@ OrderFinder extends OrderFinderAbstract {}
 /**
  * @method Order getById($id)
  * @method Order fetchOne()
- * @method OrderCollection fetchAll()
+ * @method Order[] fetchAll()
  */
 OrderFinderAbstract extends \Grace\ORM\Finder {}
 ```

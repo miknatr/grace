@@ -115,7 +115,6 @@ namespace:
   record: Your\AppNamespace\Model
   finder: Your\AppNamespace\FinderSql
   mapper: Your\AppNamespace\Mapper
-  collection: Your\AppNamespace\Collection
 models:
   User:
     properties:
@@ -203,13 +202,10 @@ $this
 ```
 
 
-### Collections
-
 You can define your own selects from db in collection class
 
 ```php
 <?php
-//CompanyCollection.php
 //...
 public function getNewActiveCompanies()
 {

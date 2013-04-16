@@ -26,7 +26,6 @@ class Configuration implements ConfigurationInterface
         $namespace->children()->scalarNode('record')->defaultValue('Model');
         $namespace->children()->scalarNode('finder')->defaultValue('Finder');
         $namespace->children()->scalarNode('mapper')->defaultValue('Mapper');
-        $namespace->children()->scalarNode('collection')->defaultValue('Collection');
         $namespace->children()->scalarNode('manager_class')->defaultValue('ORMManager')->beforeNormalization();
 
         $cache = $children->arrayNode('cache');
