@@ -23,7 +23,6 @@ class ModelsGenerator
     private $modelConfigResources;
     private $namespace;
     private $containerClass;
-    private $validatorsFile;
     private $realClassDirectory;
     private $extraPlugins;
 
@@ -44,12 +43,11 @@ class ModelsGenerator
      */
     private $plugins = array();
 
-    public function __construct(array $modelConfigResources, $namespace, $containerClass, $validatorsFile, $realClassDirectory, $abstractClassDirectory, array $extraPlugins)
+    public function __construct(array $modelConfigResources, $namespace, $containerClass, $realClassDirectory, $abstractClassDirectory, array $extraPlugins)
     {
         $this->modelConfigResources   = $modelConfigResources;
         $this->namespace              = $namespace;
         $this->containerClass         = $containerClass;
-        $this->validatorsFile         = $validatorsFile;
         $this->realClassDirectory     = $realClassDirectory;
         $this->abstractClassDirectory = rtrim($abstractClassDirectory, '\\/');
         $this->outputDir              = $this->abstractClassDirectory . '/grace_new';
@@ -107,8 +105,6 @@ class ModelsGenerator
 
         $annotationReader = 'Grace\Bundle\CommonBundle\Annotations\FormData';
 
-        $validatorsFile = $this->validatorsFile;
-
         $configFull = $this->getConfig();
 
         $config       = $configFull['models'];
@@ -131,7 +127,6 @@ class ModelsGenerator
             }
         }
 
-        $this->generateValidators($config, $nsRecord, $validatorsFile);
         $this->generateManager($config, $managerClass, $this->containerClass, $nsFinder);
         $this->generateRecords($config, $managerClass, $this->containerClass, $nsRecord, $annotationReader);
         $this->generateFinders($config, $managerClass, $this->containerClass, $nsFinder, $nsRecord);
@@ -152,26 +147,6 @@ class ModelsGenerator
             }
             $this->plugins[] = $plugin;
         }
-    }
-    private function generateValidators($config, $modelNamespace, $validatorsFile)
-    {
-        $validators = array();
-
-        foreach ($config as $modelName => $modelContent) {
-            $fieldsToValidate = array();
-
-            foreach ($modelContent['properties'] as $propName => $propOptions) {
-                if (!empty($propOptions['validator'])) {
-                    $fieldsToValidate[$propName] = $propOptions['validator'];
-                }
-            }
-
-            if (!empty($fieldsToValidate)) {
-                $validators[$modelNamespace . '\\' . $modelName] = array('getters' => $fieldsToValidate);
-            }
-        }
-
-        file_put_contents($validatorsFile, Yaml::dump($validators, 4));
     }
     private function generateManager($config, $managerClass, $containerClass, $finderNamespace)
     {
