@@ -23,7 +23,7 @@ class Converter
         $this->addType(new TypePgsqlPoint);
         $this->addType(new TypeString);
         $this->addType(new TypeText);
-        $this->addType(new TypeTimeMin);
+        $this->addType(new TypeTime);
         $this->addType(new TypeTimestamp);
         $this->addType(new TypeYear);
 
@@ -48,7 +48,7 @@ class Converter
     public function getDbType($alias)
     {
         $this->throwIfTypeIsNotDefined($alias);
-        return $this->types[$alias]->getPhpType();
+        return $this->types[$alias]->getDbType();
     }
     public function convertDbToPhp($alias, $value)
     {

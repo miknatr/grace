@@ -174,4 +174,40 @@ abstract class FinderSql extends FinderCrud implements InterfaceExecutable, Inte
     {
         return $this->sqlReadOnly->generateNewId($this->tableName);
     }
+
+
+
+    /**
+     * @inheritdoc
+     */
+    public function selectById($table, $id)
+    {
+        try {
+            return $this->sqlReadOnly->getSQLBuilder()->select($table)->eq('id', $id)->fetchOne();
+        } catch (ExceptionNoResultDB $e) {
+            throw new ExceptionNoResult($e->getMessage());
+        }
+    }
+    /**
+     * @inheritdoc
+     */
+    public function insertById($table, $id, array $values)
+    {
+        $values['id'] = $id;
+        return $this->sqlReadOnly->getSQLBuilder()->insert($table)->values($values)->execute();
+    }
+    /**
+     * @inheritdoc
+     */
+    public function updateById($table, $id, array $values)
+    {
+        return $this->sqlReadOnly->getSQLBuilder()->update($table)->values($values)->eq('id', $id)->execute();
+    }
+    /**
+     * @inheritdoc
+     */
+    public function deleteById($table, $id)
+    {
+        return $this->sqlReadOnly->getSQLBuilder()->delete($table)->eq('id', $id)->execute();
+    }
 }

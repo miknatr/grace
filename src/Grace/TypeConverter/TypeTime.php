@@ -10,7 +10,7 @@
 
 namespace Grace\TypeConverter;
 
-class TypeTimeMin implements TypeInterface
+class TypeTime implements TypeInterface
 {
     public function getAlias()
     {
@@ -22,7 +22,7 @@ class TypeTimeMin implements TypeInterface
     }
     public function getDbType()
     {
-        return 'char(5)';
+        return 'char(8)';
     }
     public function convertDbToPhp($value)
     {
@@ -30,8 +30,8 @@ class TypeTimeMin implements TypeInterface
     }
     public function convertOnSetter($value)
     {
-        $dt = date_parse_from_format('H:i', $value);
-        return date('H:i', mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']));
+        $dt = date_parse_from_format('H:i:s', $value);
+        return date('H:i:s', mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']));
     }
     public function convertPhpToDb($value)
     {

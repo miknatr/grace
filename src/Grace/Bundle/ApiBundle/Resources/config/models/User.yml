@@ -22,7 +22,7 @@ properties:
   lastIp:
     mapping: string
   countFailedLogins:
-    mapping: 'integer'
+    mapping: int
   isBlocked:
     mapping: bool
   role:

@@ -2,9 +2,11 @@
 
 namespace Grace\Bundle\CommonBundle\Command;
 
+use Doctrine\Tests\DBAL\Functional\TypeConversionTest;
 use Grace\DBAL\ExceptionQuery;
 use Grace\ORM\FinderSql;
 use Grace\ORM\ManagerAbstract;
+use Grace\TypeConverter\Converter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -34,6 +36,7 @@ class InitDbCommand extends ContainerAwareCommand
     {
         /** @var $orm ManagerAbstract */
         $orm = $this->getContainer()->get('grace_orm');
+        $typeConverter = $orm->getTypeConverter();
         /** @var $db InterfaceConnection */
         $db = $this->getContainer()->get('grace_db');
 
@@ -61,7 +64,7 @@ class InitDbCommand extends ContainerAwareCommand
 
 
         foreach ($config as $modelName => $modelContent) {
-            $result = $this->createTable($db, $modelName, $modelContent, $forceDrop);
+            $result = $this->createTable($db, $typeConverter, $modelName, $modelContent, $forceDrop);
             /** @var $finderClass FinderSql */
             $finderClass = $orm->getClassNameProvider()->getFinderClass($modelName);
             $output->writeln($result);
@@ -86,57 +89,27 @@ class InitDbCommand extends ContainerAwareCommand
         $output->writeln("All tasks complete.");
     }
 
-    private function getDefaultValueByDbType($dbType)
-    {
-        if (preg_match('/^(integer|int|bigint|float|real|double|numeric|decimal|tinyint)/i', $dbType)) {
-            return '0';
-        }
-        if (preg_match('/^(bool|boolean)/i', $dbType)) {
-            return "'0'";
-        }
-        if (preg_match('/^(char|varchar|text)/i', $dbType)) {
-            return "''";
-        }
-        if (preg_match('/^(datetime)/i', $dbType)) {
-            return "'0000-00-00 00:00:00'";
-        }
-        if (preg_match('/^(timestamp)/i', $dbType)) {
-            return "'1970-01-01 00:00:00'";
-        }
-        if (preg_match('/^(time)/i', $dbType)) {
-            return "'00:00:00'";
-        }
-        if (preg_match('/^(date)/i', $dbType)) {
-            return "'0000-00-00'";
-        }
-        if (preg_match('/^(point)/i', $dbType)) {//TODO только для постгреса
-            return "'(0,0)'";
-        }
-
-        throw new \Exception('Unsupported db type ' . $dbType);
-    }
-    private function getFieldsSQL(InterfaceConnection $db, $structure)
+    private function getFieldsSQL(InterfaceConnection $db, Converter $typeConverter, $structure)
     {
         $fields = array();
 
         foreach ($structure['properties'] as $propName => $propOptions) {
+            //STOPPER эти ебучие тру-поля выпилить бы
             if (!empty($propOptions[self::DBTYPE_FIELD]) && $propOptions[self::DBTYPE_FIELD] !== true) { //если нет, то поле виртуальное, если тру, то только для крад-файндеров
-                $fields[$propName]['type'] = $propOptions[self::DBTYPE_FIELD];
-                $fields[$propName]['default'] = $this->getDefaultValueByDbType($fields[$propName]['type']);
+                $fields[$propName]['type'] = $typeConverter->getDbType($propOptions[self::DBTYPE_FIELD]);
             }
         }
-
         $sql = array();
         foreach($fields as $fieldName => $fieldProps) {
-            $sql[] = $db->replacePlaceholders("?f ?p DEFAULT ?p NOT NULL", array($fieldName, $fieldProps['type'], $fieldProps['default']));
+            $sql[] = $db->replacePlaceholders("?f ?p NULL", array($fieldName, $fieldProps['type']));
         }
 
         return implode(",\n", $sql);
     }
 
-    private function createTable(InterfaceConnection $db, $name, $structure, $forceDrop = false)
+    private function createTable(InterfaceConnection $db, Converter $typeConverter, $name, $structure, $forceDrop = false)
     {
-        $fieldsSQL = $this->getFieldsSQL($db, $structure);
+        $fieldsSQL = $this->getFieldsSQL($db, $typeConverter, $structure);
 
         if ($fieldsSQL == '') {
             return "Model {$name} is not sql";

@@ -22,7 +22,7 @@ class TypeFloat implements TypeInterface
     }
     public function getDbType()
     {
-        return 'double';
+        return 'float';
     }
     public function convertDbToPhp($value)
     {

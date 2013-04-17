@@ -49,16 +49,14 @@ abstract class ManagerAbstract
      */
     public function commit()
     {
-        foreach ($this->crudConnections as $crud) {
-            if ($crud instanceof CRUDCommitableInterface) {
-                $crud->start();
-            }
+        foreach ($this->sqlReadOnlyConnections as $connection) {
+            $connection->start();
         }
 
         try {
             foreach ($this->getUnitOfWork()->getNewRecords() as $record) {
                 $className = $this->getClassNameProvider()->getBaseClass(get_class($record));
-                $crud      = $this->getCrudConnection($this->getConnectionNameByClass($className));
+                $crud      = $this->getSqlReadOnlyConnection($this->getConnectionNameByClass($className));=
                 $crud->insertById($className, $record->getId(), $record->getAsDbRow());
             }
 
@@ -95,18 +93,14 @@ abstract class ManagerAbstract
                 $this->getRecordObserver()->onDelete($record);
             }
         } catch (\Exception $e) {
-            foreach ($this->crudConnections as $crud) {
-                if ($crud instanceof CRUDCommitableInterface) {
-                    $crud->rollback();
-                }
+            foreach ($this->sqlReadOnlyConnections as $connection) {
+                $connection->rollback();
             }
             throw $e;
         }
 
-        foreach ($this->crudConnections as $crud) {
-            if ($crud instanceof CRUDCommitableInterface) {
-                $crud->commit();
-            }
+        foreach ($this->sqlReadOnlyConnections as $connection) {
+            $connection->commit();
         }
 
         $this->clean();
@@ -138,9 +132,6 @@ abstract class ManagerAbstract
 
             $finder = new $fullFinderClassName($className);
 
-            if ($finder instanceof FinderCrud) {
-                $finder->setCrud($this->getCrudConnection($connectionName));
-            }
             if ($finder instanceof FinderSql) {
                 $finder->setSqlReadOnly($this->getSqlReadOnlyConnection($connectionName));
             }
@@ -170,61 +161,14 @@ abstract class ManagerAbstract
         return self::DEFAULT_CONNECTION_NAME;
     }
 
-
-    /** @var CRUDInterface[] */
-    private $crudConnections = array();
     /**
-     * Sets crud connection
-     * If $name is not provided, sets default connection
-     * @param \Grace\CRUD\CRUDInterface $crud
-     * @param string                    $name
-     * @return ManagerAbstract
+     * @var InterfaceConnection[]
      */
-    public function setCrudConnection(CRUDInterface $crud, $name = '')
-    {
-        if ($name == '') {
-            $name = self::DEFAULT_CONNECTION_NAME;
-        }
-        $this->crudConnections[$name] = $crud;
-        return $this;
-    }
-    /**
-     * Gets crud connection by name
-     * If $name is not provided, gets default connection
-     * If connection for this $name is not defined tries to create new CRUD\DBMasterDriver
-     * from sql connection which associated with this name
-     * @param string $name
-     * @return CRUDInterface
-     */
-    public function getCrudConnection($name = '')
-    {
-        if ($name == '') {
-            $name = self::DEFAULT_CONNECTION_NAME;
-        }
-        if (!isset($this->crudConnections[$name]) and isset($this->sqlReadOnlyConnections[$name])) {
-            $this->crudConnections[$name] = new DBMasterDriver($this->sqlReadOnlyConnections[$name]);
-        }
-        if (!isset($this->crudConnections[$name])) {
-            return null;
-        }
-        return $this->crudConnections[$name];
-    }
-    /**
-     * Checks if crud connection with this name is set
-     * @param string $name
-     * @return bool
-     */
-    protected function hasCrudConnection($name)
-    {
-        return isset($this->crudConnections[$name]);
-    }
-
-
     private $sqlReadOnlyConnections = array();
     /**
      * Sets sql connection by name
      * If $name is not provided, sets default connection
-     * @param \Grace\DBAL\InterfaceConnection $sqlReadOnly
+     * @param InterfaceConnection $sqlReadOnly
      * @param string                          $name
      * @return ManagerAbstract
      */
