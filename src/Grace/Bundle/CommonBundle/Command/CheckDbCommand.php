@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Grace\Generator\ModelsGenerator;
 
-use Grace\DBAL\InterfaceConnection;
+use Grace\DBAL\AbstractConnection\InterfaceConnection;
 
 class CheckDbCommand extends ContainerAwareCommand
 {
@@ -25,7 +25,7 @@ class CheckDbCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var $db InterfaceConnection */
+        /** @var $db \Grace\DBAL\AbstractConnection\InterfaceConnection */
         $db = $this
             ->getContainer()
             ->get('grace_db');
@@ -69,7 +69,7 @@ class CheckDbCommand extends ContainerAwareCommand
 
                 $schemeDef  = $db
                     ->execute("SHOW CREATE TABLE `?e`", array($tableName))
-                    ->fetchOne();
+                    ->fetchOneOrFalse();
                 $schemeText = $schemeDef['Create Table'];
 
                 $fieldsExisting  = array_fill_keys(array_keys($fieldsExpected), array());

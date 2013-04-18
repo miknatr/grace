@@ -1,4 +1,5 @@
 abstract: true
+#STOPPER интерфейс и ваще не модель, а симфонивская фича
 properties:
   id:
     mapping: int

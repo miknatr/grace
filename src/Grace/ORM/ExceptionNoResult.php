@@ -13,7 +13,8 @@ namespace Grace\ORM;
 /**
  * No result
  */
-class ExceptionNoResult extends \Exception implements ExceptionInterface
+//STOPPER выпиливаем
+class ExceptionNoResult extends \Exception
 {
 
 }

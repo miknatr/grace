@@ -2,10 +2,10 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\UnitOfWork;
-use Grace\ORM\IdentityMap;
+use Grace\ORM\Service\UnitOfWork;
+use Grace\ORM\Service\IdentityMap;
 use Grace\ORM\ServiceContainer;
-use Grace\DBAL\MysqliConnection;
+use Grace\DBAL\Mysqli\Connection;
 use Grace\CRUD\DBMasterDriver;
 
 class FinderTest extends \PHPUnit_Framework_TestCase
@@ -16,9 +16,9 @@ class FinderTest extends \PHPUnit_Framework_TestCase
     protected $finder;
     /** @var ServiceContainer */
     protected $container;
-    /** @var IdentityMap */
+    /** @var \Grace\ORM\Service\IdentityMap */
     protected $identityMap;
-    /** @var MysqliConnection */
+    /** @var \Grace\DBAL\Mysqli\Connection */
     protected $connection;
     /** @var DBMasterDriver */
     protected $crud;
@@ -29,13 +29,13 @@ class FinderTest extends \PHPUnit_Framework_TestCase
         $this->orm->setClassNameProvider(new RealClassNameProvider);
         $this->container = new ServiceContainer();
         $this->orm->setContainer($this->container);
-        $this->connection  = new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+        $this->connection  = new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud        = new DBMasterDriver($this->connection);
         $this->identityMap = new IdentityMap;
 
         $this->finder      = new OrderFinder('Order');
         $this->finder->setCrud($this->crud);
-        $this->finder->setSqlReadOnly($this->connection);
+        $this->finder->setDb($this->connection);
 
 
         $this->connection->execute('DROP TABLE IF EXISTS `Order`');

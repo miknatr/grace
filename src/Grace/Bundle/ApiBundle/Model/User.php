@@ -41,7 +41,7 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
             return true;
         }
         $userRole  = new Role($userRoleString);
-        $roles = $this->getContainer()->getRoleHierarchy()->getReachableRoles(array($userRole));
+        $roles = $this->getOrm()->getRoleHierarchy()->getReachableRoles(array($userRole));
         return in_array(new Role($role), $roles);
     }
     public function getType()
@@ -148,6 +148,7 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
     }
 
     //очистка кэша
+    //STOPPER эти кэши чистить по эвентам бы теперь
     const CACHE_PREFIX_TOKEN = 'user_by_token_';
     public function onCommitChange()
     {
@@ -159,6 +160,6 @@ abstract class User extends ResourceAbstract implements ApiUserInterface, Equata
     }
     private function cleanRelatedCaches()
     {
-        $this->getContainer()->getCache()->remove(self::CACHE_PREFIX_TOKEN . $this->getToken());
+        $this->getOrm()->getCache()->remove(self::CACHE_PREFIX_TOKEN . $this->getToken());
     }
 }

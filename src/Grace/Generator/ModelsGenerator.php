@@ -15,9 +15,8 @@ class ModelsGenerator
     const CACHE_DIRECTORY   = 'grace';
 
     const BASE_CLASS_MANAGER        = '\\Grace\\ORM\\ManagerAbstract';
-    const BASE_CLASS_RECORD         = '\\Grace\\ORM\\Record';
-    const BASE_CLASS_FINDER_SQL     = '\\Grace\\ORM\\FinderSql';
-    const BASE_CLASS_FINDER_CRUD    = '\\Grace\\ORM\\FinderCrud';
+    const BASE_CLASS_RECORD         = '\\Grace\\ORM\\RecordAbstract';
+    const BASE_CLASS_FINDER_SQL     = '\\Grace\\ORM\\FinderAbstract';
     const CONCRETE_CLASS_MANAGER    = 'ORMManager';
 
     private $modelConfigResources;
@@ -61,36 +60,6 @@ class ModelsGenerator
 
         return ($currentVersion != $generatedVersion);
     }
-    public function getConfig()
-    {
-        $loader = new ConfigLoader;
-        $config = $loader->load($this->modelConfigResources);
-
-        //STOPPER вроде только моделс и должно быть, что еще за хуйня
-        //если используется extends_config, то конфиг модели extends_config рекурсивно мержиться с текущим
-        foreach ($config['models'] as $mName => $mConfig) {
-            if (isset($mConfig['extends_config'])) {
-                $parentConfigName = $mConfig['extends_config'];
-                if (!isset($config['models'][$parentConfigName])) {
-                    throw new \LogicException(
-                        'Config ' . $parentConfigName . ' must be defined for using it as a parent');
-                }
-                $parentConfig             = $config['models'][$parentConfigName];
-                $parentConfig['abstract'] = false;
-                //TODO переопределение полей не работает потому что рекурсивный мерж хитрый как индюк
-                $config['models'][$mName] = array_merge_recursive($parentConfig, $mConfig);
-            }
-        }
-
-        //удаляем абстрактные конфиги
-        foreach ($config['models'] as $mName => $mConfig) {
-            if (isset($mConfig['abstract']) and $mConfig['abstract']) {
-                unset($config['models'][$mName]);
-            }
-        }
-
-        return $config;
-    }
     public function generate()
     {
         $autoload = function($className)
@@ -129,7 +98,6 @@ class ModelsGenerator
 
         $this->generateManager($config, $managerClass, $this->containerClass, $nsFinder);
         $this->generateRecords($config, $managerClass, $this->containerClass, $nsRecord, $annotationReader);
-        $this->generateFinders($config, $managerClass, $this->containerClass, $nsFinder, $nsRecord);
 
 
         spl_autoload_unregister($autoload);
@@ -150,17 +118,8 @@ class ModelsGenerator
     }
     private function generateManager($config, $managerClass, $containerClass, $finderNamespace)
     {
-        $docblock = new PhpDoc;
-        $docblock->setTags(array(
-                                array(
-                                    'name'        => 'method',
-                                    'description' => '\\' . $containerClass . ' getContainer()'
-                                ),
-                           ));
-
         $realManager = new \Zend_CodeGenerator_Php_Class();
         $realManager
-            ->setDocblock($docblock)
             ->setName(self::CONCRETE_CLASS_MANAGER)
             ->setExtendedClass(self::BASE_CLASS_MANAGER);
 
@@ -228,10 +187,6 @@ class ModelsGenerator
                 array(
                     'name' => 'method',
                     'description' => '\\' . $managerClass . ' getOrm()'
-                ),
-                array(
-                    'name' => 'method',
-                    'description' => '\\' . $containerClass . ' getContainer()'
                 ),
             ));
 
@@ -309,77 +264,6 @@ class ModelsGenerator
         }
 
         return true;
-    }
-
-    private function generateFinders($config, $managerClass, $containerClass, $namespace, $recordNamespace)
-    {
-        foreach ($config as $modelName => $modelConfig) {
-            $docblock = new PhpDoc;
-            $docblock->setTags(array(
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $managerClass . ' getOrm()'
-                                    ),
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $containerClass . ' getContainer()'
-                                    ),
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . ' getById($id)'
-                                    ),
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . '|bool getByIdOrFalse($id)'
-                                    ),
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . ' create(array $newParams = array(), $idWhenNecessary = null)'
-                                    ),
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . ' fetchOne()'
-                                    ),
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . '|bool fetchOneOrFalse()'
-                                    ),
-                                    array(
-                                        'name'        => 'method',
-                                        'description' => '\\' . $recordNamespace . '\\' . $modelName . '[] fetchAll()'
-                                    ),
-                               ));
-            $finderAbstract = new \Zend_CodeGenerator_Php_Class();
-            $finderAbstract
-                ->setName($modelName . 'FinderAbstract')
-                ->setAbstract(true)
-                ->setDocblock($docblock);
-
-
-
-            if (!isset($modelConfig[self::CONFIG_CONNECTION]['type'])) {
-                $modelConfig[self::CONFIG_CONNECTION]['type'] = '';
-            }
-
-            switch ($modelConfig[self::CONFIG_CONNECTION]['type']) {
-                case 'crud':
-                    $finderAbstract->setExtendedClass(self::BASE_CLASS_FINDER_CRUD);
-                    break;
-                case'sql':
-                default:
-                    $finderAbstract->setExtendedClass(self::BASE_CLASS_FINDER_SQL);
-            }
-
-
-
-            $finderConcrete = new \Zend_CodeGenerator_Php_Class();
-            $finderConcrete
-                ->setName($modelName . 'Finder')
-                ->setExtendedClass($modelName . 'FinderAbstract');
-
-            $this->writeFile($modelName . 'FinderAbstract.php', $namespace, $finderAbstract);
-            $this->writeFile($modelName . 'Finder.php', $namespace, $finderConcrete);
-        }
     }
     private function cleanOutputDir()
     {

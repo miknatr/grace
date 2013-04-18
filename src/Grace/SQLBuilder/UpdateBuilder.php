@@ -43,7 +43,7 @@ class UpdateBuilder extends AbstractWhereBuilder
     protected function getQueryString()
     {
         if (count($this->fieldValues) == 0) {
-            throw new ExceptionCallOrder('Set values for update before execute');
+            throw new \LogicException('Set values for update before execute');
         }
         return 'UPDATE ?f SET ' . $this->fieldsSql . $this->getWhereSql();
     }

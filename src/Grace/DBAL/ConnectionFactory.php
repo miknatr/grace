@@ -2,6 +2,10 @@
 
 namespace Grace\DBAL;
 
+use Grace\DBAL\AbstractConnection\InterfaceConnection;
+use Grace\DBAL\Mysqli\Connection;
+use Grace\DBAL\Pgsql\PgsqlConnection;
+
 class ConnectionFactory
 {
     /**
@@ -17,7 +21,7 @@ class ConnectionFactory
 
         switch ($config['adapter']) {
             case 'mysqli':
-                return new MysqliConnection($config['host'], $config['port'], $config['user'], $config['password'], $config['database']);
+                return new Connection($config['host'], $config['port'], $config['user'], $config['password'], $config['database']);
             case 'pgsql':
                 return new PgsqlConnection($config['host'], $config['port'], $config['user'], $config['password'], $config['database']);
         }

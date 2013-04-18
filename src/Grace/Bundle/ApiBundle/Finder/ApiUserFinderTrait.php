@@ -9,7 +9,7 @@ trait ApiUserFinderTrait
     public function getByToken($token)
     {
         /** @var $cache \Grace\Bundle\CommonBundle\Cache\Cache */
-        $cache = $this->getContainer()->getCache();
+        $cache = $this->getOrm()->getCache();
 
         return $cache->get(User::CACHE_PREFIX_TOKEN . $token, '3m', function () use ($token) {
                 return $this

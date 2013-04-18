@@ -114,8 +114,8 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals('column', $this->builder->fetchColumn());
     }
-    public function testFetchOne()
+    public function testFetchOneOrFalse()
     {
-        $this->assertEquals('one', $this->builder->fetchOne());
+        $this->assertEquals('one', $this->builder->fetchOneOrFalse());
     }
 }

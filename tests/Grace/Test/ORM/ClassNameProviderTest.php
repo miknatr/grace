@@ -2,7 +2,7 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\ClassNameProvider;
+use Grace\ORM\Service\ClassNameProvider;
 
 class ClassNameProviderTest extends \PHPUnit_Framework_TestCase
 {
@@ -11,7 +11,7 @@ class ClassNameProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testDefaultNames()
     {
-        $provider = new ClassNameProvider();
+        $provider = new \Grace\ORM\Service\ClassNameProvider();
         $this->assertEquals('Post', $provider->getBaseClass('\\Model\\Post'));
         $this->assertEquals('\\Model\\Post', $provider->getModelClass('Post'));
         $this->assertEquals('\\Finder\\PostFinder', $provider->getFinderClass('Post'));

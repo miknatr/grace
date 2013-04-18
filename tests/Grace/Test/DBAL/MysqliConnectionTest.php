@@ -2,19 +2,19 @@
 
 namespace Grace\Test\DBAL;
 
-use Grace\DBAL\MysqliConnection;
-use Grace\DBAL\ExceptionConnection;
-use Grace\DBAL\ExceptionQuery;
+use Grace\DBAL\Mysqli\Connection;
+use Grace\DBAL\Exception\ConnectionException;
+use Grace\DBAL\Exception\QueryException;
 
 class MysqliConnectionTest extends AbstractConnectionTest
 {
-    /** @var MysqliConnection */
+    /** @var \Grace\DBAL\Mysqli\Connection */
     protected $connection;
 
     protected function setUp()
     {
         $this->connection =
-            new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+            new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
     }
     protected function tearDown()
     {
@@ -25,7 +25,7 @@ class MysqliConnectionTest extends AbstractConnectionTest
         unset($this->connection);
         $this->setExpectedException('Grace\DBAL\ExceptionConnection');
         $this->connection =
-            new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, 'SOME BAD NAME', TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+            new \Grace\DBAL\Mysqli\Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, 'SOME BAD NAME', TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         //Lazy connection, only if we really use database
         $r = $this->connection->execute('SELECT 1');
     }
@@ -121,7 +121,7 @@ class MysqliConnectionTest extends AbstractConnectionTest
         $this->connection->execute("INSERT INTO test VALUES (3, 'Bill')");
         try {
             $this->connection->execute('NO SQL SYNTAX');
-        } catch (ExceptionQuery $e) {
+        } catch (QueryException $e) {
             ;
         }
         $r = $this->connection

@@ -8,7 +8,7 @@ class OrderFinder extends FinderSql
 {
     public function getContainerPublic()
     {
-        return $this->getContainer();
+        return $this->container;
     }
     public function getNameColumn()
     {

@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-use Grace\ORM\ManagerAbstract;
+use Grace\ORM\ORMManagerAbstract;
 
 use Grace\Bundle\ApiBundle\Security\Authentication\Token\ApiUserToken;
 

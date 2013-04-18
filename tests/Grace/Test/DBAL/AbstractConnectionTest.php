@@ -2,8 +2,8 @@
 
 namespace Grace\Test\DBAL;
 
-use Grace\DBAL\InterfaceConnection;
-use Grace\DBAL\InterfaceResult;
+use Grace\DBAL\AbstractConnection\InterfaceConnection;
+use Grace\DBAL\AbstractConnection\ResultInterface;
 use Grace\SQLBuilder\Factory;
 
 abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
@@ -34,7 +34,7 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
     public function testSuccessfulQueryWithResults()
     {
         $r = $this->connection->execute('SELECT 1');
-        $this->assertTrue($r instanceof InterfaceResult);
+        $this->assertTrue($r instanceof ResultInterface);
     }
     public function testSuccessfullQueryWithoutResults()
     {
@@ -48,7 +48,7 @@ abstract class AbstractConnectionTest extends \PHPUnit_Framework_TestCase
     }
     public function testFetchingOne()
     {
-        $r = $this->connection->execute('SELECT 1 AS "1", 2 AS "2", 3 AS "3"')->fetchOne();
+        $r = $this->connection->execute('SELECT 1 AS "1", 2 AS "2", 3 AS "3"')->fetchOneOrFalse();
         $this->assertEquals(array('1' => '1', '2' => '2', '3' => '3'), $r);
     }
     public function testFetchingAll()

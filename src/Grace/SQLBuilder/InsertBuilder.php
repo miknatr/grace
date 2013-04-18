@@ -53,7 +53,7 @@ class InsertBuilder extends AbstractBuilder
     protected function getQueryString()
     {
         if (count($this->fieldValues) == 0) {
-            throw new ExceptionCallOrder('Set values for insert before execute');
+            throw new \LogicException('Set values for insert before execute');
         }
         return 'INSERT INTO ?f (' . $this->fieldsSql . ')' . ' VALUES (' . $this->valuesSql . ')';
     }

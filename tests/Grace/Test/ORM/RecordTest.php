@@ -2,7 +2,7 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\UnitOfWork;
+use Grace\ORM\Service\UnitOfWork;
 use Grace\ORM\ServiceContainer;
 
 class RecordTest extends \PHPUnit_Framework_TestCase
@@ -38,25 +38,23 @@ class RecordTest extends \PHPUnit_Framework_TestCase
     }
     public function testSettingFieldWithReverting()
     {
-        $this->order
-            ->setName('John')
-            ->setPhone('+1234546890');
-        $this->order->revert();
+        $this->order->setName('John')->setPhone('+1234546890');
+        $this->order->revertChanges();
         $this->assertEquals('Mike', $this->order->getName());
         $this->assertEquals('+79991234567', $this->order->getPhone());
-        $this->assertEquals(array(), $this->orm->getUnitOfWork()->getChangedRecords());
+        $this->assertEquals(array(), $this->orm->getUnitOfWork()->getChangedRecordIds());
     }
     public function testDeleting()
     {
         $this->order->delete();
-        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWork()->getDeletedRecords()));
+        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWork()->getDeletedRecordIds()));
     }
     protected function checkAssertsAfterSetters()
     {
         $this->assertEquals('John', $this->order->getName());
         $this->assertEquals('+1234546890', $this->order->getPhone());
 
-        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWork()->getChangedRecords()));
+        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWork()->getChangedRecordIds()));
 
         $recordArray = $this->order->asArray();
         $this->assertEquals('John', $recordArray['name']);
@@ -64,18 +62,12 @@ class RecordTest extends \PHPUnit_Framework_TestCase
     }
     public function testSettingFieldWithSaving()
     {
-        $this->order
-            ->setName('John')
-            ->setPhone('+1234546890');
+        $this->order->setName('John')->setPhone('+1234546890');
         //$this->checkAssertsAfterSetters();
     }
     public function testSettingFieldWithSavingViaEdit()
     {
-        $this->order
-            ->edit(array(
-                        'name'  => 'John',
-                        'phone' => '+1234546890',
-                   ));
+        $this->order->setName('John')->setPhone('+1234546890');
         $this->checkAssertsAfterSetters();
     }
     public function testCreateNewRecord()
@@ -85,6 +77,6 @@ class RecordTest extends \PHPUnit_Framework_TestCase
             'phone' => '+79991234567',
         );
         $this->order = new Order(123, $fields, true);
-        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWork()->getNewRecords()));
+        $this->assertEquals(array($this->order), array_values($this->orm->getUnitOfWork()->getNewRecordIds()));
     }
 }

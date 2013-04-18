@@ -10,15 +10,15 @@
 
 namespace Grace\SQLBuilder;
 
-use Grace\DBAL\InterfaceExecutable;
-use Grace\DBAL\InterfaceResult;
+use Grace\DBAL\AbstractConnection\ExecutableInterface;
+use Grace\DBAL\AbstractConnection\ResultInterface;
 
 /**
  * Provides some base functions for builders
  */
-abstract class AbstractBuilder implements InterfaceResult
+abstract class AbstractBuilder implements ResultInterface
 {
-    /** @var InterfaceExecutable */
+    /** @var \Grace\DBAL\AbstractConnection\ExecutableInterface */
     private $executable;
     private $result;
     protected $from;
@@ -26,9 +26,9 @@ abstract class AbstractBuilder implements InterfaceResult
 
     /**
      * @param                                 $fromTable
-     * @param \Grace\DBAL\InterfaceExecutable $executable
+     * @param \Grace\DBAL\AbstractConnection\ExecutableInterface $executable
      */
-    public function __construct($fromTable, InterfaceExecutable $executable)
+    public function __construct($fromTable, ExecutableInterface $executable)
     {
         $this->from       = $fromTable;
         $this->executable = $executable;
@@ -59,7 +59,7 @@ abstract class AbstractBuilder implements InterfaceResult
         return $this;
     }
     /**
-     * @return InterfaceResult
+     * @return ResultInterface
      */
     public function execute()
     {
@@ -86,15 +86,6 @@ abstract class AbstractBuilder implements InterfaceResult
         return $this
             ->execute()
             ->fetchOneOrFalse();
-    }
-    /**
-     * @inheritdoc
-     */
-    public function fetchOne()
-    {
-        return $this
-            ->execute()
-            ->fetchOne();
     }
     /**
      * @inheritdoc

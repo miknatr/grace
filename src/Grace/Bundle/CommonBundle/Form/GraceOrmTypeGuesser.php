@@ -6,8 +6,8 @@ use Symfony\Component\Form\FormTypeGuesserInterface,
     Symfony\Component\Form\Guess\TypeGuess,
     Symfony\Component\Form\Guess\ValueGuess,
     Doctrine\Common\Annotations\Reader,
-    Grace\ORM\Record,
-    Grace\ORM\ManagerAbstract,
+    Grace\ORM\RecordAbstract,
+    Grace\ORM\ORMManagerAbstract,
     Grace\Bundle\CommonBundle\Annotations\FormData;
 
 class GraceOrmTypeGuesser implements FormTypeGuesserInterface
@@ -17,7 +17,7 @@ class GraceOrmTypeGuesser implements FormTypeGuesserInterface
 
     /** @var Reader */
     protected $reader;
-    /** @var ManagerAbstract */
+    /** @var ORMManagerAbstract */
     protected $orm;
 
     private $typeTranslations = array(
@@ -26,7 +26,7 @@ class GraceOrmTypeGuesser implements FormTypeGuesserInterface
 
     private $cache;
 
-    public function __construct(Reader $reader, ManagerAbstract $orm, array $extraTypeTranslations = array())
+    public function __construct(Reader $reader, ORMManagerAbstract $orm, array $extraTypeTranslations = array())
     {
         $this->reader = $reader;
         $this->orm    = $orm;

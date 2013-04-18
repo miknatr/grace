@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Kernel;
 use Monolog\Logger;
 use Grace\Generator\ModelsGenerator;
-use Grace\ORM\ManagerAbstract;
+use Grace\ORM\ORMManagerAbstract;
 
 class ControllerListener
 {
@@ -15,7 +15,7 @@ class ControllerListener
     private $orm;
     private $logger;
     private $kernel;
-    public function __construct(ModelsGenerator $generator, ManagerAbstract $orm, Logger $logger, Kernel $kernel = null)
+    public function __construct(ModelsGenerator $generator, ORMManagerAbstract $orm, Logger $logger, Kernel $kernel = null)
     {
         $this->generator = $generator;
         $this->orm = $orm;
@@ -45,7 +45,7 @@ class ControllerListener
     {
         if ($this->kernel and $this->kernel->getEnvironment() == 'dev') {
 
-            $queries = $this->orm->getSqlReadOnlyConnection()->getLogger()->getQueries();
+            $queries = $this->orm->db->getLogger()->getQueries();
             $time = array_reduce($queries, function($sum, $q) { return $sum += $q['time']; }, 0);
 
             if (count($queries) > 0) {

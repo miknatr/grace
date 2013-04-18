@@ -3,10 +3,10 @@
 namespace Grace\Bundle\CommonBundle\Command;
 
 use Doctrine\Tests\DBAL\Functional\TypeConversionTest;
-use Grace\DBAL\ExceptionQuery;
+use Grace\DBAL\Exception\QueryException;
 use Grace\ORM\FinderSql;
-use Grace\ORM\ManagerAbstract;
-use Grace\TypeConverter\Converter;
+use Grace\ORM\ORMManagerAbstract;
+use Grace\ORM\Service\TypeConverter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Grace\Generator\ModelsGenerator;
 
-use Grace\DBAL\InterfaceConnection;
+use Grace\DBAL\AbstractConnection\InterfaceConnection;
 
 class InitDbCommand extends ContainerAwareCommand
 {
@@ -34,10 +34,10 @@ class InitDbCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var $orm ManagerAbstract */
+        /** @var $orm ORMManagerAbstract */
         $orm = $this->getContainer()->get('grace_orm');
         $typeConverter = $orm->getTypeConverter();
-        /** @var $db InterfaceConnection */
+        /** @var $db \Grace\DBAL\AbstractConnection\InterfaceConnection */
         $db = $this->getContainer()->get('grace_db');
 
 
@@ -89,7 +89,7 @@ class InitDbCommand extends ContainerAwareCommand
         $output->writeln("All tasks complete.");
     }
 
-    private function getFieldsSQL(InterfaceConnection $db, Converter $typeConverter, $structure)
+    private function getFieldsSQL(InterfaceConnection $db, TypeConverter $typeConverter, $structure)
     {
         $fields = array();
 
@@ -107,7 +107,7 @@ class InitDbCommand extends ContainerAwareCommand
         return implode(",\n", $sql);
     }
 
-    private function createTable(InterfaceConnection $db, Converter $typeConverter, $name, $structure, $forceDrop = false)
+    private function createTable(InterfaceConnection $db, TypeConverter $typeConverter, $name, $structure, $forceDrop = false)
     {
         $fieldsSQL = $this->getFieldsSQL($db, $typeConverter, $structure);
 
@@ -124,7 +124,7 @@ class InitDbCommand extends ContainerAwareCommand
             try {
                 $db->execute("SELECT 1 FROM ?f", array($name));
                 $is_present = true;
-            } catch (ExceptionQuery $e) {}
+            } catch (QueryException $e) {}
         }
 
         if ($is_present) {

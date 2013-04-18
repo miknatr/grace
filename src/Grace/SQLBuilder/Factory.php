@@ -10,7 +10,7 @@
 
 namespace Grace\SQLBuilder;
 
-use Grace\DBAL\InterfaceExecutable;
+use Grace\DBAL\AbstractConnection\ExecutableInterface;
 
 /**
  * Factory for sql-builders
@@ -40,18 +40,18 @@ class Factory
 
     private $executable;
     /**
-     * @param \Grace\DBAL\InterfaceExecutable $executable
+     * @param \Grace\DBAL\AbstractConnection\ExecutableInterface $executable
      */
-    public function __construct(InterfaceExecutable $executable)
+    public function __construct(ExecutableInterface $executable)
     {
         $this->executable = $executable;
     }
     /**
-     * @throws ExceptionCallOrder
+     * @throws \LogicException
      */
     public function execute()
     {
-        throw new ExceptionCallOrder('It is factory class, please use select/insert/update/delete/create methods to get concrete sql builders');
+        throw new \LogicException('It is factory class, please use select/insert/update/delete/create methods to get concrete sql builders');
     }
     /**
      * @param $table

@@ -2,9 +2,9 @@
 
 namespace Grace\Test\SQLBuilder;
 
-use Grace\DBAL\InterfaceExecutable;
+use Grace\DBAL\AbstractConnection\ExecutableInterface;
 
-class ExecutablePlug implements InterfaceExecutable
+class ExecutablePlug implements ExecutableInterface
 {
     public $query;
     public $arguments;

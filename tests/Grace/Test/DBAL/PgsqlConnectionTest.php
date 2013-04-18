@@ -2,9 +2,9 @@
 
 namespace Grace\Test\DBAL;
 
-use Grace\DBAL\PgsqlConnection;
-use Grace\DBAL\ExceptionConnection;
-use Grace\DBAL\ExceptionQuery;
+use Grace\DBAL\Pgsql\PgsqlConnection;
+use Grace\DBAL\Exception\ConnectionException;
+use Grace\DBAL\Exception\QueryException;
 
 class PgsqlConnectionTest extends AbstractConnectionTest
 {
@@ -112,7 +112,7 @@ class PgsqlConnectionTest extends AbstractConnectionTest
         $this->connection->execute('INSERT INTO test VALUES (3, \'Bill\')');
         try {
             $this->connection->execute('NO SQL SYNTAX');
-        } catch (ExceptionQuery $e) {
+        } catch (\Grace\DBAL\Exception\QueryException $e) {
             ;
         }
         $r = $this->connection

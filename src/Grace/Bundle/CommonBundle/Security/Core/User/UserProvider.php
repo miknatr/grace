@@ -1,23 +1,23 @@
 <?php
 namespace Grace\Bundle\CommonBundle\Security\Core\User;
 
+use Grace\ORM\Service\ClassNameProvider;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Grace\ORM\ManagerAbstract;
+use Grace\ORM\ORMManagerAbstract;
 use Grace\ORM\ExceptionNoResult;
-use Grace\ORM\ClassNameProviderInterface;
 
 class UserProvider implements UserProviderInterface
 {
     private $baseModelName;
     /** @var UserFinderInterface */
     private $userFinder;
-    /** @var ClassNameProviderInterface */
+    /** @var ClassNameProvider */
     private $classNameProvider;
 
-    public function __construct(UserFinderInterface $userFinder, $baseModelName, ClassNameProviderInterface $classNameProvider)
+    public function __construct(UserFinderInterface $userFinder, $baseModelName, ClassNameProvider $classNameProvider)
     {
         $this->userFinder        = $userFinder;
         $this->baseModelName     = $baseModelName;

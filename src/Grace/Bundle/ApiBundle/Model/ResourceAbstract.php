@@ -2,7 +2,8 @@
 
 namespace Grace\Bundle\ApiBundle\Model;
 
-use Grace\ORM\Record;
+use Grace\Bundle\CommonBundle\ORMManager;
+use Grace\ORM\RecordAbstract;
 use Grace\Bundle\ApiBundle\Model\User;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -18,20 +19,12 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *
  * Для генерации полей editablies и visiblies используется AclGraceCommandPlugin
  *
- * @method \Grace\Bundle\CommonBundle\GraceContainer getContainer()
+ * @method ORMManager getOrm()
  */
-abstract class ResourceAbstract extends Record implements ResourceInterface
+abstract class ResourceAbstract extends RecordAbstract implements ResourceInterface
 {
     // ПЕРЕОПРЕДЕЛЯЕМЫЕ ПОЛЯ
 
-    /**
-     * вызывается в конструкторе объекта после присвоения начального списка полей из массива
-     * может использоваться для инициализации каких-либо сложных полей, если нельзя
-     */
-    protected function initConstructor()
-    {
-        ;
-    }
     /**
      * метод вызывается при создании объекта
      * должен использоваться только для задания связи между пользователем и объектом
@@ -93,11 +86,6 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
         $this->throwIfNotAccessOnResource('add', $this->getPrivilegeForUser($user));
 
         return $this;
-    }
-    final protected function onInit()
-    {
-        //переопределяем этот метод дял единообразного вызова переопределяемых методов (не on*, как для Record, а init*)
-        $this->initConstructor();
     }
     final public function asArrayByUserExtendedById(User $user)
     {
@@ -275,7 +263,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
     {
         //STOPPER здесь и выше геттеры больше не нужны, модель консистны в массиве
         $key = 'as_array_for_nodejs_' . md5(json_encode($this->fields));
-        return $this->getContainer()->getCache()->get($key, 30, function() {
+        return $this->getOrm()->getCache()->get($key, 30, function() {
             $r = array();
             foreach ($this->fields as $fieldName => $v) {
                 if (static::$aclFieldsView[$fieldName]) {
@@ -294,7 +282,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                     if (is_object($value)) {
                         if ($value instanceof ApiAsArrayAccessibleInterface) {
                             $value = $value->asArrayForNodejs();
-                        } elseif ($value instanceof Record) {
+                        } elseif ($value instanceof RecordAbstract) {
                             $value = $value->asArray();
                         } else {
                             $value = (string) $value;
@@ -317,7 +305,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
         $this->throwIfNotAccessOnResource('view', $privilege);
 
         $key = 'as_array_' . md5($privilege . $user->getType() . $user->getId() . md5(json_encode($this->fields)));
-        return $this->getContainer()->getCache()->get($key, 30, function() use ($user, $privilege) {
+        return $this->getOrm()->getCache()->get($key, 30, function() use ($user, $privilege) {
                 $r = array();
                 foreach ($this->fields as $fieldName => $v) {
                     if (static::$aclFieldsView[$fieldName]) {
@@ -336,7 +324,7 @@ abstract class ResourceAbstract extends Record implements ResourceInterface
                         if (is_object($value)) {
                             if ($value instanceof ApiAsArrayAccessibleInterface) {
                                 $value = $value->asArrayByUser($user);
-                            } elseif ($value instanceof Record) {
+                            } elseif ($value instanceof RecordAbstract) {
                                 //STOPPER выпилить такую хуйню
                                 $value = $value->asArray();
                             } else {

@@ -2,9 +2,9 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\ClassNameProvider;
+use Grace\ORM\Service\ClassNameProvider;
 
-class RealClassNameProvider extends ClassNameProvider
+class RealClassNameProvider extends \Grace\ORM\Service\ClassNameProvider
 {
     protected $modelNamespace = 'Grace\\Test\\ORM';
     protected $modelPrefix = '';

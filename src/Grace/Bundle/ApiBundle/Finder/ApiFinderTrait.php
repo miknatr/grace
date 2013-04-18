@@ -4,26 +4,24 @@ namespace Grace\Bundle\ApiBundle\Finder;
 
 use Grace\Bundle\ApiBundle\Model\ResourceAbstract;
 use Grace\Bundle\ApiBundle\Model\User;
-use Grace\Bundle\CommonBundle\GraceContainer;
-use Grace\ORM\ClassNameProviderInterface;
+use Grace\Bundle\CommonBundle\ORMManager;
+use Grace\ORM\FinderAbstract;
 use Grace\ORM\FinderSql;
+use Grace\ORM\Service\ClassNameProvider;
 use Grace\SQLBuilder\SelectBuilder;
 use Intertos\ApiBundle\Filter\FilterAbstract;
-use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 
 trait ApiFinderTrait
 {
     // trait contract
     /** @return SelectBuilder */
     abstract public function getSelectBuilder();
-    /** @return ClassNameProviderInterface */
-    abstract protected function getClassNameProvider();
-    /** @return GraceContainer */
-    abstract protected function getContainer();
+    /** @return ORMManager */
+    abstract protected function getOrm();
 
     public function countCache(User $user, array $params = array())
     {
-        return $this->getContainer()->getCache()->get(
+        return $this->getOrm()->cache->get(
             md5('count' . get_class($this) . serialize($params)),
             '5m',
             function () use ($user, $params) {
@@ -71,8 +69,8 @@ trait ApiFinderTrait
         /** @var $modelClass ResourceAbstract */
         $builder    = $this->getSelectBuilder();
 
-        $baseClass  = $this->getClassNameProvider()->getBaseClassFromFinderClass(get_class($this));
-        $modelClass = $this->getClassNameProvider()->getModelClass($baseClass);
+        $baseClass  = $this->getOrm()->classNameProvider->getBaseClassFromFinderClass(get_class($this));
+        $modelClass = $this->getOrm()->classNameProvider->getModelClass($baseClass);
         $case       = $modelClass::getAccessDefinition();
         $parents    = $modelClass::getParentsDefinition();
 
@@ -124,7 +122,7 @@ trait ApiFinderTrait
                     $placeholders[] = $parentField;      //
                     $placeholders[] = $parentTable;      // FROM ?f
                     $placeholders[] = $parentTable;      // WHERE ?f.id = ?f.?f
-                    $placeholders[] = FinderSql::TABLE_ALIAS;            //
+                    $placeholders[] = FinderAbstract::TABLE_ALIAS;            //
                     $placeholders[] = $resourceParentId; //
                     return "(SELECT ?f.?f FROM ?f WHERE ?f.id = ?f.?f)";
                 }
@@ -146,8 +144,8 @@ trait ApiFinderTrait
      */
     public function getFilters()
     {
-        $baseClass  = $this->getClassNameProvider()->getBaseClassFromFinderClass(get_class($this));
-        $modelClass = $this->getClassNameProvider()->getModelClass($baseClass);
+        $baseClass  = $this->getOrm()->classNameProvider->getBaseClassFromFinderClass(get_class($this));
+        $modelClass = $this->getOrm()->classNameProvider->getModelClass($baseClass);
 
         $filters = array();
 

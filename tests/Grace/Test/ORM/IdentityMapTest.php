@@ -2,16 +2,16 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\IdentityMap;
+use Grace\ORM\Service\IdentityMap;
 
 class IdentityMapTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var IdentityMap */
+    /** @var \Grace\ORM\Service\IdentityMap */
     protected $identityMap;
 
     protected function setUp()
     {
-        $this->identityMap = new IdentityMap;
+        $this->identityMap = new \Grace\ORM\Service\IdentityMap;
     }
     public function testIssetingUndefinded()
     {

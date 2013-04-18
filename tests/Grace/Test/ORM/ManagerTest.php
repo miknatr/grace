@@ -2,9 +2,9 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\UnitOfWork;
-use Grace\ORM\IdentityMap;
-use Grace\DBAL\MysqliConnection;
+use Grace\ORM\Service\UnitOfWork;
+use Grace\ORM\Service\IdentityMap;
+use Grace\DBAL\Mysqli\Connection;
 use Grace\CRUD\DBMasterDriver;
 use Grace\ORM\ExceptionNoResult;
 
@@ -13,7 +13,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     /** @var RealManager */
     protected $manager;
     protected $dispatcher;
-    /** @var MysqliConnection */
+    /** @var Connection */
     protected $connection;
     /** @var DBMasterDriver */
     protected $crud;
@@ -31,13 +31,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     protected function establishConnection()
     {
         $this->dispatcher = new \stdClass();
-        $this->connection = new MysqliConnection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+        $this->connection = new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->crud       = new DBMasterDriver($this->connection);
 
         $this->manager = new RealManager();
         $this->manager
             ->setClassNameProvider(new RealClassNameProvider())
-            ->setSqlReadOnlyConnection($this->connection)
+            ->setDb($this->connection)
             ->setCrudConnection($this->crud);
         $this->manager->clean();
     }

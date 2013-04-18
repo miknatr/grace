@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\DoctrineBundle\Registry;
 
-use Grace\ORM\ManagerAbstract;
+use Grace\ORM\ORMManagerAbstract;
 use Grace\ORM\ExceptionNoResult;
 
 /**
@@ -24,7 +24,7 @@ class GraceParamConverter implements ParamConverterInterface
 {
     protected $orm;
 
-    public function __construct(ManagerAbstract $orm)
+    public function __construct(ORMManagerAbstract $orm)
     {
         $this->orm = $orm;
     }

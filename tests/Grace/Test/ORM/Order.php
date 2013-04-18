@@ -2,9 +2,9 @@
 
 namespace Grace\Test\ORM;
 
-use Grace\ORM\Record;
+use Grace\ORM\RecordAbstract;
 
-class Order extends Record
+class Order extends RecordAbstract
 {
     static protected $fieldNames = array('id', 'name', 'phone');
     static protected $noDbFieldNames = array();
@@ -28,9 +28,5 @@ class Order extends Record
         $this->fields['phone'] = $phone;
         $this->markAsChanged();
         return $this;
-    }
-    public function getContainerPublic()
-    {
-        return parent::getContainer();
     }
 }

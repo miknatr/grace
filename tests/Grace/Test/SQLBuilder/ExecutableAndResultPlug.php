@@ -2,9 +2,9 @@
 
 namespace Grace\Test\SQLBuilder;
 
-use Grace\DBAL\InterfaceResult;
+use Grace\DBAL\AbstractConnection\ResultInterface;
 
-class ExecutableAndResultPlug extends ExecutablePlug implements InterfaceResult
+class ExecutableAndResultPlug extends ExecutablePlug implements ResultInterface
 {
     public function fetchAll()
     {
@@ -21,10 +21,6 @@ class ExecutableAndResultPlug extends ExecutablePlug implements InterfaceResult
     public function fetchHash()
     {
         return 'hash';
-    }
-    public function fetchOne()
-    {
-        return 'one';
     }
     public function fetchOneOrFalse()
     {
