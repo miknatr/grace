@@ -1,0 +1,8 @@
+parents: {}
+properties:
+  id:
+    mapping: int
+  name:
+    mapping: string
+  phone:
+    mapping: string

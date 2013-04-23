@@ -1,27 +1,22 @@
 rm -fR ./vendor
-mkdir -p ./vendor/symfony/src/Symfony/Component/
-git clone http://github.com/symfony/ClassLoader.git ./vendor/symfony/src/Symfony/Component/ClassLoader
-rm -fR ./vendor/symfony/src/Symfony/Component/ClassLoader/.git
-git clone http://github.com/symfony/Yaml ./vendor/symfony/src/Symfony/Component/Yaml
-rm -fR ./vendor/symfony/src/Symfony/Component/Yaml/.git
 
-#!/bin/sh
-[ ! -e vendor ] && mkdir vendor
-cd vendor
+git clone git://github.com/symfony/symfony.git ./vendor/symfony
+cd ./vendor/symfony
+git checkout v2.1.10
+cd ../..
 
-rm -fR ./zf1
+mkdir -p ./vendor/sensio-extra-bundle/Sensio/Bundle/
+git clone git://github.com/sensio/SensioFrameworkExtraBundle.git ./vendor/sensio-extra-bundle/Sensio/Bundle/FrameworkExtraBundle
+cd ./vendor/sensio-extra-bundle/Sensio/Bundle/FrameworkExtraBundle
+git checkout v2.1.10
+cd ../../../../..
 
-mkdir -p ./zf1/library/Zend
-svn -q export http://framework.zend.com/svn/framework/standard/trunk/library/Zend/CodeGenerator ./zf1/library/Zend/CodeGenerator
-svn -q export http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Reflection ./zf1/library/Zend/Reflection
-svn -q export http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Exception.php ./zf1/library/Zend/Exception.php
-svn -q export http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Loader ./zf1/library/Zend/Loader
-svn -q export http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Loader.php ./zf1/library/Zend/Loader.php
+git clone git://github.com/doctrine/common.git ./vendor/doctrine-common
+cd ./vendor/doctrine-common
+git checkout 2.2.3
+cd ../..
 
-#remove includes follow manual
-#http://framework.zend.com/manual/en/performance.classloading.html#performance.classloading.striprequires.sed
-cd ./zf1/library/Zend
-find . -name '*.php' -not -wholename '*/Loader/Autoloader.php' \
--not -wholename '*/Application.php' -print0 | \
-xargs -0 sed --regexp-extended --in-place 's/(require_once)/\/\/ \1/g'
-cd ../../../
+git clone git://github.com/Seldaek/monolog.git ./vendor/monolog
+cd ./vendor/monolog
+git checkout 1.2.1
+cd ../..
