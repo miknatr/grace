@@ -20,6 +20,9 @@ use Grace\Bundle\ApiBundle\Finder\UserApiFinderInterface;
 
 class ApiListener implements ListenerInterface
 {
+    const API_TOKEN_PARAM  = 'api_key';
+    const API_TOKEN_HEADER = 'X-Intertos-Api-Token';
+
     protected $securityContext;
     protected $authenticationManager;
     private $checkToken;
@@ -72,17 +75,16 @@ class ApiListener implements ListenerInterface
     }
     protected function getTokenKeyFromRequest(Request $request)
     {
-        if ($request->get('api_key') !== null) {
-            $tokenKey = $request->get('api_key');
-
-            return $tokenKey;
-        } elseif ($request->headers->has('x-api-key')) {
-            $tokenKey = $request->headers->get('x-api-key');
-
-            return $tokenKey;
-        } else {
-            throw new AuthenticationException('The Grace Simple API authentication failed - Api key is not provided.');
+        $key = $request->get(self::API_TOKEN_PARAM);
+        if ($key !== null) {
+            return $key;
         }
+
+        if ($request->headers->has(self::API_TOKEN_HEADER)) {
+            return $request->headers->get(self::API_TOKEN_HEADER);
+        }
+
+        throw new AuthenticationException('The Grace Simple API authentication failed - Api key is not provided.');
     }
     protected function getUserByToken($key)
     {
