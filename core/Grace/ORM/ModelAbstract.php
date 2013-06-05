@@ -53,6 +53,17 @@ abstract class ModelAbstract
     {
         return $this->properties;
     }
+    final public function setProperties($values)
+    {
+        foreach ($values as $property => $value) {
+            if ($property != 'id') {
+                $methodName = 'set' . ucfirst($property);
+                if (method_exists($this, $methodName)) {
+                    call_user_func(array($this, $methodName), $value);
+                }
+            }
+        }
+    }
     final public function getDefaultProperties()
     {
         return $this->defaultProperties;

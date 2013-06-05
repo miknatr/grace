@@ -24,26 +24,26 @@ class DispatchedModelObserver extends ModelObserver
 
     public function onAfterInsert(ModelAbstract $model)
     {
-        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::BEFORE_INSERT));
+        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::AFTER_INSERT));
     }
     public function onAfterChange(ModelAbstract $model)
     {
-        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::BEFORE_CHANGE));
+        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::AFTER_CHANGE));
     }
     public function onAfterDelete(ModelAbstract $model)
     {
-        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::BEFORE_DELETE));
+        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::AFTER_DELETE));
     }
     public function onBeforeInsert(ModelAbstract $model)
     {
-        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::AFTER_INSERT));
+        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::BEFORE_INSERT));
     }
     public function onBeforeChange(ModelAbstract $model)
     {
-        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::AFTER_CHANGE));
+        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::BEFORE_CHANGE));
     }
     public function onBeforeDelete(ModelAbstract $model)
     {
-        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::AFTER_DELETE));
+        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::BEFORE_DELETE));
     }
 }

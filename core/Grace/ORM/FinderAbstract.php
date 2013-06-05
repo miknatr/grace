@@ -228,6 +228,8 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
             //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
             if ($propertyConfig->mapping) {
                 $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping, $dbArray[$propertyName]);
+            } else {
+                $modelArray[$propertyName] = null;
             }
         }
 
@@ -245,7 +247,9 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $dbArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
             //if (isset($modelArray[$propertyName])) {
+            if ($propertyConfig->mapping) {
                 $dbArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($propertyConfig->mapping, $modelArray[$propertyName]);
+            }
             //} else {
             //    $dbArray[$propertyName] = null;
             //}
@@ -264,7 +268,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
         $dbChangesArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
-            if (/*isset($modelArray[$propertyName]) and */$modelArray[$propertyName] != $modelArrayDefaults[$propertyName]) {
+            if (/*isset($modelArray[$propertyName]) and */$modelArray[$propertyName] != $modelArrayDefaults[$propertyName] and $propertyConfig->mapping) {
                 $dbChangesArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($propertyConfig->mapping, $modelArray[$propertyName]);
             }
         }

@@ -28,6 +28,9 @@ class TypePgsqlPoint implements TypeInterface
     }
     public function convertDbToPhp($value)
     {
+        if (!is_array($value) && preg_match('/^\(([\d]+),([\d]+)\)$/', $value, $match)) {
+            $value = array($value[1], $value[2]);
+        }
         return new PgsqlPointValue($value);
     }
     public function convertOnSetter($value)
