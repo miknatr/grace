@@ -36,27 +36,33 @@ class GraceParamConverter implements ParamConverterInterface
     public function apply(Request $request, ConfigurationInterface $configuration)
     {
         /** @var $configuration ParamConverter */
-        $classes = explode(',', $configuration->getClass());
+        $rawClass = $configuration->getClass();
+        $type     = $this->filterType($rawClass);
+        $class    = $this->filterClass($rawClass);
 
-        foreach ($classes as $class) {
-            $class = trim($class);
-
-            if (strpos($class, 'finder') === 0) {
-                $class = substr($class, 6);
-                $model = $this->orm->getFinder($class);
-            } elseif (strpos($class, 'new') === 0) {
-                $class = substr($class, 3);
-                $model = $this->orm->getFinder($class)->create();
-            } else {
-                if ($request->attributes->has('id')) {
-                    $model = $this->orm->getFinder($class)->getByIdOrFalse($request->attributes->get('id'));
-                } else {
+        switch ($type) {
+            case 'finder':
+                $newAttr = $this->orm->getFinder($class);
+                break;
+            case 'new':
+                $newAttr = $this->orm->getFinder($class)->create();
+                break;
+            case 'id':
+            default:
+                if (!$request->attributes->has('id')) {
                     throw new NotFoundHttpException();
                 }
-            }
 
-            $request->attributes->set($configuration->getName(), $model);
+                $newAttr = $this->orm->getFinder($class)->getByIdOrFalse($request->attributes->get('id'));
+
+                if (!$newAttr) {
+                    throw new NotFoundHttpException();
+                }
+
+                break;
         }
+
+        $request->attributes->set($configuration->getName(), $newAttr);
     }
 
     public function supports(ConfigurationInterface $configuration)
@@ -66,6 +72,34 @@ class GraceParamConverter implements ParamConverterInterface
             return false;
         }
 
-        return true;
+        // Is it real class name? Names like Company, newCompany and finderCompany are accepted
+        if (strpos($configuration->getClass(), '\\') !== false) {
+            return false;
+        }
+
+        // Is there suitable finder in orm?
+        return (null === $this->orm->getFinder($this->filterClass($configuration->getClass())));
+    }
+
+    private function filterClass($class)
+    {
+        if (strpos($class, 'finder') === 0) {
+            return substr($class, 6);
+        } elseif (strpos($class, 'new') === 0) {
+            return substr($class, 3);
+        }
+
+        return $class;
+    }
+
+    private function filterType($class)
+    {
+        if (strpos($class, 'finder') === 0) {
+            return 'finder';
+        } elseif (strpos($class, 'new') === 0) {
+            return 'new';
+        }
+
+        return 'id';
     }
 }
