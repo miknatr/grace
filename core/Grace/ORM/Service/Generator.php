@@ -88,14 +88,14 @@ class Generator
     }
 PHP;
 
-                if ($propertyConfig->mapping) {
+                if ($propertyConfig->mapping->localPropertyType) {
                     $setterName = strpos($handWrittenCode, 'function set' . ucfirst($propertyWithId) . '(') !== false ? 'set' . ucfirst($propertyWithId) . 'Generated' : 'set' . ucfirst($propertyWithId);
 
                     $r .= <<<PHP
 
     public function $setterName(\$$propertyWithId)
     {
-        \$this->properties['$propertyWithId'] = \$this->orm->typeConverter->convertOnSetter('$propertyConfig->mapping', \$$propertyWithId);
+        \$this->properties['$propertyWithId'] = \$this->orm->typeConverter->convertOnSetter('{$propertyConfig->mapping->localPropertyType}', \$$propertyWithId);
         \$this->markAsChanged();
         return \$this;
     }

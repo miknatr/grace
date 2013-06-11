@@ -13,6 +13,7 @@ use Grace\Cache\CacheInterface;
 use Grace\DBAL\ConnectionAbstract\ConnectionInterface;
 use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\Config\Config;
+use Grace\ORM\Service\Config\Element\MappingElement;
 use Grace\ORM\Service\IdentityMap;
 use Grace\ORM\Service\TypeConverter;
 use Grace\ORM\Service\UnitOfWork;
@@ -87,7 +88,7 @@ class ServicesTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($orm->roleHierarchy instanceof RoleHierarchyInterface);
 
         $this->assertTrue($orm->config instanceof Config);
-        $this->assertEquals($orm->config->models['TaxiPassenger']->properties['name']->mapping, 'string');
+        $this->assertEquals($orm->config->models['TaxiPassenger']->properties['name']->mapping, new MappingElement('string'));
 
         $this->assertTrue($container->get('grace_db') instanceof ConnectionInterface);
         $this->assertTrue($container->get('cache') instanceof CacheInterface);

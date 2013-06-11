@@ -3,6 +3,7 @@
 namespace Grace\ORM\Service\Config;
 
 use Grace\Cache\CacheInterface;
+use Grace\ORM\Service\Config\Element\MappingElement;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\Config\Element\ParentElement;
 use Grace\ORM\Service\Config\Element\PropertyElement;
@@ -27,7 +28,7 @@ class Loader
             $config->models[$modelName] = new ModelElement();
             foreach ($modelConfig['properties'] as $propertyNameWithParentId => $propertyConfig) {
                 $config->models[$modelName]->properties[$propertyNameWithParentId] = new PropertyElement();
-                $config->models[$modelName]->properties[$propertyNameWithParentId]->mapping = $propertyConfig['mapping'];
+                $config->models[$modelName]->properties[$propertyNameWithParentId]->mapping = new MappingElement($propertyConfig['mapping']);
             }
 
             if (!isset($modelConfig['parents'])) {

@@ -18,6 +18,7 @@ class SelectBuilder extends WhereBuilderAbstract
     protected $fields = '*';
     protected $fieldsArguments = array();
     protected $joinSql = '';
+    protected $joinArguments = array();
     protected $groupSql = '';
     protected $groupArguments = array();
     protected $havingSql = '';
@@ -86,6 +87,20 @@ class SelectBuilder extends WhereBuilderAbstract
     public function field($field)
     {
         $this->fields(array($field));
+        return $this;
+    }
+
+    /**
+     * Sets one field in fields statement
+     * @param $tableSql
+     * @param $onSql
+     * @param array $arguments
+     * @return $this
+     */
+    public function join($tableSql, $onSql, array $arguments = array())
+    {
+        $this->joinSql .= " LEFT JOIN $tableSql ON $onSql";
+        $this->joinArguments = array_merge($this->joinArguments, $arguments);
         return $this;
     }
     /**
@@ -180,6 +195,6 @@ class SelectBuilder extends WhereBuilderAbstract
 
         $arguments = parent::getQueryArguments();
 
-        return array_merge($this->fieldsArguments, array($this->from), $aliasPlaceholders, $arguments, $this->groupArguments, $this->havingArguments, $this->orderArguments);
+        return array_merge($this->fieldsArguments, array($this->from), $aliasPlaceholders, $this->joinArguments, $arguments, $this->groupArguments, $this->havingArguments, $this->orderArguments);
     }
 }

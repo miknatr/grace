@@ -32,20 +32,25 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
 
 
-    //IMPLEMETATIONS OF InterfaceExecutable, InterfaceResult
+    //IMPLEMENTATIONS OF InterfaceExecutable, InterfaceResult
 
-    /** @var \Grace\DBAL\ConnectionAbstract\ResultInterface */
+    /** @var ResultInterface */
     private $queryResult;
     /** @return ModelAbstract|bool */
     final public function fetchOneOrFalse()
     {
+        /** @noinspection PhpAssignmentInConditionInspection */
         if ($row = $this->queryResult->fetchOneOrFalse()) {
             return $this->getFromIdentityMapOrMakeModel($row);
         }
 
         return false;
     }
-    /** @return ModelAbstract[] */
+
+    /**
+     * @throws \LogicException
+     * @return ModelAbstract[]
+     */
     final public function fetchAll()
     {
         if (!is_object($this->queryResult)) {
@@ -53,6 +58,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         }
 
         $models = array();
+        /** @noinspection PhpAssignmentInConditionInspection */
         while ($row = $this->queryResult->fetchOneOrFalse()) {
             $models[] = $this->getFromIdentityMapOrMakeModel($row);
         }
@@ -104,11 +110,18 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
     //SELECT BUILDER CREATION
 
-    const TABLE_ALIAS = 'Resource';
     /** @return SelectBuilder */
     public function getSelectBuilder()
     {
-        return (new Factory($this))->select($this->baseClass)->setFromAlias(self::TABLE_ALIAS);
+        $fields = array();
+
+        foreach ($this->orm->config->models[$this->baseClass]->properties as $propName => $prop) {
+            if ($prop->mapping) {
+
+            }
+        }
+
+        return (new Factory($this))->select($this->baseClass)
     }
 
 
@@ -125,6 +138,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
             return $this->orm->identityMap->getModel($this->baseClass, $id);
         }
 
+        /** @noinspection PhpAssignmentInConditionInspection */
         if ($row = $this->orm->db->getSQLBuilder()->select($this->baseClass)->eq('id', $id)->fetchOneOrFalse()) {
             return $this->getFromIdentityMapOrMakeModel($row);
         }
@@ -135,6 +149,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
     /**
      * @param array $properties
+     * @throws \LogicException
      * @return ModelAbstract
      */
     //STOPPER поменялась сигнатура
@@ -226,8 +241,12 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $modelArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
             //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
-            if ($propertyConfig->mapping) {
-                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping, $dbArray[$propertyName]);
+            if ($propertyConfig->mapping->localPropertyType) {
+                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
+            } elseif ($propertyConfig->mapping->relationForeignProperty) {
+                //STOPPER [eq[eq[eq
+                $type = $this->orm->config->models
+                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
             } else {
                 $modelArray[$propertyName] = null;
             }
@@ -247,6 +266,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $dbArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
             //if (isset($modelArray[$propertyName])) {
+            //STOPPER [eq[eq[eq
             if ($propertyConfig->mapping) {
                 $dbArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($propertyConfig->mapping, $modelArray[$propertyName]);
             }
@@ -269,6 +289,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $dbChangesArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
             if (/*isset($modelArray[$propertyName]) and */$modelArray[$propertyName] != $modelArrayDefaults[$propertyName] and $propertyConfig->mapping) {
+                //STOPPER [eq[eq[eq
                 $dbChangesArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($propertyConfig->mapping, $modelArray[$propertyName]);
             }
         }

@@ -2,6 +2,7 @@
 
 namespace Grace\Tests\ORM\Service;
 
+use Grace\ORM\Service\Config\Element\MappingElement;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\Config\Element\PropertyElement;
 use Grace\ORM\Service\ClassNameProvider;
@@ -44,11 +45,11 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $model = new ModelElement();
         $model->properties['id'] = new PropertyElement();
-        $model->properties['id']->mapping = 'int';
+        $model->properties['id']->mapping = new MappingElement('int');
         $model->properties['name'] = new PropertyElement();
-        $model->properties['name']->mapping = 'string';
+        $model->properties['name']->mapping = new MappingElement('string');
         $model->properties['phone'] = new PropertyElement();
-        $model->properties['phone']->mapping = 'string';
+        $model->properties['phone']->mapping = new MappingElement('string');
 
         return $model;
     }

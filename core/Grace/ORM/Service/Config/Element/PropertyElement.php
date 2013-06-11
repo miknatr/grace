@@ -12,5 +12,6 @@ namespace Grace\ORM\Service\Config\Element;
 
 class PropertyElement
 {
+    /** @var MappingElement */
     public $mapping;
 }
