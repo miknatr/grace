@@ -100,15 +100,21 @@ class Connection extends ConnectionAbstract
     /**
      * @inheritdoc
      */
-    public function escapeField($value)
+    public function escapeField(array $names)
     {
         if (!is_resource($this->resource)) {
             $this->connect();
         }
-        if (!is_scalar($value) || strpos('"', $value)) {
-            throw new QueryException('Possible SQL injection in field name');
+        $escapeSymbol = '"'; // '`'
+        $separator    = '.';
+        $r = '';
+        foreach ($names as $value) {
+            if (!is_scalar($value) || strpos($escapeSymbol, $value)) {
+                throw new QueryException('Possible SQL injection in field name');
+            }
+            $r .= $separator . $escapeSymbol . $value . $escapeSymbol;
         }
-        return '"' . $value . '"';
+        return substr($r, strlen($separator));
     }
 
     /**

@@ -22,13 +22,6 @@ use Grace\ORM\Service\Config\Config;
 
 class Grace
 {
-    //STOPPER это теперь выпиливается и переопределяется в файндерах
-    public function setSqlBuilderPrefix($prefix)
-    {
-        //Factory::setNamespacePrefix($prefix);
-        return $this;
-    }
-
     //public access for services is optimization, by convention you must not change them
     public $db;
     public $classNameProvider;
@@ -39,11 +32,12 @@ class Grace
     public $config;
     public $cache;
 
-    public function __construct(ConnectionInterface $db,
-                                ClassNameProvider $classNameProvider,
-                                ModelObserver $modelObserver,
-                                Config $config,
-                                CacheInterface $cache
+    public function __construct(
+        ConnectionInterface $db,
+        ClassNameProvider $classNameProvider,
+        ModelObserver $modelObserver,
+        Config $config,
+        CacheInterface $cache
     )
     {
         $this->db                = $db;

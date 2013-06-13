@@ -9,7 +9,6 @@ use Symfony\Component\Form\Form;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Grace\ORM\Grace;
-use Grace\ORM\ExceptionNoResult;
 
 class UniqueValidator extends ConstraintValidator
 {

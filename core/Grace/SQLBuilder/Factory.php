@@ -11,35 +11,16 @@
 namespace Grace\SQLBuilder;
 
 use Grace\DBAL\ConnectionAbstract\ExecutableInterface;
+use SelectBuilderProvider;
 
 /**
  * Factory for sql-builders
  */
 class Factory
 {
-    //STOPPER выпилить
-    /**
-     * @var string
-     */
-    static private $namespacePrefix;
-
-    /**
-     * @param string $customSelectBuilderPrefix
-     */
-    public static function setNamespacePrefix($customSelectBuilderPrefix)
-    {
-        self::$namespacePrefix = $customSelectBuilderPrefix;
-    }
-    /**
-     * @return string
-     */
-    public static function getNamespacePrefix()
-    {
-        return self::$namespacePrefix;
-    }
-
-
+    /** @var ExecutableInterface */
     private $executable;
+
     /**
      * @param ExecutableInterface $executable
      */
@@ -47,37 +28,40 @@ class Factory
     {
         $this->executable = $executable;
     }
+
     /**
-     * @param $table
+     * @param string $table
      * @return SelectBuilder
      */
     public function select($table)
     {
-        $class = '\\' . self::$namespacePrefix . '\\SelectBuilder\\' . $table . 'SelectBuilder';
-        if (class_exists($class)) {
-            return new $class($table, $this->executable);
-        } else {
-            return new SelectBuilder($table, $this->executable);
+        if ($this->executable instanceof SelectBuilderProvider) {
+            return $this->executable->provideSelectBuilder($table);
         }
+
+        return new SelectBuilder($table, $this->executable);
     }
+
     /**
-     * @param $table
+     * @param string $table
      * @return InsertBuilder
      */
     public function insert($table)
     {
         return new InsertBuilder($table, $this->executable);
     }
+
     /**
-     * @param $table
+     * @param string $table
      * @return UpdateBuilder
      */
     public function update($table)
     {
         return new UpdateBuilder($table, $this->executable);
     }
+
     /**
-     * @param $table
+     * @param string $table
      * @return DeleteBuilder
      */
     public function delete($table)

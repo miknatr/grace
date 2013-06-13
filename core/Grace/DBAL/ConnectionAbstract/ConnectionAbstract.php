@@ -107,7 +107,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
      * "e" - escaping by "db-escape" function, but not quoting
      * "q" - escaping by "db-escape" function and quoting
      * "l" - escaping by "db-escape" function and quoting for arrays ('1', '2', '3')
-     * "f" - escaping by field name ('field' => `field`)
+     * "f" - escaping by fully-qualified field name ('table.field' => `table`.`field`)
      * "F" - escaping by fully-qualified field name ('table.field' => `table`.`field`)
      * "i" - escaping by field name for arrays
      *
@@ -143,14 +143,8 @@ abstract class ConnectionAbstract implements ConnectionInterface
                 $r = substr($r, 2);
                 break;
             case 'f':
-                $r = $this->escapeField($value);
-                break;
             case 'F':
-                $r = '';
-                foreach (explode('.', $value) as $part) {
-                    $r .= '.' . $this->escapeField($part);
-                }
-                $r = substr($r, 1);
+                $r = $this->escapeField(explode('.', $value));
                 break;
             case 'i':
                 $r = '';
@@ -158,7 +152,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
                     throw new QueryException('Value must be array: ' . print_r($value, true));
                 }
                 foreach ($value as $part) {
-                    $r .= ", " . $this->escapeField($part) . "";
+                    $r .= ', ' . $this->escapeField(explode('.', $part));
                 }
                 $r = substr($r, 2);
                 break;

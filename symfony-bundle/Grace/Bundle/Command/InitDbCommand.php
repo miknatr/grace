@@ -94,8 +94,7 @@ class InitDbCommand extends ContainerAwareCommand
         $fields = array();
 
         foreach ($structure['properties'] as $propName => $propOptions) {
-            //STOPPER эти ебучие тру-поля выпилить бы
-            if (!empty($propOptions[self::DBTYPE_FIELD]) && $propOptions[self::DBTYPE_FIELD] !== true) { //если нет, то поле виртуальное, если тру, то только для крад-файндеров
+            if (!empty($propOptions[self::DBTYPE_FIELD])) {
                 $fields[$propName]['type'] = $typeConverter->getDbType($propOptions[self::DBTYPE_FIELD]);
             }
         }

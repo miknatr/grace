@@ -81,12 +81,20 @@ abstract class ModelAbstract
     {
         $this->orm->unitOfWork->markAsDeleted($this);
     }
-    final protected function markAsChanged()
+    final public function markAsChanged()
     {
         $this->orm->unitOfWork->markAsChanged($this);
     }
     final public function __sleep()
     {
         throw new \LogicException('Model serializing breaks links to orm services and is not supported');
+    }
+
+    /**
+     * @return GracePlusSymfony|Grace
+     */
+    final public function getOrm()
+    {
+        return $this->orm;
     }
 }

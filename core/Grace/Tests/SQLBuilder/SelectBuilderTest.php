@@ -24,14 +24,14 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSelectWithoutParams()
     {
         $this->builder->execute();
-        $this->assertEquals('SELECT * FROM ?f', $this->plug->query);
-        $this->assertEquals(array('TestTable'), $this->plug->arguments);
+        $this->assertEquals('SELECT * FROM ?f AS ?f', $this->plug->query);
+        $this->assertEquals(array('TestTable', 'TestTable'), $this->plug->arguments);
     }
     public function testCountSelectWithoutParams()
     {
         $this->builder->count()->execute();
-        $this->assertEquals('SELECT COUNT(?f) AS ?f FROM ?f', $this->plug->query);
-        $this->assertEquals(array('id', 'counter', 'TestTable'), $this->plug->arguments);
+        $this->assertEquals('SELECT COUNT(?f) AS ?f FROM ?f AS ?f', $this->plug->query);
+        $this->assertEquals(array('id', 'counter', 'TestTable', 'TestTable'), $this->plug->arguments);
     }
     public function testSelectAllParams()
     {
@@ -62,7 +62,7 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
             ->_close()
             ->execute();
         $this->assertEquals(
-            'SELECT ?f, ?f FROM ?f' .
+            'SELECT ?f, ?f FROM ?f AS ?f' .
                 ' WHERE ?f=?q AND ?f BETWEEN ?q AND ?q OR ?f BETWEEN ?q AND ?q' .
                 ' AND ( ?f=?q AND ?f=?q OR ?f=?q )' .
                 ' AND NOT ( NOT ?f=?q AND NOT ?f=?q OR NOT ?f=?q )' .
@@ -74,6 +74,7 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
             array(
                 'id',
                 'name',
+                'TestTable',
                 'TestTable',
                 'isPublished',
                 1,

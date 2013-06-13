@@ -30,7 +30,7 @@ abstract class BuilderAbstract implements ResultInterface
      */
     public function __construct($fromTable, ExecutableInterface $executable)
     {
-        $this->from       = $fromTable;
+        $this->setFrom($fromTable);
         $this->executable = $executable;
     }
     /**
@@ -46,7 +46,10 @@ abstract class BuilderAbstract implements ResultInterface
      */
     public function setFrom($fromTable)
     {
-        $this->from  = $fromTable;
+        $this->from = $fromTable;
+        if (empty($this->alias)) {
+            $this->alias = $fromTable;
+        }
         return $this;
     }
     /**

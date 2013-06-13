@@ -113,15 +113,30 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
     /** @return SelectBuilder */
     public function getSelectBuilder()
     {
+        $selectBuilder = (new Factory($this))->select($this->baseClass);
+
         $fields = array();
-
-        foreach ($this->orm->config->models[$this->baseClass]->properties as $propName => $prop) {
-            if ($prop->mapping) {
-
+        $aliases = array();
+        foreach ($this->orm->config->models[$this->baseClass]->properties as $propName => $propertyConfig) {
+            if ($propertyConfig->mapping->localPropertyType) {
+                $fields[] = $propName;
+            } else if ($propertyConfig->mapping->relationLocalProperty) {
+                $foreignTable = $this->orm->config->models[$this->baseClass]->parents[$propertyConfig->mapping->relationLocalProperty]->parentModel;
+                $foreignField = $propertyConfig->mapping->relationForeignProperty;
+                if (!isset($aliases[$foreignTable])) {
+                    $alias = ucfirst(substr($propName, 0, -2)); // ownerId => Owner
+                    $selectBuilder
+                        ->join($foreignTable, $alias)
+                        ->onEq($propertyConfig->mapping->relationLocalProperty, 'id');
+                    $aliases[$foreignTable] = $alias;
+                }
+                $fields[] = array('?f as ?f', array("{$aliases[$foreignTable]}.{$foreignField}", $propName));
             }
         }
 
-        return (new Factory($this))->select($this->baseClass)
+        $selectBuilder->fields($fields);
+
+        return $selectBuilder;
     }
 
 
@@ -244,9 +259,13 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
             if ($propertyConfig->mapping->localPropertyType) {
                 $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
             } elseif ($propertyConfig->mapping->relationForeignProperty) {
-                //STOPPER [eq[eq[eq
-                $type = $this->orm->config->models
-                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
+                // если поле задано как проброс чужого поля по связи, выковыриваем тип этого поля
+                $foreignBaseClass = $this->orm->config->models[$this->baseClass]->parents[$propertyConfig->mapping->relationLocalProperty]->parentModel;
+                $type = $this->orm->config->models[$foreignBaseClass]->properties[$propertyConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
+                if (!$type) {
+                    throw new \LogicException("Property {$foreignBaseClass}.{$propertyConfig->mapping->relationForeignProperty} must be defined with local mapping");
+                }
+                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, $dbArray[$propertyName]);
             } else {
                 $modelArray[$propertyName] = null;
             }
@@ -265,14 +284,9 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $modelArray = $model->getProperties();
         $dbArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
-            //if (isset($modelArray[$propertyName])) {
-            //STOPPER [eq[eq[eq
-            if ($propertyConfig->mapping) {
-                $dbArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($propertyConfig->mapping, $modelArray[$propertyName]);
+            if ($propertyConfig->mapping->localPropertyType) {
+                $dbArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($propertyConfig->mapping->localPropertyType, $modelArray[$propertyName]);
             }
-            //} else {
-            //    $dbArray[$propertyName] = null;
-            //}
         }
         return $dbArray;
     }
@@ -288,9 +302,8 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
         $dbChangesArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
-            if (/*isset($modelArray[$propertyName]) and */$modelArray[$propertyName] != $modelArrayDefaults[$propertyName] and $propertyConfig->mapping) {
-                //STOPPER [eq[eq[eq
-                $dbChangesArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($propertyConfig->mapping, $modelArray[$propertyName]);
+            if ($modelArray[$propertyName] != $modelArrayDefaults[$propertyName] and $propertyConfig->mapping->localPropertyType) {
+                $dbChangesArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($propertyConfig->mapping->localPropertyType, $modelArray[$propertyName]);
             }
         }
 

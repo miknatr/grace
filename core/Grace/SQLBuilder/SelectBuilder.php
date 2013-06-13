@@ -17,7 +17,8 @@ class SelectBuilder extends WhereBuilderAbstract
 {
     protected $fields = '*';
     protected $fieldsArguments = array();
-    protected $joinSql = '';
+    protected $joins = array();
+    protected $lastJoinAlias = '';
     protected $joinArguments = array();
     protected $groupSql = '';
     protected $groupArguments = array();
@@ -26,6 +27,8 @@ class SelectBuilder extends WhereBuilderAbstract
     protected $orderSql = '';
     protected $orderArguments = array();
     protected $limitSql;
+
+    // STOPPER сделать возможность менять алиас пост-фактум, чтобы при этом билдер не разваливался
 
     /**
      * Sets count syntax
@@ -53,7 +56,7 @@ class SelectBuilder extends WhereBuilderAbstract
         foreach ($fields as $field) {
             if (is_scalar($field)) {
                 $newFields[] = '?f';
-                $this->fieldsArguments[] = $field;
+                $this->fieldsArguments[] = $this->alias . '.' . $field;
             } else {
                 if (!isset($field[0]) or !isset($field[1]) or !is_array($field[1])) {
                     throw new \BadMethodCallException('Must be exist 0 and 1 index in array and second one must be an array');
@@ -92,17 +95,40 @@ class SelectBuilder extends WhereBuilderAbstract
 
     /**
      * Sets one field in fields statement
-     * @param $tableSql
+     * @param $tableName
      * @param $onSql
      * @param array $arguments
      * @return $this
      */
-    public function join($tableSql, $onSql, array $arguments = array())
+    public function join($tableName, $alias = null)
     {
-        $this->joinSql .= " LEFT JOIN $tableSql ON $onSql";
-        $this->joinArguments = array_merge($this->joinArguments, $arguments);
+        $this->joins[] = ' LEFT JOIN ?f as ?f';
+        $this->lastJoinAlias = $alias;
+        $this->joinArguments[] = $tableName;
+        $this->joinArguments[] = $alias;
         return $this;
     }
+
+    public function onEq($localField, $foreignField)
+    {
+        if (empty($this->joins)) {
+            throw new \LogicException('Select builder error: onEq() called before join()');
+        }
+
+        $lastJoinIndex = count($this->joins) - 1;
+        if ($this->joins[$lastJoinIndex] == ' LEFT JOIN ?f as ?f') {
+            $this->joins[$lastJoinIndex] .= ' ON';
+        } else {
+            $this->joins[$lastJoinIndex] .= ' AND';
+        }
+
+        $this->joins[$lastJoinIndex] .= ' ?f = ?f';
+        $this->joinArguments[] = "{$this->alias}.{$localField}";
+        $this->joinArguments[] = "{$this->lastJoinAlias}.{$foreignField}";
+
+        return $this;
+    }
+
     /**
      * Sets group by statement
      * @param $sql
@@ -127,7 +153,7 @@ class SelectBuilder extends WhereBuilderAbstract
         } else {
             $this->groupSql .= ', ?f';
         }
-        $this->groupArguments[] = $field;
+        $this->groupArguments[] = $this->alias . '.' . $field;
         return $this;
     }
     /**
@@ -137,7 +163,7 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     public function orderAsc($field)
     {
-        $this->orderByDirection($field, 'ASC');
+        $this->orderByDirection($this->alias . '.' . $field, 'ASC');
         return $this;
     }
     /**
@@ -147,7 +173,7 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     public function orderDesc($field)
     {
-        $this->orderByDirection($field, 'DESC');
+        $this->orderByDirection($this->alias . '.' . $field, 'DESC');
         return $this;
     }
     /**
@@ -163,7 +189,7 @@ class SelectBuilder extends WhereBuilderAbstract
         } else {
             $this->orderSql .= ', ?f ' . $direction;
         }
-        $this->orderArguments[] = $field;
+        $this->orderArguments[] = $this->alias . '.' . $field;
     }
     /**
      * Sets limit statements
@@ -181,9 +207,7 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     protected function getQueryString()
     {
-        $aliasSql = ($this->alias != '' ? ' AS ?f' : '');
-
-        return 'SELECT ' . $this->fields . ' FROM ?f' . $aliasSql . $this->joinSql . $this->getWhereSql() .
+        return 'SELECT ' . $this->fields . ' FROM ?f AS ?f' . join('', $this->joins) . $this->getWhereSql() .
             $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;
     }
     /**
@@ -191,10 +215,77 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     protected function getQueryArguments()
     {
-        $aliasPlaceholders = ($this->alias != '' ? array($this->alias) : array());
-
         $arguments = parent::getQueryArguments();
+        return array_merge($this->fieldsArguments, array($this->from, $this->alias), $this->joinArguments, $arguments, $this->groupArguments, $this->havingArguments, $this->orderArguments);
+    }
 
-        return array_merge($this->fieldsArguments, array($this->from), $aliasPlaceholders, $this->joinArguments, $arguments, $this->groupArguments, $this->havingArguments, $this->orderArguments);
+    public function eq($field, $value)
+    {
+        return parent::eq($this->alias . '.' . $field, $value);
+    }
+
+    public function notEq($field, $value)
+    {
+        return parent::notEq($this->alias . '.' . $field, $value);
+    }
+
+    public function gt($field, $value)
+    {
+        return parent::gt($this->alias . '.' . $field, $value);
+    }
+
+    public function gtEq($field, $value)
+    {
+        return parent::gtEq($this->alias . '.' . $field, $value);
+    }
+
+    public function lt($field, $value)
+    {
+        return parent::lt($this->alias . '.' . $field, $value);
+    }
+
+    public function ltEq($field, $value)
+    {
+        return parent::ltEq($this->alias . '.' . $field, $value);
+    }
+
+    public function like($field, $value)
+    {
+        return parent::like($this->alias . '.' . $field, $value);
+    }
+
+    public function notLike($field, $value)
+    {
+        return parent::notLike($this->alias . '.' . $field, $value);
+    }
+
+    public function likeInPart($field, $value)
+    {
+        return parent::likeInPart($this->alias . '.' . $field, $value);
+    }
+
+    public function notLikeInPart($field, $value)
+    {
+        return parent::notLikeInPart($this->alias . '.' . $field, $value);
+    }
+
+    public function in($field, array $values)
+    {
+        return parent::in($this->alias . '.' . $field, $values);
+    }
+
+    public function notIn($field, array $values)
+    {
+        return parent::notIn($this->alias . '.' . $field, $values);
+    }
+
+    public function between($field, $value1, $value2)
+    {
+        return parent::between($this->alias . '.' . $field, $value1, $value2);
+    }
+
+    public function notBetween($field, $value1, $value2)
+    {
+        return parent::notBetween($this->alias . '.' . $field, $value1, $value2);
     }
 }

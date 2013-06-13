@@ -10,7 +10,6 @@
 
 namespace Grace\DBAL\ConnectionAbstract;
 
-use Grace\DBAL\Exception\NoResultException;
 use Grace\DBAL\ConnectionAbstract\ResultInterface;
 
 /**
@@ -29,6 +28,7 @@ abstract class ResultAbstract implements ResultInterface
         }
         return $r;
     }
+
     /**
      * @inheritdoc
      */
@@ -41,6 +41,7 @@ abstract class ResultAbstract implements ResultInterface
             return null;
         }
     }
+
     /**
      * @inheritdoc
      */
@@ -49,13 +50,14 @@ abstract class ResultAbstract implements ResultInterface
         $r = array();
         while ($row = $this->fetchOneOrFalse()) {
             if (count($row) == 1) {
-                $r[]    = array_shift($row);
+                $r[] = array_shift($row);
             } else {
-                throw new NoResultException('Sql-query result must contain one column');
+                throw new \LogicException('Sql-query result must contain one column');
             }
         }
         return $r;
     }
+
     /**
      * @inheritdoc
      */
@@ -68,7 +70,7 @@ abstract class ResultAbstract implements ResultInterface
                 $value   = array_shift($row);
                 $r[$key] = $value;
             } else {
-                throw new NoResultException('Sql-query result must contain two columns');
+                throw new \LogicException('Sql-query result must contain two columns');
             }
         }
         return $r;

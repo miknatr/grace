@@ -92,16 +92,21 @@ class Connection extends ConnectionAbstract
     /**
      * @inheritdoc
      */
-    public function escapeField($value)
+    public function escapeField(array $names)
     {
         if (!is_object($this->dbh)) {
             $this->connect();
         }
-        $escapeSymbol = '"'; // '`'
-        if (!is_scalar($value) || strpos($escapeSymbol, $value)) {
-            throw new QueryException('Possible SQL injection in field name');
+        $escapeSymbol = '"'; // MySQL is in ANSI mode
+        $separator    = '.';
+        $r = '';
+        foreach ($names as $value) {
+            if (!is_scalar($value) || strpos($escapeSymbol, $value)) {
+                throw new QueryException('Possible SQL injection in field name');
+            }
+            $r .= $separator . $escapeSymbol . $value . $escapeSymbol;
         }
-        return $escapeSymbol . $value . $escapeSymbol;
+        return substr($r, strlen($separator));
     }
     /**
      * @inheritdoc

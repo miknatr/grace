@@ -40,7 +40,7 @@ class PgsqlConnectionTest extends ConnectionTestAbstract
 
     public function testFieldEscaping()
     {
-        $r = $this->connection->escapeField("field");
+        $r = $this->connection->escapeField(array('field'));
         $this->assertEquals('"field"', $r);
     }
 

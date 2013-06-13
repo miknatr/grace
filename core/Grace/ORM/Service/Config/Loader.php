@@ -18,9 +18,20 @@ class Loader
         $this->resource = $resource;
         $this->cache = $cache;
     }
+
     public function getConfig()
     {
-        //STOPPER кэширование бы
+        return $this->cache->get(
+            'grace_config',
+            null,
+            function () {
+                return $this->getConfigRaw();
+            }
+        );
+    }
+
+    protected function getConfigRaw()
+    {
         $array = $this->loadResource($this->resource);
         $config = new Config;
 
@@ -43,6 +54,7 @@ class Loader
 
         return $config;
     }
+
     private function loadResource($resource)
     {
         if (is_dir($resource)) {
@@ -52,6 +64,7 @@ class Loader
             return $this->loadFile($resource, false);
         }
     }
+
     private function loadDir($resource)
     {
         $config = array();
@@ -74,6 +87,7 @@ class Loader
 
         return $config;
     }
+
     private function loadFile($resource, $skipAllowed = true)
     {
         if (!file_exists($resource)) {
@@ -94,6 +108,7 @@ class Loader
             return array();
         }
     }
+
     private function loadYml($resource)
     {
         $config = Yaml::parse($resource);
@@ -105,6 +120,7 @@ class Loader
             return array('models' => array($modelName => $config));
         }
     }
+
     private function loadPhp($resource)
     {
         /** @noinspection PhpIncludeInspection */

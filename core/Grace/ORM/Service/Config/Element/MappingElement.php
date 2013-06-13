@@ -22,7 +22,7 @@ class MappingElement
             $this->relationLocalProperty = $match[1];
             $this->relationForeignProperty = $match[2];
         } elseif ($mapping) {
-            $this->localPropertyType = $match[1];
+            $this->localPropertyType = $mapping;
         }
     }
 }
