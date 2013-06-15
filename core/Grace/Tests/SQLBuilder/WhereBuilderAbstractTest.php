@@ -2,6 +2,7 @@
 
 namespace Grace\Tests\SQLBuilder;
 
+use Grace\DBAL\Mysqli\SqlDialect;
 use Grace\Tests\SQLBuilder\Plug\ExecutablePlug;
 use Grace\Tests\SQLBuilder\Plug\WhereBuilderAbstractChild;
 
@@ -14,7 +15,7 @@ class WhereBuilderAbstractTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->plug    = new ExecutablePlug;
+        $this->plug    = new ExecutablePlug(new SqlDialect);
         $this->builder = new WhereBuilderAbstractChild('TestTable', $this->plug);
     }
     protected function tearDown()

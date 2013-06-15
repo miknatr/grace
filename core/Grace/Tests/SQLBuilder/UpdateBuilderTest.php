@@ -2,6 +2,7 @@
 
 namespace Grace\Tests\SQLBuilder;
 
+use Grace\DBAL\Mysqli\SqlDialect;
 use Grace\SQLBuilder\SqlValue\SqlValue;
 use Grace\SQLBuilder\UpdateBuilder;
 use Grace\Tests\SQLBuilder\Plug\ExecutablePlug;
@@ -15,7 +16,7 @@ class UpdateBuilderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->plug    = new ExecutablePlug;
+        $this->plug    = new ExecutablePlug(new SqlDialect());
         $this->builder = new UpdateBuilder('TestTable', $this->plug);
     }
     protected function tearDown()

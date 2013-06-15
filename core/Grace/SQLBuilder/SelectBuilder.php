@@ -28,8 +28,6 @@ class SelectBuilder extends WhereBuilderAbstract
     protected $orderArguments = array();
     protected $limitSql;
 
-    // STOPPER сделать возможность менять алиас пост-фактум, чтобы при этом билдер не разваливался
-
     /**
      * Sets count syntax
      * @return $this
@@ -189,7 +187,7 @@ class SelectBuilder extends WhereBuilderAbstract
         } else {
             $this->orderSql .= ', ?f ' . $direction;
         }
-        $this->orderArguments[] = $this->alias . '.' . $field;
+        $this->orderArguments[] = $field;
     }
     /**
      * Sets limit statements
@@ -218,6 +216,11 @@ class SelectBuilder extends WhereBuilderAbstract
         $arguments = parent::getQueryArguments();
         return array_merge($this->fieldsArguments, array($this->from, $this->alias), $this->joinArguments, $arguments, $this->groupArguments, $this->havingArguments, $this->orderArguments);
     }
+
+
+    //
+    // OVERRIDE WHERE BUILDER METHODS FOR ADDING ALIAS
+    //
 
     public function eq($field, $value)
     {

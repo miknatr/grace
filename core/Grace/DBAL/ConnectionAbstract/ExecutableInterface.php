@@ -23,8 +23,12 @@ interface ExecutableInterface
      * @abstract
      * @param string $query
      * @param array  $arguments
-     * @throws \Grace\DBAL\Exception\QueryException, ExceptionConnection
+     * @throws QueryException, ExceptionConnection
      * @return ResultInterface|bool
      */
     public function execute($query, array $arguments = array());
+    /**
+     * @return SqlDialectAbstract
+     */
+    public function provideSqlDialect();
 }

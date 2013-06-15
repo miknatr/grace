@@ -19,7 +19,7 @@ use Grace\DBAL\ConnectionAbstract\ResultInterface;
 abstract class BuilderAbstract implements ResultInterface
 {
     /** @var \Grace\DBAL\ConnectionAbstract\ExecutableInterface */
-    private $executable;
+    protected $executable;
     private $result;
     protected $from;
     protected $alias;
@@ -46,6 +46,7 @@ abstract class BuilderAbstract implements ResultInterface
      */
     public function setFrom($fromTable)
     {
+        //TODO сделать возможность менять алиас пост-фактум, чтобы при этом билдер не разваливался (в джоинах и тд)
         $this->from = $fromTable;
         if (empty($this->alias)) {
             $this->alias = $fromTable;

@@ -2,10 +2,9 @@
 
 namespace Grace\Tests\SQLBuilder;
 
+use Grace\DBAL\Mysqli\SqlDialect;
 use Grace\SQLBuilder\Factory;
 use Grace\SQLBuilder\SelectBuilder;
-use Grace\SQLBuilder\CreateBuilder;
-use Grace\SQLBuilder\AlterBuilder;
 use Grace\SQLBuilder\InsertBuilder;
 use Grace\SQLBuilder\UpdateBuilder;
 use Grace\SQLBuilder\DeleteBuilder;
@@ -18,7 +17,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->builder = new Factory(new ExecutablePlug);
+        $this->builder = new Factory(new ExecutablePlug(new SqlDialect()));
     }
     public function testSelectFactory()
     {

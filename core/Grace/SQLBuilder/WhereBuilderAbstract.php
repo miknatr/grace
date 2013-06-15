@@ -111,7 +111,8 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     public function like($field, $value)
     {
-        return $this->setTwoArgsOperator($field, $value, ' LIKE ');
+        $operator = ' ' . $this->executable->provideSqlDialect()->likeOperator() . ' ';
+        return $this->setTwoArgsOperator($field, $value, $operator);
     }
     /**
      * Adds NOT LIKE statement into where statement
@@ -121,7 +122,8 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     public function notLike($field, $value)
     {
-        return $this->setTwoArgsOperator($field, $value, ' NOT LIKE ');
+        $operator = ' NOT ' . $this->executable->provideSqlDialect()->likeOperator() . ' ';
+        return $this->setTwoArgsOperator($field, $value, $operator);
     }
     /**
      * Adds LIKE '%value%' statement into where statement
@@ -131,7 +133,8 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     public function likeInPart($field, $value)
     {
-        return $this->setTwoArgsOperator($field, '%' . $value . '%', ' LIKE ');
+        $operator = ' ' . $this->executable->provideSqlDialect()->likeOperator() . ' ';
+        return $this->setTwoArgsOperator($field, '%' . $value . '%', $operator);
     }
     /**
      * Adds NOT LIKE '%value%' statement into where statement
@@ -141,7 +144,8 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     public function notLikeInPart($field, $value)
     {
-        return $this->setTwoArgsOperator($field, '%' . $value . '%', ' NOT LIKE ');
+        $operator = ' NOT ' . $this->executable->provideSqlDialect()->likeOperator() . ' ';
+        return $this->setTwoArgsOperator($field, '%' . $value . '%', $operator);
     }
     /**
      * @param       $field

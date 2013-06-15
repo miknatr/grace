@@ -2,6 +2,7 @@
 
 namespace Grace\Tests\SQLBuilder;
 
+use Grace\DBAL\Mysqli\SqlDialect;
 use Grace\SQLBuilder\DeleteBuilder;
 use Grace\Tests\SQLBuilder\Plug\ExecutablePlug;
 
@@ -14,7 +15,7 @@ class DeleteBuilderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->plug    = new ExecutablePlug;
+        $this->plug    = new ExecutablePlug(new SqlDialect);
         $this->builder = new DeleteBuilder('TestTable', $this->plug);
     }
     protected function tearDown()

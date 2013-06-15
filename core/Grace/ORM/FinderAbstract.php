@@ -12,6 +12,7 @@ namespace Grace\ORM;
 
 use Grace\DBAL\ConnectionAbstract\ExecutableInterface;
 use Grace\DBAL\ConnectionAbstract\ResultInterface;
+use Grace\DBAL\ConnectionAbstract\SqlDialectAbstract;
 use Grace\SQLBuilder\Factory;
 use Grace\SQLBuilder\SelectBuilder;
 
@@ -33,6 +34,13 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
 
     //IMPLEMENTATIONS OF InterfaceExecutable, InterfaceResult
+    /**
+     * @return SqlDialectAbstract
+     */
+    public function provideSqlDialect()
+    {
+        return $this->orm->db->provideSqlDialect();
+    }
 
     /** @var ResultInterface */
     private $queryResult;

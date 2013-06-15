@@ -21,6 +21,21 @@ use Grace\Cache\CacheInterface;
  */
 abstract class ConnectionAbstract implements ConnectionInterface
 {
+    /** @var SqlDialectAbstract */
+    protected $sqlDialect;
+    /**
+     * @return SqlDialectAbstract
+     */
+    public function provideSqlDialect()
+    {
+        if ($this->sqlDialect == null) {
+            //hardcoded naming convention
+            $class = '\\' . substr(get_class($this), 0, -strlen('Connection')) . 'SqlDialect';
+            $this->sqlDialect = new $class;
+        }
+
+        return $this->sqlDialect;
+    }
 
     /**
      * @var CacheInterface
@@ -164,8 +179,11 @@ abstract class ConnectionAbstract implements ConnectionInterface
 
 
     protected $idCounterByTable = array();
+
     /**
      * Generate new id for insert
+     * @param string $table
+     * @throws \OutOfBoundsException
      * @return mixed
      */
     public function generateNewId($table)
