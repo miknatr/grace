@@ -40,6 +40,9 @@ class Loader
             foreach ($modelConfig['properties'] as $propertyNameWithParentId => $propertyConfig) {
                 $config->models[$modelName]->properties[$propertyNameWithParentId] = new PropertyElement();
                 $config->models[$modelName]->properties[$propertyNameWithParentId]->mapping = new MappingElement($propertyConfig['mapping']);
+                if (isset($propertyConfig['validation'])) {
+                    $config->models[$modelName]->properties[$propertyNameWithParentId]->validation = $propertyConfig['validation'];
+                }
             }
 
             if (!isset($modelConfig['parents'])) {

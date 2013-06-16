@@ -135,6 +135,10 @@ class Grace
     {
         $baseClass = $this->classNameProvider->getBaseClass($baseOrModelOrFinderClass);
 
+        if (!$baseClass) {
+            return null;
+        }
+
         if (!isset($this->finders[$baseClass])) {
             $fullFinderClassName = $this->classNameProvider->getFinderClass($baseClass);
 

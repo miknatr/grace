@@ -47,7 +47,8 @@ class ClassNameProvider
             return substr(substr($baseOrModelOrFinderClass, 0, -strlen(self::FINDER_SUFFIX)), strlen($this->finderNamespace) + 1);
         }
 
-        throw new \LogicException('Unsupported class name ' . $baseOrModelOrFinderClass);
+        //throw new \LogicException('Unsupported class name ' . $baseOrModelOrFinderClass);
+        return null;
     }
     public function getModelClass($baseOrModelOrFinderClass)
     {
