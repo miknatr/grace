@@ -36,7 +36,7 @@ class Generator
 
         foreach ($this->modelsConfig->models as $name => $config) {
             $fileName = $this->baseDir . str_replace('\\', '/', $this->classNameProvider->getModelClass($name)) . '.php';
-            $newFilesContent[$fileName] = self::addGeneratedMethodsToModelContent(file_get_contents($fileName), $config);
+            $newFilesContent[$fileName] = $this->addGeneratedMethodsToModelContent(file_get_contents($fileName), $config);
         }
 
         //we need second cycle, we don't write into file on error in first cycle
@@ -50,7 +50,7 @@ class Generator
             }
         }
     }
-    private static function addGeneratedMethodsToModelContent($content, ModelElement $config)
+    private function addGeneratedMethodsToModelContent($content, ModelElement $config)
     {
         $content = trim($content);
         $lines = explode("\n", $content);
@@ -69,9 +69,9 @@ class Generator
         $beginPos        = strpos($content, self::GENCODE_MARKER);
         $handWrittenCode = $beginPos !== false ? substr($content, 0, $beginPos) : $content;
 
-        return rtrim(implode("\n", $lines)) . "\n\n\n" . self::GENCODE_MARKER . "\n" . self::generateModelMethodsCode($config, $handWrittenCode) . "\n}\n";
+        return rtrim(implode("\n", $lines)) . "\n\n\n" . self::GENCODE_MARKER . "\n" . $this->generateModelMethodsCode($config, $handWrittenCode) . "\n}\n";
     }
-    private static function generateModelMethodsCode(ModelElement $config, $handWrittenCode)
+    private function generateModelMethodsCode(ModelElement $config, $handWrittenCode)
     {
         $r = '';
 
@@ -110,6 +110,7 @@ PHP;
             $getterName = 'get' . ucfirst($propertyName);
             $r .= <<<PHP
 
+    /** @return {$this->classNameProvider->getModelClass($parentConfig->parentModel)} */
     public function $parentGetterName()
     {
         return \$this->orm->getFinder('$parentConfig->parentModel')->getByIdOrFalse(\$this->$getterName());
