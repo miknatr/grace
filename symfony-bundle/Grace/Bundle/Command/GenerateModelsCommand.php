@@ -17,15 +17,14 @@ class GenerateModelsCommand extends ContainerAwareCommand
         $this
             ->setName('grace:generate_models')
             ->setDescription('Grace models and validators generation')
-            ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Dry run')
-        ;
+            ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Dry run');
     }
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this
             ->getContainer()
             ->get('grace_generator')
-            ->generate();
+            ->generate($input->getOption('dry-run'), function($message) use ($output) { $output->writeln($message); });
 
         $output->writeln('Done');
     }
