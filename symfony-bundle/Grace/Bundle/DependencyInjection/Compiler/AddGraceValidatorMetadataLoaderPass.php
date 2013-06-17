@@ -6,7 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
-/*
+/**
  * Нужно добавить в Symfony/Bundle/FrameworkBundle/Resources/config/validator.xml свой Mapping\Loader.
  *
  * Существующие лоадеры не подходят:
@@ -38,7 +38,7 @@ class AddGraceValidatorMetadataLoaderPass implements CompilerPassInterface
         }
 
         $loaders = $container->getDefinition('validator.mapping.loader.loader_chain')->getArgument(0);
-        $loaders[] = new Reference('');
+        $loaders[] = new Reference('grace_model_validation_loader');
         $container->getDefinition('validator.mapping.loader.loader_chain')->replaceArgument(0, $loaders);
     }
 }

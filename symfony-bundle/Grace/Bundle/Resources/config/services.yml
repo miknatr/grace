@@ -61,7 +61,7 @@ services:
 
 
   #Symfony integration services
-  grace_param_converter:
+  grace_model_validation_loader:
     class: Grace\Bundle\Validator\Mapping\Loader\GraceModelValidationLoader
     arguments: [@grace_classname_provider, @grace_models_config, [Symfony\Component\Validator\Constraints\, %grace.namespace_prefix%\Validator\Constraints\]]
   grace_param_converter:
