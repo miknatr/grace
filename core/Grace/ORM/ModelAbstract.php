@@ -43,6 +43,7 @@ abstract class ModelAbstract
     // OVERRIDE
     //
 
+    //STOPPER модель в супер грейсе зависит от интертосного юзера
     public function initCreatedModel(UserAbstract $user = null)
     {
         return $this;
@@ -89,12 +90,11 @@ abstract class ModelAbstract
 
         if ($prefix == 'get') {
             if (isset($this->orm->config->models[$this->getBaseClass()]->properties[$propertyName])) {
-                return $this->properties[$propertyName];
+                return $this->getProperty($propertyName);
             }
 
             if ($this->orm->config->models[$this->getBaseClass()]->parents[$propertyName . 'Id']) {
-                $parentModelName = $this->orm->config->models[$this->getBaseClass()]->parents[$propertyName . 'Id']->parentModel;
-                return $this->orm->getFinder($parentModelName)->getByIdOrFalse($this->properties[$propertyName . 'Id']);
+                return $this->getParent($propertyName);
             }
 
             throw new PropertyNotFoundException();
@@ -106,21 +106,37 @@ abstract class ModelAbstract
                 throw new \InvalidArgumentException();
             }
 
-            if (!isset($this->orm->config->models[$this->getBaseClass()]->properties[$propertyName])) {
-                throw new \InvalidArgumentException('WTF is this');
-            }
+            $this->setProperty($propertyName, $arguments[0]);
 
-            $type = $this->orm->config->models[$this->getBaseClass()]->properties[$propertyName]->mapping->localPropertyType;
-            if (!$type) {
-                throw new \InvalidArgumentException('Cannot set the unsettable');
-            }
-
-            $this->properties[$propertyName] = $this->orm->typeConverter->convertOnSetter($type, $arguments[0]);
-            $this->markAsChanged();
             return $this;
         }
 
         throw new PropertyNotFoundException();
+    }
+    final public function getProperty($name)
+    {
+        return $this->properties[$name];
+    }
+    final public function setProperty($name, $value)
+    {
+        if ($name == 'id' or !isset($this->orm->config->models[$this->getBaseClass()]->properties[$name])) {
+            throw new \InvalidArgumentException('WTF is this');
+        }
+
+        $type = $this->orm->config->models[$this->getBaseClass()]->properties[$name]->mapping->localPropertyType;
+        if (!$type) {
+            throw new \InvalidArgumentException('Cannot set the unsettable');
+        }
+
+        $this->properties[$name] = $this->orm->typeConverter->convertOnSetter($type, $value);
+        $this->markAsChanged();
+
+        return $this;
+    }
+    final public function getParent($name)
+    {
+        $parentModelName = $this->orm->config->models[$this->getBaseClass()]->parents[$name . 'Id']->parentModel;
+        return $this->orm->getFinder($parentModelName)->getByIdOrFalse($this->properties[$name . 'Id']);
     }
     final public function getDefaultProperties()
     {
