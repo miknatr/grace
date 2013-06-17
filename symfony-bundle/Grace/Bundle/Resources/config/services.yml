@@ -17,6 +17,8 @@ services:
       - @grace_models_config
       - @grace_classname_provider
       - %grace.class_directory%
+      - %grace.grace_class%
+      - Grace\Bundle\GracePlusSymfony
 
 
   #DB connections
@@ -48,7 +50,7 @@ services:
     factory_method: getConfig
     arguments: [@event_dispatcher]
   grace_orm:
-    class: Grace\Bundle\GracePlusSymfony
+    class: %grace.grace_class%
     arguments:
       - @grace_db
       - @grace_classname_provider

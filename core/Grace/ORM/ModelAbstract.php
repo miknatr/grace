@@ -82,6 +82,46 @@ abstract class ModelAbstract
         }
         return $this;
     }
+    public function __call($name, array $arguments)
+    {
+        $prefix = substr($name, 0, 3);
+        $propertyName = lcfirst(substr($name, 3));
+
+        if ($prefix == 'get') {
+            if (isset($this->orm->config->models[$this->getBaseClass()]->properties[$propertyName])) {
+                return $this->properties[$propertyName];
+            }
+
+            if ($this->orm->config->models[$this->getBaseClass()]->parents[$propertyName . 'Id']) {
+                $parentModelName = $this->orm->config->models[$this->getBaseClass()]->parents[$propertyName . 'Id']->parentModel;
+                return $this->orm->getFinder($parentModelName)->getByIdOrFalse($this->properties[$propertyName . 'Id']);
+            }
+
+            throw new PropertyNotFoundException();
+        }
+
+        if ($prefix == 'set') {
+            if (count($arguments) != 1) {
+                // TODO proper exceptions everywhere in grace
+                throw new \InvalidArgumentException();
+            }
+
+            if (!isset($this->orm->config->models[$this->getBaseClass()]->properties[$propertyName])) {
+                throw new \InvalidArgumentException('WTF is this');
+            }
+
+            $type = $this->orm->config->models[$this->getBaseClass()]->properties[$propertyName]->mapping->localPropertyType;
+            if (!$type) {
+                throw new \InvalidArgumentException('Cannot set the unsettable');
+            }
+
+            $this->properties[$propertyName] = $this->orm->typeConverter->convertOnSetter($type, $arguments[0]);
+            $this->markAsChanged();
+            return $this;
+        }
+
+        throw new PropertyNotFoundException();
+    }
     final public function getDefaultProperties()
     {
         return $this->defaultProperties;

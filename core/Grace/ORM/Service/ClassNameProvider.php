@@ -14,9 +14,14 @@ class ClassNameProvider
 {
     protected $modelNamespace;
     protected $finderNamespace;
+    protected $selectBuilderNamespace;
 
     const FINDER_NAMESPACE_PART = 'Finder';
-    const FINDER_SUFFIX = 'Finder';
+    const FINDER_SUFFIX         = 'Finder';
+
+    const SELECT_BUILDER_NAMESPACE_PART = 'SelectBuilder';
+    const SELECT_BUILDER_SUFFIX         = 'SelectBuilder';
+
     const MODEL_NAMESPACE_PART = 'Model';
 
     public function __construct($commonNamespace)
@@ -27,8 +32,9 @@ class ClassNameProvider
             throw new \LogicException('Common namespace must be provided');
         }
 
-        $this->finderNamespace = '\\' . $commonNamespace . '\\' . self::FINDER_NAMESPACE_PART;
-        $this->modelNamespace  = '\\' . $commonNamespace . '\\' . self::MODEL_NAMESPACE_PART;
+        $this->finderNamespace        = '\\' . $commonNamespace . '\\' . self::FINDER_NAMESPACE_PART;
+        $this->selectBuilderNamespace = '\\' . $commonNamespace . '\\' . self::SELECT_BUILDER_NAMESPACE_PART;
+        $this->modelNamespace         = '\\' . $commonNamespace . '\\' . self::MODEL_NAMESPACE_PART;
     }
     public function getBaseClass($baseOrModelOrFinderClass)
     {
@@ -57,5 +63,9 @@ class ClassNameProvider
     public function getFinderClass($baseOrModelOrFinderClass)
     {
         return $this->finderNamespace . '\\' . $this->getBaseClass($baseOrModelOrFinderClass) . self::FINDER_SUFFIX;
+    }
+    public function getSelectBuilderClass($baseOrModelOrFinderClass)
+    {
+        return $this->selectBuilderNamespace . '\\' . $this->getBaseClass($baseOrModelOrFinderClass) . self::SELECT_BUILDER_SUFFIX;
     }
 }

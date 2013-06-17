@@ -152,4 +152,18 @@ class Grace
 
         return $this->finders[$baseClass];
     }
+
+    public function __get($name)
+    {
+        $finderSuffixPos = strpos($name, 'Finder');
+        if ($finderSuffixPos !== false) {
+            $modelName = substr($name, 0, $finderSuffixPos);
+            $finder = $this->getFinder($modelName);
+            if ($finder) {
+                return $finder;
+            }
+        }
+
+        throw new PropertyNotFoundException();
+    }
 }

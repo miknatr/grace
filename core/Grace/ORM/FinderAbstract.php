@@ -121,7 +121,9 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
     /** @return SelectBuilder */
     public function getSelectBuilder()
     {
-        $selectBuilder = (new Factory($this))->select($this->baseClass);
+        $selectBuilderClass = $this->getOrm()->classNameProvider->getSelectBuilderClass($this->baseClass);
+        /** @var SelectBuilder $selectBuilder */
+        $selectBuilder = new $selectBuilderClass($this->baseClass, $this);
 
         $fields = array();
         $aliases = array();

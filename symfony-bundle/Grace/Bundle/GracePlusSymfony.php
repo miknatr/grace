@@ -19,16 +19,16 @@ class GracePlusSymfony extends Grace
     public $logger;
     public $roleHierarchy;
 
-    public function __construct(ConnectionInterface $db,
-                                ClassNameProvider $classNameProvider,
-                                ModelObserver $modelObserver,
-                                Config $config,
-                                CacheInterface $cache,
-                                EventDispatcher $eventDispatcher,
-                                Logger $logger,
-                                RoleHierarchyInterface $roleHierarchy
-    )
-    {
+    public function __construct(
+        ConnectionInterface $db,
+        ClassNameProvider $classNameProvider,
+        ModelObserver $modelObserver,
+        Config $config,
+        CacheInterface $cache,
+        EventDispatcher $eventDispatcher,
+        Logger $logger,
+        RoleHierarchyInterface $roleHierarchy
+    ) {
         parent::__construct($db, $classNameProvider, $modelObserver, $config, $cache);
 
         $this->eventDispatcher = $eventDispatcher;
