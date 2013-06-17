@@ -45,7 +45,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
     /** @var ResultInterface */
     private $queryResult;
     /** @return ModelAbstract|bool */
-    final public function fetchOneOrFalse()
+    public function fetchOneOrFalse()
     {
         /** @noinspection PhpAssignmentInConditionInspection */
         if ($row = $this->queryResult->fetchOneOrFalse()) {
@@ -59,7 +59,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
      * @throws \LogicException
      * @return ModelAbstract[]
      */
-    final public function fetchAll()
+    public function fetchAll()
     {
         if (!is_object($this->queryResult)) {
             throw new \LogicException('Unprepared sql select result');
@@ -75,7 +75,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
         return $models;
     }
-    final public function fetchResult()
+    public function fetchResult()
     {
         if (!is_object($this->queryResult)) {
             throw new \LogicException('Unprepared sql select result');
@@ -86,7 +86,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
         return $r;
     }
-    final public function fetchHash()
+    public function fetchHash()
     {
         if (!is_object($this->queryResult)) {
             throw new \LogicException('Unprepared sql select result');
@@ -97,7 +97,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
         return $r;
     }
-    final public function fetchColumn()
+    public function fetchColumn()
     {
         if (!is_object($this->queryResult)) {
             throw new \LogicException('Unprepared sql select result');
@@ -108,7 +108,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
         return $r;
     }
-    final public function execute($query, array $arguments = array())
+    public function execute($query, array $arguments = array())
     {
         $this->queryResult = $this->orm->db->execute($query, $arguments);
         return $this;
