@@ -10,6 +10,7 @@
 
 namespace Grace\ORM;
 use Grace\Bundle\GracePlusSymfony;
+use Intertos\CoreBundle\Security\Core\User\UserAbstract;
 
 /**
  * Base model class
@@ -36,6 +37,22 @@ abstract class ModelAbstract
         $this->defaultProperties = $properties;
         $this->properties        = $properties;
     }
+
+
+    //
+    // OVERRIDE
+    //
+
+    public function initCreatedModel(UserAbstract $user = null)
+    {
+        return $this;
+    }
+
+
+    //
+    // INTERNALS
+    //
+
     final public function getBaseClass()
     {
         return $this->orm->classNameProvider->getBaseClass(get_class($this));
@@ -63,6 +80,7 @@ abstract class ModelAbstract
                 }
             }
         }
+        return $this;
     }
     final public function getDefaultProperties()
     {
