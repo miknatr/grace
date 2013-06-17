@@ -29,7 +29,6 @@ class Generator
     /** @var callable */
     private $logger;
 
-    const GENCODE_MARKER = '    /* BEGIN GRACE GENERATED CODE */';
     const INLINE_GENCODE_MARKER = 'BEGIN GRACE GENERATED CODE';
 
     public function __construct(Config $modelsConfig, ClassNameProvider $classNameProvider, $baseDir, $graceClass, $baseGraceClass = '\\Grace\\ORM\\Grace')
@@ -98,8 +97,12 @@ class Generator
 
         foreach ($this->modelsConfig->models[$modelName]->properties as $propName => $propConfig) {
             $name = ucfirst($propName);
-            $phpdoc .= " * @method mixed get{$name}()\n";
-            if ($propConfig->mapping->localPropertyType) {
+
+            if (!method_exists($modelClass, "get{$name}")) {
+                $phpdoc .= " * @method mixed get{$name}()\n";
+            }
+
+            if ($propConfig->mapping->localPropertyType and $propName != 'id' and !method_exists($modelClass, "set{$name}")) {
                 $phpdoc .= " * @method {$modelClass} set{$name}(\$$propName)\n";
             }
         }
@@ -107,7 +110,10 @@ class Generator
         foreach ($this->modelsConfig->models[$modelName]->parents as $propName => $parentConfig) {
             $name = ucfirst(substr($propName, 0, -2)); // removing Id suffix
             $class = $this->classNameProvider->getModelClass($parentConfig->parentModel);
-            $phpdoc .= " * @method {$class} get{$name}()\n";
+
+            if (!method_exists($modelClass, "get{$name}")) {
+                $phpdoc .= " * @method {$class} get{$name}()\n";
+            }
         }
 
         return $phpdoc;
@@ -164,11 +170,11 @@ class Generator
         $filename = $this->baseDir . '/' . str_replace('\\', '/', ltrim($class, '\\')) . '.php';
 
         if (!file_exists($filename)) {
-            preg_match('#^(.*)\\\\([^\\\\]+)$#', $class, $match);
+            preg_match('#^\\\\(.*)\\\\([^\\\\]+)$#', $class, $match);
             $classNs   = $match[1];
             $className = $match[2];
 
-            preg_match('#^(.*)\\\\([^\\\\]+)$#', $parentClass, $match);
+            preg_match('#^\\\\(.*\\\\([^\\\\]+))$#', $parentClass, $match);
             $parentNs   = $match[1];
             $parentName = $match[2];
 
