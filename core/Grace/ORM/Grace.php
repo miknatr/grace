@@ -157,7 +157,7 @@ class Grace
     {
         $finderSuffixPos = strpos($name, 'Finder');
         if ($finderSuffixPos !== false) {
-            $modelName = substr($name, 0, $finderSuffixPos);
+            $modelName = ucfirst(substr($name, 0, $finderSuffixPos));
             $finder = $this->getFinder($modelName);
             if ($finder) {
                 return $finder;

@@ -36,8 +36,8 @@ class Generator
         $this->modelsConfig      = $modelsConfig;
         $this->classNameProvider = $classNameProvider;
         $this->baseDir           = rtrim($baseDir, '\\/');
-        $this->graceClass        = $graceClass;
-        $this->baseGraceClass    = $baseGraceClass;
+        $this->graceClass        = '\\' . ltrim($graceClass, '\\');
+        $this->baseGraceClass    = '\\' . ltrim($baseGraceClass, '\\');
     }
 
     public function generate($dryRun = false, callable $logger = null)
@@ -95,6 +95,8 @@ class Generator
 
         $phpdoc = '';
 
+        $phpdoc .= " * @property {$this->graceClass} \$orm\n";
+
         foreach ($this->modelsConfig->models[$modelName]->properties as $propName => $propConfig) {
             $name = ucfirst($propName);
 
@@ -139,8 +141,9 @@ class Generator
         $phpdoc = '';
         foreach ($this->modelsConfig->models as $name => $config) {
             // example:
-            //  * @property $taxiPassengerFinder \Grace\Bundle\Finder\TaxiPassengerFinder
-            $phpdoc .= " * @property \${$name}Finder " . $this->classNameProvider->getFinderClass($name) . "\n";
+            //  * @property \Grace\Bundle\Finder\TaxiPassengerFinder $taxiPassengerFinder
+            $name = lcfirst($name);
+            $phpdoc .= " * @property " . $this->classNameProvider->getFinderClass($name) . " \${$name}Finder\n";
         }
         return $phpdoc;
     }
