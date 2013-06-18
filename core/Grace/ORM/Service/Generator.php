@@ -106,7 +106,17 @@ class Generator
             $name = ucfirst($propName);
 
             if (!method_exists($modelClass, "get{$name}")) {
-                $phpdoc .= " * @method mixed get{$name}()\n";
+                if ($propConfig->mapping->localPropertyType) {
+                    $type = $this->typeConverter->getPhpType($propConfig->mapping->localPropertyType);
+                } elseif ($propConfig->mapping->relationLocalProperty) {
+                    $parentName = $this->modelsConfig->models[$modelName]->parents[$propConfig->mapping->relationLocalProperty]->parentModel;
+                    $typeAlias = $this->modelsConfig->models[$parentName]->properties[$propConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
+                    $type = $this->typeConverter->getPhpType($typeAlias);
+                } else {
+                    $type = 'mixed';
+                }
+
+                $phpdoc .= " * @method $type get{$name}()\n";
             }
 
             if ($propConfig->mapping->localPropertyType and $propName != 'id' and !method_exists($modelClass, "set{$name}")) {

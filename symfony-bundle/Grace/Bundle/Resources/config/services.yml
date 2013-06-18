@@ -15,6 +15,7 @@ services:
     class: Grace\ORM\Service\Generator
     arguments:
       - @grace_models_config
+      - @grace_type_converter
       - @grace_classname_provider
       - %grace.class_directory%
       - %grace.grace_class%
