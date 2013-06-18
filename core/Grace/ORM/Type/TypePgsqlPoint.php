@@ -35,6 +35,10 @@ class TypePgsqlPoint implements TypeInterface
     }
     public function convertOnSetter($value)
     {
+        if ($value instanceof PgsqlPointValue) {
+            return $value;
+        }
+
         return new PgsqlPointValue($value);
     }
     public function convertPhpToDb($value)
