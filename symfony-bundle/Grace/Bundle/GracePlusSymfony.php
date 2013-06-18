@@ -8,6 +8,7 @@ use Grace\Cache\CacheInterface;
 use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\Config\Config;
 use Grace\ORM\Service\ModelObserver;
+use Grace\ORM\Service\TypeConverter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
 use Monolog\Logger;
@@ -23,13 +24,14 @@ class GracePlusSymfony extends Grace
         ConnectionInterface $db,
         ClassNameProvider $classNameProvider,
         ModelObserver $modelObserver,
+        TypeConverter $typeConverter,
         Config $config,
         CacheInterface $cache,
         EventDispatcher $eventDispatcher,
         Logger $logger,
         RoleHierarchyInterface $roleHierarchy
     ) {
-        parent::__construct($db, $classNameProvider, $modelObserver, $config, $cache);
+        parent::__construct($db, $classNameProvider, $modelObserver, $typeConverter, $config, $cache);
 
         $this->eventDispatcher = $eventDispatcher;
         $this->logger          = $logger;

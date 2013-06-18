@@ -36,6 +36,7 @@ class Grace
         ConnectionInterface $db,
         ClassNameProvider $classNameProvider,
         ModelObserver $modelObserver,
+        TypeConverter $typeConverter,
         Config $config,
         CacheInterface $cache
     )
@@ -43,10 +44,10 @@ class Grace
         $this->db                = $db;
         $this->classNameProvider = $classNameProvider;
         $this->modelObserver     = $modelObserver;
+        $this->typeConverter     = $typeConverter;
         $this->cache             = $cache;
 
 
-        $this->typeConverter = new TypeConverter();
         $this->identityMap   = new IdentityMap;
         $this->unitOfWork    = new UnitOfWork;
 

@@ -11,33 +11,37 @@
 
 namespace Grace\ORM\Service;
 
-use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\Config\Config;
 use Grace\ORM\Service\ClassNameProvider;
 use Symfony\Component\Yaml\Yaml;
 
 class Generator
 {
+    /** @var Config */
     private $modelsConfig;
+    /** @var ClassNameProvider */
     private $classNameProvider;
+    /** @var TypeConverter */
+    private $typeConverter;
+
     private $baseDir;
     private $graceClass;
     private $baseGraceClass;
 
     private $isDryRun = false;
-
     /** @var callable */
     private $logger;
 
     const INLINE_GENCODE_MARKER = 'BEGIN GRACE GENERATED CODE';
 
-    public function __construct(Config $modelsConfig, ClassNameProvider $classNameProvider, $baseDir, $graceClass, $baseGraceClass = '\\Grace\\ORM\\Grace')
+    public function __construct(Config $modelsConfig, TypeConverter $typeConverter, ClassNameProvider $classNameProvider, $baseDir, $graceClass, $baseGraceClass = '\\Grace\\ORM\\Grace')
     {
         $this->modelsConfig      = $modelsConfig;
         $this->classNameProvider = $classNameProvider;
         $this->baseDir           = rtrim($baseDir, '\\/');
         $this->graceClass        = '\\' . ltrim($graceClass, '\\');
         $this->baseGraceClass    = '\\' . ltrim($baseGraceClass, '\\');
+        $this->typeConverter     = $typeConverter;
     }
 
     public function generate($dryRun = false, callable $logger = null)
