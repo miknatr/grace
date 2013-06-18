@@ -7,6 +7,7 @@ use Grace\ORM\Grace;
 use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\ModelObserver;
 use Grace\DBAL\Mysqli\Connection;
+use Grace\ORM\Service\TypeConverter;
 use Grace\Tests\ORM\Plug\Finder\TaxiPassengerFinder;
 use Grace\Tests\ORM\Plug\TaxiModelsConfig;
 use Grace\Tests\ORM\Plug\Model\TaxiPassenger;
@@ -29,6 +30,7 @@ class FinderAbstractTest extends \PHPUnit_Framework_TestCase
             $db,
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
+            new TypeConverter(),
             new TaxiModelsConfig(),
             $cache
         );
