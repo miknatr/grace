@@ -91,6 +91,7 @@ class Generator
 
     private function generateModelClassPhpdoc($modelName)
     {
+        $shortModelClass = $modelName; //in Your\App\Model\ namespace
         $modelClass = $this->classNameProvider->getModelClass($modelName);
 
         $phpdoc = '';
@@ -105,16 +106,16 @@ class Generator
             }
 
             if ($propConfig->mapping->localPropertyType and $propName != 'id' and !method_exists($modelClass, "set{$name}")) {
-                $phpdoc .= " * @method {$modelClass} set{$name}(\$$propName)\n";
+                $phpdoc .= " * @method {$shortModelClass} set{$name}(\$$propName)\n";
             }
         }
 
         foreach ($this->modelsConfig->models[$modelName]->parents as $propName => $parentConfig) {
             $name = ucfirst(substr($propName, 0, -2)); // removing Id suffix
-            $class = $this->classNameProvider->getModelClass($parentConfig->parentModel);
+            $shortParentClass = $parentConfig->parentModel; //in Your\App\Model\ namespace
 
             if (!method_exists($modelClass, "get{$name}")) {
-                $phpdoc .= " * @method {$class} get{$name}()\n";
+                $phpdoc .= " * @method {$shortParentClass} get{$name}()\n";
             }
         }
 
