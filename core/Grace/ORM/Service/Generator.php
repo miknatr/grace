@@ -240,7 +240,7 @@ class Generator
             if (preg_match('/^(\s*[a-z]+)*\s*class\s/', $line)) {
                 // found class declaration
                 // this means there is no phpdoc
-                $newImports = $this->simplifyClassNames($phpdocBody, $fileNamespace, $importedClasses, $filename);
+//                $newImports = $this->simplifyClassNames($phpdocBody, $fileNamespace, $importedClasses, $filename);
                 $lines[$i] = "/**\n$marker\n" . $phpdocBody . " */\n" . $line;
                 break;
             }
@@ -256,7 +256,7 @@ class Generator
                 // found the end of phpdoc
                 // we know that there is nothing generated in the file already
                 // so we can safely paste newly generated phpdoc here before the end of the phpdoc block
-                $newImports = $this->simplifyClassNames($phpdocBody, $fileNamespace, $importedClasses, $filename);
+//                $newImports = $this->simplifyClassNames($phpdocBody, $fileNamespace, $importedClasses, $filename);
                 $lines[$i] = "$marker\n" . $phpdocBody . $line;
                 if (!$doRemoveLines) {
                     // no lines were removed
@@ -296,6 +296,18 @@ class Generator
         $this->writeFile($filename, $contents);
     }
 
+    /**
+     * Converts FQN to short class names and imports
+     *
+     * This is disabled for now because with simplified class names PhpStorm (as of PS 129.757)
+     * cannot properly resolve class members. So we use FQNs and disable the related inspection in the IDE.
+     *
+     * @param string $phpdocBody
+     * @param string $fileNamespace
+     * @param string[] $importedClasses
+     * @param string $filename
+     * @return string[] imports to add
+     */
     private function simplifyClassNames(&$phpdocBody, $fileNamespace, $importedClasses, $filename)
     {
         $newImports = array();
