@@ -95,7 +95,6 @@ class Generator
 
     private function generateModelClassPhpdoc($modelName)
     {
-        $shortModelClass = $modelName; //in Your\App\Model\ namespace
         $modelClass = $this->classNameProvider->getModelClass($modelName);
 
         $phpdoc = '';
@@ -120,16 +119,16 @@ class Generator
             }
 
             if ($propConfig->mapping->localPropertyType and $propName != 'id' and !method_exists($modelClass, "set{$name}")) {
-                $phpdoc .= " * @method {$shortModelClass} set{$name}(\$$propName)\n";
+                $phpdoc .= " * @method {$modelClass} set{$name}(\$$propName)\n";
             }
         }
 
         foreach ($this->modelsConfig->models[$modelName]->parents as $propName => $parentConfig) {
             $name = ucfirst(substr($propName, 0, -2)); // removing Id suffix
-            $shortParentClass = $parentConfig->parentModel; //in Your\App\Model\ namespace
+            $parentClass = $this->classNameProvider->getModelClass($parentConfig->parentModel);
 
             if (!method_exists($modelClass, "get{$name}")) {
-                $phpdoc .= " * @method {$shortParentClass} get{$name}()\n";
+                $phpdoc .= " * @method {$parentClass} get{$name}()\n";
             }
         }
 
@@ -157,8 +156,8 @@ class Generator
         foreach ($this->modelsConfig->models as $name => $config) {
             // example:
             //  * @property \Grace\Bundle\Finder\TaxiPassengerFinder $taxiPassengerFinder
-            $name = lcfirst($name);
-            $phpdoc .= " * @property " . $this->classNameProvider->getFinderClass($name) . " \${$name}Finder\n";
+            $propName = lcfirst($name);
+            $phpdoc .= " * @property " . $this->classNameProvider->getFinderClass($name) . " \${$propName}Finder\n";
         }
         return $phpdoc;
     }
@@ -213,13 +212,35 @@ class Generator
 
         $marker = ' * ' . self::INLINE_GENCODE_MARKER;
 
+        $fileNamespace = '';
+        $importedClasses = array();
+        $namespaceLineIndex = false;
+        $lastUseLineIndex = false;
         $doRemoveLines = false;
 
         $lines = explode("\n", $contents);
         foreach ($lines as $i => $line) {
+            if (preg_match('/^namespace (\S+);/', $line, $match)) {
+                // found namespace declaration
+                $namespaceLineIndex = $i;
+                $fileNamespace = $match[1];
+            }
+
+            if (preg_match('/^use (\S+)(?:\s+as\s+(\S+))?;/i', $line, $match)) {
+                // found use declaration
+                $lastUseLineIndex = $i;
+                if (empty($match[2])) {
+                    list(, $shortName) = $this->splitClassName($match[1]);
+                    $importedClasses[$shortName] = $match[1];
+                } else {
+                    $importedClasses[$match[2]] = $match[1];
+                }
+            }
+
             if (preg_match('/^(\s*[a-z]+)*\s*class\s/', $line)) {
                 // found class declaration
                 // this means there is no phpdoc
+                $newImports = $this->simplifyClassNames($phpdocBody, $fileNamespace, $importedClasses, $filename);
                 $lines[$i] = "/**\n$marker\n" . $phpdocBody . " */\n" . $line;
                 break;
             }
@@ -235,6 +256,7 @@ class Generator
                 // found the end of phpdoc
                 // we know that there is nothing generated in the file already
                 // so we can safely paste newly generated phpdoc here before the end of the phpdoc block
+                $newImports = $this->simplifyClassNames($phpdocBody, $fileNamespace, $importedClasses, $filename);
                 $lines[$i] = "$marker\n" . $phpdocBody . $line;
                 if (!$doRemoveLines) {
                     // no lines were removed
@@ -252,14 +274,77 @@ class Generator
             }
         }
 
+        // adding new imports if there were any
+        if (!empty($newImports)) {
+            if ($lastUseLineIndex === false) {
+                $lastUseLineIndex = $namespaceLineIndex;
+                $lines[$lastUseLineIndex] .= "\n";
+            }
+
+            foreach ($newImports as $alias => $fqn) {
+                list(, $shortName) = $this->splitClassName($fqn);
+                $fqn = substr($fqn, 1); // removing leading slash
+                if ($shortName == $alias) {
+                    $lines[$lastUseLineIndex] .= "\nuse {$fqn};";
+                } else {
+                    $lines[$lastUseLineIndex] .= "\nuse {$fqn} as {$alias};";
+                }
+            }
+        }
+
         $contents = join("\n", $lines);
         $this->writeFile($filename, $contents);
+    }
+
+    private function simplifyClassNames(&$phpdocBody, $fileNamespace, $importedClasses, $filename)
+    {
+        $newImports = array();
+
+        $phpdocBody = preg_replace_callback(
+            '/\\\\[a-zA-Z0-9_\\\\]+/',
+            function ($match) use ($importedClasses, $fileNamespace, &$newImports, $filename) {
+                $fqn = $match[0];
+                list($ns, $shortName) = $this->splitClassName($fqn);
+
+                if ($ns == $fileNamespace) {
+                    return $shortName;
+                }
+
+                if (!isset($importedClasses[$shortName])) {
+                    $newImports[$shortName] = $fqn;
+                    return $shortName;
+                }
+
+                if ($importedClasses[$shortName] == substr($fqn, 1)) {
+                    return $shortName;
+                }
+
+                // there is an import of other class with the same name
+                throw new \LogicException("Please remove or rename the import of class {$shortName} from {$filename}");
+            },
+            $phpdocBody
+        );
+
+        return $newImports;
     }
 
 
     //
     // MISC
     //
+
+    /**
+     * @param string $className absolute name starting with \
+     * @return array
+     */
+    private function splitClassName($className)
+    {
+        $pos = strrpos($className, '\\');
+        if ($pos === false) {
+            return array('', $className);
+        }
+        return array(substr($className, 1, $pos - 1), substr($className, $pos + 1));
+    }
 
     private function log($message)
     {
