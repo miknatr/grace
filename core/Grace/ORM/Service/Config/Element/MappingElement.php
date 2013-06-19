@@ -23,6 +23,8 @@ class MappingElement
             $this->relationForeignProperty = $match[2];
         } elseif ($mapping) {
             $this->localPropertyType = $mapping;
+        } else {
+            //TODO разделить поля с мэпинг фолзе и тогда тут можно срать эксепшен
         }
     }
 }

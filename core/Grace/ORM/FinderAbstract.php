@@ -141,6 +141,8 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
                     $aliases[$foreignTable] = $alias;
                 }
                 $fields[] = array('?f as ?f', array("{$aliases[$foreignTable]}.{$foreignField}", $propName));
+            } else {
+                throw new \LogicException("Bad mapping in $this->baseClass:$propName");
             }
         }
 
@@ -277,7 +279,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
                 }
                 $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, $dbArray[$propertyName]);
             } else {
-                $modelArray[$propertyName] = null;
+                throw new \LogicException("Bad mapping in $this->baseClass:$propertyName");
             }
         }
 

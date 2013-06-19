@@ -36,17 +36,29 @@ class Loader
         $config = new Config;
 
         foreach ($array['models'] as $modelName => $modelConfig) {
-            $config->models[$modelName] = new ModelElement();
+            $properties = array();
             foreach ($modelConfig['properties'] as $propertyNameWithParentId => $propertyConfig) {
-                $config->models[$modelName]->properties[$propertyNameWithParentId] = new PropertyElement();
-                $config->models[$modelName]->properties[$propertyNameWithParentId]->mapping = new MappingElement($propertyConfig['mapping']);
+                $mapping = new MappingElement($propertyConfig['mapping']);
+                if (!$mapping->localPropertyType && !$mapping->relationLocalProperty) {
+                    continue;
+                }
+
+                $properties[$propertyNameWithParentId] = new PropertyElement();
+                $properties[$propertyNameWithParentId]->mapping = $mapping;
                 if (isset($propertyConfig['validation'])) {
-                    $config->models[$modelName]->properties[$propertyNameWithParentId]->validation = $propertyConfig['validation'];
+                    $properties[$propertyNameWithParentId]->validation = $propertyConfig['validation'];
                 }
             }
 
+            if (empty($properties)) {
+                continue;
+            }
+
+            $config->models[$modelName] = new ModelElement();
+            $config->models[$modelName]->properties = $properties;
+
             if (!isset($modelConfig['parents'])) {
-                throw new \LogicException('There is not "parents" config in ' . $modelName . ' model');
+                throw new \LogicException('There is no "parents" config in ' . $modelName . ' model');
             }
 
             foreach ($modelConfig['parents'] as $propertyNameWithParentId => $parentModelName) {

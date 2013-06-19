@@ -112,7 +112,7 @@ class Generator
                     $typeAlias = $this->modelsConfig->models[$parentName]->properties[$propConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
                     $type = $this->typeConverter->getPhpType($typeAlias);
                 } else {
-                    $type = 'mixed';
+                    throw new \LogicException("Bad mapping in $modelName:$propName");
                 }
 
                 $phpdoc .= " * @method $type get{$name}()\n";
