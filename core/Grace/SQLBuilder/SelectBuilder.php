@@ -222,71 +222,157 @@ class SelectBuilder extends WhereBuilderAbstract
     // OVERRIDE WHERE BUILDER METHODS FOR ADDING ALIAS
     //
 
+    /**
+     * Adds '=' statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function eq($field, $value)
     {
         return parent::eq($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds '!=' statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function notEq($field, $value)
     {
         return parent::notEq($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds '>' statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function gt($field, $value)
     {
         return parent::gt($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds '>=' statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function gtEq($field, $value)
     {
         return parent::gtEq($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds '<' statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function lt($field, $value)
     {
         return parent::lt($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds '<=' statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function ltEq($field, $value)
     {
         return parent::ltEq($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds LIKE statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function like($field, $value)
     {
         return parent::like($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds NOT LIKE statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function notLike($field, $value)
     {
         return parent::notLike($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds LIKE '%value%' statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function likeInPart($field, $value)
     {
         return parent::likeInPart($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds NOT LIKE '%value%' statement into where statement
+     * @param $field
+     * @param $value
+     * @return $this
+     */
     public function notLikeInPart($field, $value)
     {
         return parent::notLikeInPart($this->alias . '.' . $field, $value);
     }
 
+    /**
+     * Adds IN statement into where statement
+     * @param       $field
+     * @param array $values
+     * @return $this
+     */
     public function in($field, array $values)
     {
         return parent::in($this->alias . '.' . $field, $values);
     }
 
+    /**
+     * Adds NOT IN statement into where statement
+     * @param       $field
+     * @param array $values
+     * @return $this
+     */
     public function notIn($field, array $values)
     {
         return parent::notIn($this->alias . '.' . $field, $values);
     }
 
+    /**
+     * Adds BETWEEN statement into where statement
+     * @param $field
+     * @param $value1
+     * @param $value2
+     * @return $this
+     */
     public function between($field, $value1, $value2)
     {
         return parent::between($this->alias . '.' . $field, $value1, $value2);
     }
 
+    /**
+     * Adds NOT BETWEEN statement into where statement
+     * @param $field
+     * @param $value1
+     * @param $value2
+     * @return $this
+     */
     public function notBetween($field, $value1, $value2)
     {
         return parent::notBetween($this->alias . '.' . $field, $value1, $value2);
