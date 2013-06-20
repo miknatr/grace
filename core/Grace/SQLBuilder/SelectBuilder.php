@@ -36,7 +36,8 @@ class SelectBuilder extends WhereBuilderAbstract
     {
         $this->fields = 'COUNT(?f) AS ?f';
         //TODO id - magic field
-        $this->fieldsArguments[] = 'id';
+        $this->fieldsArguments = array();
+        $this->fieldsArguments[] = "{$this->alias}.id";
         $this->fieldsArguments[] = 'counter';
         return $this;
     }
