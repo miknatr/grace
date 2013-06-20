@@ -26,6 +26,9 @@ use Grace\ORM\Type\TypeYear;
 
 class TypeConverter
 {
+    /** @var TypeInterface[] */
+    protected $types = array();
+
     public function __construct()
     {
         //STOPPER это нужно в конфигурацию
@@ -41,12 +44,9 @@ class TypeConverter
         $this->addType(new TypeTimestamp);
         $this->addType(new TypeYear);
         $this->addType(new TypeShortTarif);
-
         //STOPPER тип для тарифа и прочей хуйни
     }
 
-    /** @var TypeInterface[] */
-    protected $types = array();
     public function addType(TypeInterface $type)
     {
         if (isset($this->types[$type->getAlias()])) {
@@ -55,30 +55,11 @@ class TypeConverter
 
         $this->types[$type->getAlias()] = $type;
     }
+
     public function getPhpType($alias)
     {
         $this->throwIfTypeIsNotDefined($alias);
         return $this->types[$alias]->getPhpType();
-    }
-    public function getDbType($alias)
-    {
-        $this->throwIfTypeIsNotDefined($alias);
-        return $this->types[$alias]->getDbType();
-    }
-    public function convertDbToPhp($alias, $value)
-    {
-        $this->throwIfTypeIsNotDefined($alias);
-        return $this->types[$alias]->convertDbToPhp($value);
-    }
-    public function convertOnSetter($alias, $value)
-    {
-        $this->throwIfTypeIsNotDefined($alias);
-        return $this->types[$alias]->convertOnSetter($value);
-    }
-    public function convertPhpToDb($alias, $value)
-    {
-        $this->throwIfTypeIsNotDefined($alias);
-        return $this->types[$alias]->convertPhpToDb($value);
     }
 
     private function throwIfTypeIsNotDefined($alias)
@@ -87,5 +68,37 @@ class TypeConverter
             throw new \LogicException('Type named "' . $alias . '" is not defined');
         }
     }
-}
 
+    public function getDbType($alias)
+    {
+        $this->throwIfTypeIsNotDefined($alias);
+        return $this->types[$alias]->getDbType();
+    }
+
+    public function convertDbToPhp($alias, $value)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+        $this->throwIfTypeIsNotDefined($alias);
+        return $this->types[$alias]->convertDbToPhp($value);
+    }
+
+    public function convertOnSetter($alias, $value)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+        $this->throwIfTypeIsNotDefined($alias);
+        return $this->types[$alias]->convertOnSetter($value);
+    }
+
+    public function convertPhpToDb($alias, $value)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+        $this->throwIfTypeIsNotDefined($alias);
+        return $this->types[$alias]->convertPhpToDb($value);
+    }
+}

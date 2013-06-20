@@ -203,7 +203,7 @@ class SelectBuilder extends WhereBuilderAbstract
     /**
      * @inheritdoc
      */
-    protected function getQueryString()
+    public function getQueryString()
     {
         return 'SELECT ' . $this->fields . ' FROM ?f AS ?f' . join('', $this->joins) . $this->getWhereSql() .
             $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;

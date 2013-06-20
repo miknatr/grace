@@ -18,14 +18,17 @@ class TypePgsqlPoint implements TypeInterface
     {
         return 'pgsql_point';
     }
+
     public function getPhpType()
     {
         return '\Grace\ORM\Type\PgsqlPointValue';
     }
+
     public function getDbType()
     {
         return 'point';
     }
+
     public function convertDbToPhp($value)
     {
         if (!is_array($value) && preg_match('/^\(([\d]+),([\d]+)\)$/', $value, $match)) {
@@ -33,6 +36,7 @@ class TypePgsqlPoint implements TypeInterface
         }
         return new PgsqlPointValue($value);
     }
+
     public function convertOnSetter($value)
     {
         if ($value instanceof PgsqlPointValue) {
@@ -41,6 +45,7 @@ class TypePgsqlPoint implements TypeInterface
 
         return new PgsqlPointValue($value);
     }
+
     public function convertPhpToDb($value)
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql

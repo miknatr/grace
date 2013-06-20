@@ -20,7 +20,7 @@ class PgsqlPointValue
         if (count($coords) != 2 or !isset($coords[0]) or !isset($coords[1])) {
             throw new \BadMethodCallException('Invalid point type format "' . print_r($coords, true) . '"');
         }
-        $this->latitude = $coords[0];
+        $this->latitude  = $coords[0];
         $this->longitude = $coords[1];
     }
 
@@ -28,10 +28,12 @@ class PgsqlPointValue
     {
         return strval($this->latitude) . ',' . strval($this->longitude);
     }
+
     public function getLatitude()
     {
         return $this->latitude;
     }
+
     public function getLongitude()
     {
         return $this->longitude;

@@ -142,9 +142,15 @@ abstract class ConnectionAbstract implements ConnectionInterface
                 $r = $value;
                 break;
             case 'e':
+                if (is_null($value)) {
+                    return 'null';
+                }
                 $r = $this->escape($value);
                 break;
             case 'q':
+                if (is_null($value)) {
+                    return 'null';
+                }
                 $r = "'" . $this->escape($value) . "'";
                 break;
             case 'l':
@@ -153,7 +159,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
                     throw new QueryException('Value must be array: ' . print_r($value, true));
                 }
                 foreach ($value as $part) {
-                    $r .= ", '" . $this->escape($part) . "'";
+                    $r .= is_null($part) ? ", null" : ", '" . $this->escape($part) . "'";
                 }
                 $r = substr($r, 2);
                 break;

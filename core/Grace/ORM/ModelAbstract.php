@@ -85,7 +85,7 @@ abstract class ModelAbstract
     }
     public function __call($name, array $arguments)
     {
-        $prefix = substr($name, 0, 3);
+        $prefix       = substr($name, 0, 3);
         $propertyName = lcfirst(substr($name, 3));
 
         if ($prefix == 'get') {
@@ -111,7 +111,7 @@ abstract class ModelAbstract
             return $this;
         }
 
-        throw new PropertyNotFoundException();
+        throw new PropertyNotFoundException("Property not found: {$name}");
     }
     final public function getProperty($name)
     {
