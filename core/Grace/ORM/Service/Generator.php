@@ -141,6 +141,7 @@ class Generator
         $sbClass    = $this->classNameProvider->getSelectBuilderClass($modelName);
 
         $phpdoc = '';
+        $phpdoc .= " * @property {$this->graceClass} \$orm\n";
         $phpdoc .= " * @method {$modelClass} fetchOneOrFalse()\n";
         $phpdoc .= " * @method {$modelClass} getByIdOrFalse(\$id)\n";
         $phpdoc .= " * @method {$modelClass} create(array \$properties = array())\n";
