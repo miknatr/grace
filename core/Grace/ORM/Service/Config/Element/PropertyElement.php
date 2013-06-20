@@ -14,10 +14,10 @@ class PropertyElement
 {
     /** @var MappingElement */
     public $mapping;
+
     /**
      * Grace haven't got own validation service
-     * So, validation from config is loaded "as is" and custom validation service have to handle it.
-     * It's responsibility of integration into your framework or application
+     * So, validation from config is loaded "as is" and custom validation service has to handle it.
      * @var mixed
      */
     public $validation;

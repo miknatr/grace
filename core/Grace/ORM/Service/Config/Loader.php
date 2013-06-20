@@ -16,7 +16,7 @@ class Loader
     public function __construct($resource, CacheInterface $cache)
     {
         $this->resource = $resource;
-        $this->cache = $cache;
+        $this->cache    = $cache;
     }
 
     public function getConfig()
@@ -43,28 +43,34 @@ class Loader
                     continue;
                 }
 
-                $properties[$propertyNameWithParentId] = new PropertyElement();
-                $properties[$propertyNameWithParentId]->mapping = $mapping;
+                $property = new PropertyElement();
+                $property->mapping = $mapping;
                 if (isset($propertyConfig['validation'])) {
-                    $properties[$propertyNameWithParentId]->validation = $propertyConfig['validation'];
+                    $property->validation = $propertyConfig['validation'];
                 }
+
+                $properties[$propertyNameWithParentId] = $property;
             }
 
             if (empty($properties)) {
                 continue;
             }
 
-            $config->models[$modelName] = new ModelElement();
-            $config->models[$modelName]->properties = $properties;
+            $model = new ModelElement();
+            $model->properties = $properties;
 
             if (!isset($modelConfig['parents'])) {
                 throw new \LogicException('There is no "parents" config in ' . $modelName . ' model');
             }
 
             foreach ($modelConfig['parents'] as $propertyNameWithParentId => $parentModelName) {
-                $config->models[$modelName]->parents[$propertyNameWithParentId] = new ParentElement();
-                $config->models[$modelName]->parents[$propertyNameWithParentId]->parentModel = $parentModelName;
+                $parent = new ParentElement();
+                $parent->parentModel = $parentModelName;
+
+                $model->parents[$propertyNameWithParentId] = $parent;
             }
+
+            $config->models[$modelName] = $model;
         }
 
         return $config;
@@ -74,10 +80,10 @@ class Loader
     {
         if (is_dir($resource)) {
             return $this->loadDir($resource);
-        } else {
-            //это ресурсы напрямую из конфига - там лишних файлов быть не должно, поэтому если не существует - эксепшин
-            return $this->loadFile($resource, false);
         }
+
+        // это ресурсы напрямую из конфига - там лишних файлов быть не должно, поэтому если не существует - эксепшин
+        return $this->loadFile($resource, false);
     }
 
     private function loadDir($resource)
@@ -88,7 +94,6 @@ class Loader
         $d = dir($dir);
 
         while (false !== ($filename = $d->read())) {
-
             if ($filename == '..' || $filename == '.') {
                 ;
             } elseif (is_dir($dir . $filename)) {
@@ -107,21 +112,22 @@ class Loader
     {
         if (!file_exists($resource)) {
             if (!$skipAllowed) {
-                throw new \LogicException($resource . ' is not exist');
+                throw new \LogicException($resource . ' does not exist');
             }
         }
 
         $ext = pathinfo($resource, PATHINFO_EXTENSION);
         if ($ext == 'php') {
             return $this->loadPhp($resource);
-        } elseif ($ext == 'yml' || $ext == 'yaml') {
-            return $this->loadYml($resource);
-        } else {
-            if (!$skipAllowed) {
-                throw new \LogicException($resource . ' can not be loaded');
-            }
-            return array();
         }
+        if ($ext == 'yml' || $ext == 'yaml') {
+            return $this->loadYml($resource);
+        }
+
+        if (!$skipAllowed) {
+            throw new \LogicException($resource . ' cannot be loaded');
+        }
+        return array();
     }
 
     private function loadYml($resource)
@@ -130,10 +136,12 @@ class Loader
         if (isset($config['global_config']) && $config['global_config']) {
             unset($config['global_config']);
             return $config;
-        } else {
-            $modelName = pathinfo($resource, PATHINFO_FILENAME);
-            return array('models' => array($modelName => $config));
         }
+
+        $modelName = pathinfo($resource, PATHINFO_FILENAME);
+        return array(
+            'models' => array($modelName => $config),
+        );
     }
 
     private function loadPhp($resource)

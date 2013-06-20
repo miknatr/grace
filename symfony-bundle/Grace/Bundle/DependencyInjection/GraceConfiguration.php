@@ -23,7 +23,7 @@ class GraceConfiguration implements ConfigurationInterface
                     ->scalarNode('cache_namespace')->isRequired()->end()
                     ->scalarNode('class_directory')->isRequired()->cannotBeEmpty()->end()
                     ->scalarNode('model_config_resources')->isRequired()->cannotBeEmpty()->end()
-                    ->scalarNode('model_config_common')->isRequired()->cannotBeEmpty()->end()
+                    ->scalarNode('model_config_fakes')->isRequired()->cannotBeEmpty()->end()
                 ->end()
             ->end()
         ;

@@ -14,6 +14,6 @@ use Grace\ORM\Service\Config\Element\ModelElement;
 
 class Config
 {
-    /** @var ModelElement[] modelNames as keys*/
+    /** @var ModelElement[] modelNames as keys */
     public $models = array();
 }

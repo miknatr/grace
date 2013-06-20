@@ -58,7 +58,7 @@ class ServicesTest extends \PHPUnit_Framework_TestCase
                 'class_directory'        => './',
                 'grace_class'            => 'Grace\\Bundle\\GracePlusSymfony',
                 'model_config_resources' => __DIR__.'/Resources/models/TaxiPassenger.yml',
-                'model_config_common'    => __DIR__.'/Resources/models.yml',
+                'model_config_fakes'     => __DIR__.'/Resources/fakes.yml',
                 'namespace_prefix'       => 'Grace\Bundle\Tests\Plug',
                 'cache_enabled'          => false,
                 'cache_namespace'        => '',
