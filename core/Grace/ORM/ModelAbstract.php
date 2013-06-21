@@ -83,36 +83,6 @@ abstract class ModelAbstract
         }
         return $this;
     }
-    public function __call($name, array $arguments)
-    {
-        $prefix       = substr($name, 0, 3);
-        $propertyName = lcfirst(substr($name, 3));
-
-        if ($prefix == 'get') {
-            if (isset($this->orm->config->models[$this->getBaseClass()]->properties[$propertyName])) {
-                return $this->getProperty($propertyName);
-            }
-
-            if ($this->orm->config->models[$this->getBaseClass()]->parents[$propertyName . 'Id']) {
-                return $this->getParent($propertyName);
-            }
-
-            throw new PropertyNotFoundException();
-        }
-
-        if ($prefix == 'set') {
-            if (count($arguments) != 1) {
-                // TODO proper exceptions everywhere in grace
-                throw new \InvalidArgumentException();
-            }
-
-            $this->setProperty($propertyName, $arguments[0]);
-
-            return $this;
-        }
-
-        throw new PropertyNotFoundException("Property not found: {$name}");
-    }
     final public function getProperty($name)
     {
         return $this->properties[$name];

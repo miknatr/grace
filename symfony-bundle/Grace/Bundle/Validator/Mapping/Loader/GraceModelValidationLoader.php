@@ -2,7 +2,6 @@
 
 namespace Grace\Bundle\Validator\Mapping\Loader;
 
-use Grace\Bundle\Validator\Mapping\GraceGetterMetadata;
 use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\Config\Config;
 use Symfony\Component\Validator\Constraint;
@@ -20,23 +19,18 @@ class GraceModelValidationLoader implements LoaderInterface
     public function __construct(ClassNameProvider $classNameProvider, Config $config, array $constraintPrefixes)
     {
         $this->constraintPrefixes = $constraintPrefixes;
-        $this->classNameProvider = $classNameProvider;
-        $this->config = $config;
+        $this->classNameProvider  = $classNameProvider;
+        $this->config             = $config;
     }
 
     public function loadClassMetadata(ClassMetadata $metadata)
     {
         /** @var \ReflectionClass $refClass */
-        $refClass = $metadata->getReflectionClass();
+        $refClass  = $metadata->getReflectionClass();
         $baseClass = $this->classNameProvider->getBaseClass($refClass->name);
 
         if (!$baseClass) {
             return false;
-        }
-
-        foreach ($this->config->models[$baseClass]->properties as $propName => $property) {
-            $metadata->getters[$propName]   = new GraceGetterMetadata($refClass, $propName);
-            $metadata->members[$propName][] = $metadata->getters[$propName];
         }
 
         foreach ($this->config->models[$baseClass]->properties as $propName => $property) {
@@ -51,7 +45,7 @@ class GraceModelValidationLoader implements LoaderInterface
                         throw new \LogicException("Configuration error: $baseClass:$propName:validation: rule #$index must be array of 1 element which contains array");
                     }
 
-                    $constraintClass = array_keys($rule)[0];
+                    $constraintClass   = array_keys($rule)[0];
                     $constraintOptions = $rule[$constraintClass];
 
                     $fullClass = $this->getFullConstraintClass($constraintClass);

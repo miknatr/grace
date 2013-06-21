@@ -57,12 +57,14 @@ class Generator
             $this->generateGraceClassPhpdoc()
         );
 
+        $modelClassPhpdoc = $this->generateModelClassPhpdoc();
+
         foreach ($this->modelsConfig->models as $modelName => $config) {
             $modelClass = $this->classNameProvider->getModelClass($modelName);
-            $this->addPhpdocToClass(
-                $this->getClassFilename($modelClass, '\\Grace\\ORM\\ModelAbstract'),
-                $this->generateModelClassPhpdoc($modelName)
-            );
+            $modelClassFilename = $this->getClassFilename($modelClass, '\\Grace\\ORM\\ModelAbstract');
+
+            // PHPDOC
+            $this->addPhpdocToClass($modelClassFilename, $modelClassPhpdoc);
 
             $finderClass = $this->classNameProvider->getFinderClass($modelName);
             $this->addPhpdocToClass(
@@ -74,6 +76,12 @@ class Generator
             $this->addPhpdocToClass(
                 $this->getClassFilename($sbClass, '\\Grace\\SQLBuilder\\SelectBuilder'),
                 $this->generateSelectBuilderClassPhpdoc($modelName)
+            );
+
+            // METHODS
+            $this->addMethodsToClass(
+                $modelClassFilename,
+                $this->generateModelClassMethods($modelName)
             );
         }
     }
@@ -93,33 +101,56 @@ class Generator
         return $phpdoc;
     }
 
-    private function generateModelClassPhpdoc($modelName)
+    private function generateModelClassPhpdoc()
     {
-        $modelClass = $this->classNameProvider->getModelClass($modelName);
-
         $phpdoc = '';
-
         $phpdoc .= " * @property {$this->graceClass} \$orm\n";
+        return $phpdoc;
+    }
+
+    private function generateModelClassMethods($modelName)
+    {
+        $methods = array();
 
         foreach ($this->modelsConfig->models[$modelName]->properties as $propName => $propConfig) {
             $name = ucfirst($propName);
 
-            if (!method_exists($modelClass, "get{$name}")) {
-                if ($propConfig->mapping->localPropertyType) {
-                    $type = $this->typeConverter->getPhpType($propConfig->mapping->localPropertyType);
-                } elseif ($propConfig->mapping->relationLocalProperty) {
-                    $parentName = $this->modelsConfig->models[$modelName]->parents[$propConfig->mapping->relationLocalProperty]->parentModel;
-                    $typeAlias = $this->modelsConfig->models[$parentName]->properties[$propConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
-                    $type = $this->typeConverter->getPhpType($typeAlias);
-                } else {
-                    throw new \LogicException("Bad mapping in $modelName:$propName");
-                }
-
-                $phpdoc .= " * @method $type get{$name}()\n";
+            if ($propName == 'id') {
+                continue;
             }
 
-            if ($propConfig->mapping->localPropertyType and $propName != 'id' and !method_exists($modelClass, "set{$name}")) {
-                $phpdoc .= " * @method {$modelClass} set{$name}(\$$propName)\n";
+            if ($propConfig->mapping->localPropertyType) {
+                $type = $this->typeConverter->getPhpType($propConfig->mapping->localPropertyType);
+            } elseif ($propConfig->mapping->relationLocalProperty) {
+                $parentName = $this->modelsConfig->models[$modelName]->parents[$propConfig->mapping->relationLocalProperty]->parentModel;
+                $typeAlias = $this->modelsConfig->models[$parentName]->properties[$propConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
+                $type = $this->typeConverter->getPhpType($typeAlias);
+            } else {
+                throw new \LogicException("Bad mapping in $modelName:$propName");
+            }
+
+            $methods['get' . $name] = $this->dedent(3, "
+                /**
+                 * @return {$type}
+                 */
+                public function get{$name}()
+                {
+                    return \$this->getProperty('{$propName}');
+                }
+            ");
+
+            if ($propConfig->mapping->localPropertyType) {
+                $type = $this->typeConverter->getPhpType($propConfig->mapping->localPropertyType);
+                $methods['set' . $name] = $this->dedent(4, "
+                    /**
+                     * @param {$type} \${$propName}
+                     * @return \$this
+                     */
+                    public function set{$name}(\${$propName})
+                    {
+                        return \$this->setProperty('{$propName}', \${$propName});
+                    }
+                ");
             }
         }
 
@@ -127,12 +158,24 @@ class Generator
             $name = ucfirst(substr($propName, 0, -2)); // removing Id suffix
             $parentClass = $this->classNameProvider->getModelClass($parentConfig->parentModel);
 
-            if (!method_exists($modelClass, "get{$name}")) {
-                $phpdoc .= " * @method {$parentClass} get{$name}()\n";
-            }
+            $methods['get' . $name] = $this->dedent(3, "
+                /**
+                 * @return {$parentClass}
+                 */
+                public function get{$name}()
+                {
+                    return \$this->getProperty('{$propName}');
+                }
+            ");
         }
 
-        return $phpdoc;
+        return $methods;
+    }
+
+    private function dedent($indentLevel, $codeBlock)
+    {
+        $prefix = str_repeat('    ', $indentLevel);
+        return preg_replace('/^' . preg_quote($prefix) . '/m', '', $codeBlock);
     }
 
     private function generateFinderClassPhpdoc($modelName)
@@ -201,6 +244,39 @@ class Generator
         }
 
         return $filename;
+    }
+
+    private function addMethodsToClass($filename, $methods)
+    {
+        $contents = file_get_contents($filename);
+
+        $markerBlock = "    //\n    // ".static::INLINE_GENCODE_MARKER."\n    //\n";
+
+        // removing previously generated methods
+        $pos = strpos($contents, $markerBlock);
+        if ($pos !== false) {
+            $contents = substr($contents, 0, $pos);
+            $contents = preg_replace("/\n*$/", '', $contents);
+            $contents .= "\n}\n";
+        }
+
+        // filtering methods that are already defined
+        foreach ($methods as $name => $codeBlock) {
+            if (preg_match('/^\s*([a-z]+\s+)*function\s+' . preg_quote($name, '/') . '\s*\(/m', $contents)) {
+                if (substr($name, 0, 3) == 'get') {
+                    throw new \LogicException('You cannot override getters because fuck you (' . $name . '() in ' . $filename . ')');
+                }
+                unset($methods[$name]);
+            }
+        }
+
+        // inserting methods into the file
+        $contents = preg_replace('/\}\s*$/', '', $contents);
+        $contents .= "\n\n" . $markerBlock;
+        $contents .= join('', $methods);
+        $contents .= "}\n";
+
+        $this->writeFile($filename, $contents);
     }
 
     /**
