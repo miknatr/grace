@@ -157,6 +157,7 @@ class Generator
         foreach ($this->modelsConfig->models[$modelName]->parents as $propName => $parentConfig) {
             $name = ucfirst(substr($propName, 0, -2)); // removing Id suffix
             $parentClass = $this->classNameProvider->getModelClass($parentConfig->parentModel);
+            $finderProperty = lcfirst($parentConfig->parentModel);
 
             $methods['get' . $name] = $this->dedent(3, "
                 /**
@@ -164,7 +165,7 @@ class Generator
                  */
                 public function get{$name}()
                 {
-                    return \$this->getProperty('{$propName}');
+                    return \$this->orm->{$finderProperty}Finder->getByIdOrFalse(\$this->getProperty('{$propName}'));
                 }
             ");
         }
