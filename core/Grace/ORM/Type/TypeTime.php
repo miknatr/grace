@@ -30,6 +30,10 @@ class TypeTime implements TypeInterface
     }
     public function convertOnSetter($value)
     {
+        if (is_scalar($value)) {
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as time');
+        }
+
         $dt = date_parse_from_format('H:i:s', $value);
         return date('H:i:s', mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']));
     }

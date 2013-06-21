@@ -44,7 +44,6 @@ class TypeConverter
         $this->addType(new TypeTimestamp);
         $this->addType(new TypeYear);
         $this->addType(new TypeShortTarif);
-        //STOPPER тип для тарифа и прочей хуйни
     }
 
     public function addType(TypeInterface $type)

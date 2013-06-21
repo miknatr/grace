@@ -34,6 +34,10 @@ class TypeShortTarif implements TypeInterface
             return $value;
         }
 
+        if (is_scalar($value)) {
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as tarif string');
+        }
+
         return new ShortTarifValue($value);
     }
     public function convertPhpToDb($value)

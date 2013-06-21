@@ -30,6 +30,9 @@ class TypeFloat implements TypeInterface
     }
     public function convertOnSetter($value)
     {
+        if (is_scalar($value)) {
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as float');
+        }
         return floatval($value);
     }
     public function convertPhpToDb($value)

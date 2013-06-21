@@ -30,6 +30,10 @@ class TypeText implements TypeInterface
     }
     public function convertOnSetter($value)
     {
+        if (is_scalar($value)) {
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as string');
+        }
+
         return strval($value);
     }
     public function convertPhpToDb($value)

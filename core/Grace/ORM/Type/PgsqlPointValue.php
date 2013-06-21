@@ -15,8 +15,9 @@ class PgsqlPointValue
     private $latitude = 0;
     private $longitude = 0;
 
-    public function __construct(array $coords)
+    public function __construct($coords)
     {
+        //STOPPER не массив, а строка, нужно наделать парсинг
         if (count($coords) != 2 or !isset($coords[0]) or !isset($coords[1])) {
             throw new \BadMethodCallException('Invalid point type format "' . print_r($coords, true) . '"');
         }
