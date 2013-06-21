@@ -28,6 +28,11 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $this->orm       = $orm;
     }
 
+    /** @return Grace */
+    public function getOrm()
+    {
+        return $this->orm;
+    }
 
 
     //IMPLEMENTATIONS OF InterfaceExecutable, InterfaceResult
@@ -48,56 +53,6 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         }
 
         return false;
-    }
-
-    /**
-     * @param array $dbArray
-     * @return ModelAbstract
-     */
-    protected function getFromIdentityMapOrMakeModel(array $dbArray)
-    {
-        //TODO magic string 'id'
-        //if already exists in IdentityMap -  we get from IdentityMap because we don't want different objects related to one db row
-        if ($this->orm->identityMap->issetModel($this->baseClass, $dbArray['id'])) {
-            $model = $this->orm->identityMap->getModel($this->baseClass, $dbArray['id']);
-        } else {
-            $model = $this->convertDbArrayToModel($dbArray);
-            $this->orm->identityMap->setModel($this->baseClass, $dbArray['id'], $model);
-        }
-
-        return $model;
-    }
-
-    /**
-     * @abstract
-     * @param array $dbArray
-     * @throws \LogicException
-     * @return array
-     */
-    protected function convertDbArrayToModel(array $dbArray)
-    {
-        $modelArray = array();
-        foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
-            //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
-            if ($propertyConfig->mapping->localPropertyType) {
-                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
-            } elseif ($propertyConfig->mapping->relationForeignProperty) {
-                // если поле задано как проброс чужого поля по связи, выковыриваем тип этого поля
-                $modelConfig       = $this->orm->config->models[$this->baseClass];
-                $foreignBaseClass  = $modelConfig->parents[$propertyConfig->mapping->relationLocalProperty]->parentModel;
-                $parentModelConfig = $this->orm->config->models[$foreignBaseClass];
-                $type = $parentModelConfig->properties[$propertyConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
-                if (!$type) {
-                    throw new \LogicException("Property {$foreignBaseClass}.{$propertyConfig->mapping->relationForeignProperty} must be defined with local mapping");
-                }
-                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, $dbArray[$propertyName]);
-            } else {
-                throw new \LogicException("Bad mapping in $this->baseClass:$propertyName");
-            }
-        }
-
-        $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
-        return new $modelClass($modelArray, $this->orm);
     }
 
     /**
@@ -157,10 +112,6 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         return $r;
     }
 
-
-
-    //SELECT BUILDER CREATION
-
     public function execute($query, array $arguments = array())
     {
         $this->queryResult = $this->orm->db->execute($query, $arguments);
@@ -169,7 +120,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
 
 
-    //MODEL GETTERS
+    // MODEL SEARCH
 
     /**
      * @throws \LogicException
@@ -207,19 +158,6 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         return $selectBuilder;
     }
 
-
-    /**
-     * @return Grace
-     */
-    public function getOrm()
-    {
-        return $this->orm;
-    }
-
-
-
-    //ON COMMIT EVENTS
-
     /**
      * @param $id
      * @return ModelAbstract|bool
@@ -233,7 +171,11 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         return $this->getSelectBuilder()->eq('id', $id)->fetchOneOrFalse();
     }
 
-
+    /**
+     * @param array $properties
+     * @return ModelAbstract|bool
+     * @throws \LogicException
+     */
     public function create(array $properties = array())
     {
         //TODO magic string 'id'
@@ -245,18 +187,12 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
             throw new \LogicException('Model with id ' . $properties['id'] . ' already exists in identity map');
         }
 
-        $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
-        $model = new $modelClass(array('id' => $properties['id']), $this->orm);
+        $model = $this->makeEmptyModel($properties['id']);
 
         //TODO сомнительно, что этот мэппинг нужно делать именно здесь и через сеттеры
-        //STOPPER может вообще избавится от установки полей здесь, как проверять осмысленность модели если нет ключевых полей?
         foreach ($properties as $k => $v) {
             if ($k != 'id') {
                 $setterName = 'set' . ucfirst($k);
-                if (!method_exists($model, $setterName)) {
-                    throw new \LogicException('Setter ' . $setterName . ' is not exist');
-                }
-
                 $model->$setterName($v);
             }
         }
@@ -267,21 +203,28 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         return $model;
     }
 
-    public function insertModelOnCommit(ModelAbstract $model)
-    {
-        $values = $this->convertModelToDbArray($model);
-        $this->orm->db->getSQLBuilder()->insert($this->baseClass)->values($values)->execute();
-        $model->flushDefaults();
-    }
-
 
 
     //MAPPING
 
     /**
-     * @param ModelAbstract $model
-     * @return array
+     * @param array $dbArray
+     * @return ModelAbstract
      */
+    protected function getFromIdentityMapOrMakeModel(array $dbArray)
+    {
+        //TODO magic string 'id'
+        //if already exists in IdentityMap -  we get from IdentityMap because we don't want different objects related to one db row
+        if ($this->orm->identityMap->issetModel($this->baseClass, $dbArray['id'])) {
+            $model = $this->orm->identityMap->getModel($this->baseClass, $dbArray['id']);
+        } else {
+            $model = $this->convertDbArrayToModel($dbArray);
+            $this->orm->identityMap->setModel($this->baseClass, $dbArray['id'], $model);
+        }
+
+        return $model;
+    }
+
     protected function convertModelToDbArray(ModelAbstract $model)
     {
         $modelArray = $model->getProperties();
@@ -294,19 +237,50 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         return $dbArray;
     }
 
-    public function updateModelOnCommit(ModelAbstract $model)
+    protected function makeEmptyModel($id)
     {
-        $changes = $this->convertModelToDbChangesArray($model);
-        if (count($changes) > 0) {
-            $this->orm->db->getSQLBuilder()->update($this->baseClass)->values($changes)->eq('id', $model->getId())->execute();
-            $model->flushDefaults();
+        $modelArray = array();
+        foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
+            //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
+            if ($propertyConfig->mapping->localPropertyType or $propertyConfig->mapping->relationForeignProperty) {
+                $modelArray[$propertyName] = null;
+            } else {
+                throw new \LogicException("Bad mapping in $this->baseClass:$propertyName");
+            }
         }
+
+        $modelArray['id'] = $id;
+
+        $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
+        return new $modelClass($modelArray, $this->orm);
     }
 
-    /**
-     * @param ModelAbstract $model
-     * @return array
-     */
+    protected function convertDbArrayToModel(array $dbArray)
+    {
+        $modelArray = array();
+        foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
+            //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
+            if ($propertyConfig->mapping->localPropertyType) {
+                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
+            } elseif ($propertyConfig->mapping->relationForeignProperty) {
+                // если поле задано как проброс чужого поля по связи, выковыриваем тип этого поля
+                $modelConfig       = $this->orm->config->models[$this->baseClass];
+                $foreignBaseClass  = $modelConfig->parents[$propertyConfig->mapping->relationLocalProperty]->parentModel;
+                $parentModelConfig = $this->orm->config->models[$foreignBaseClass];
+                $type = $parentModelConfig->properties[$propertyConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
+                if (!$type) {
+                    throw new \LogicException("Property {$foreignBaseClass}.{$propertyConfig->mapping->relationForeignProperty} must be defined with local mapping");
+                }
+                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, $dbArray[$propertyName]);
+            } else {
+                throw new \LogicException("Bad mapping in $this->baseClass:$propertyName");
+            }
+        }
+
+        $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
+        return new $modelClass($modelArray, $this->orm);
+    }
+
     protected function convertModelToDbChangesArray(ModelAbstract $model)
     {
         $modelArray = $model->getProperties();
@@ -320,6 +294,26 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         }
 
         return $dbChangesArray;
+    }
+
+
+
+    //ON COMMIT EVENTS
+
+    public function insertModelOnCommit(ModelAbstract $model)
+    {
+        $values = $this->convertModelToDbArray($model);
+        $this->orm->db->getSQLBuilder()->insert($this->baseClass)->values($values)->execute();
+        $model->flushDefaults();
+    }
+
+    public function updateModelOnCommit(ModelAbstract $model)
+    {
+        $changes = $this->convertModelToDbChangesArray($model);
+        if (count($changes) > 0) {
+            $this->orm->db->getSQLBuilder()->update($this->baseClass)->values($changes)->eq('id', $model->getId())->execute();
+            $model->flushDefaults();
+        }
     }
 
     public function deleteModelOnCommit(ModelAbstract $model)

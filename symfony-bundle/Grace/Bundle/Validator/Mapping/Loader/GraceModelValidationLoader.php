@@ -2,6 +2,7 @@
 
 namespace Grace\Bundle\Validator\Mapping\Loader;
 
+use Grace\Bundle\Validator\Mapping\GraceGetterMetadata;
 use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\Config\Config;
 use Symfony\Component\Validator\Constraint;
@@ -34,14 +35,27 @@ class GraceModelValidationLoader implements LoaderInterface
         }
 
         foreach ($this->config->models[$baseClass]->properties as $propName => $property) {
+            $metadata->getters[$propName]   = new GraceGetterMetadata($refClass, $propName);
+            $metadata->members[$propName][] = $metadata->getters[$propName];
+        }
+
+        foreach ($this->config->models[$baseClass]->properties as $propName => $property) {
             if ($property->validation) {
                 if (!is_array($property->validation)) {
                     throw new \LogicException("Configuration error: $baseClass:$propName:validation must be array");
                 }
 
-                foreach ($property->validation as $constraintClass => $constraintOptions) {
+                foreach ($property->validation as $index => $rule) {
+
+                    if (!is_array($rule) or count($rule) != 1) {
+                        throw new \LogicException("Configuration error: $baseClass:$propName:validation: rule #$index must be array of 1 element which contains array");
+                    }
+
+                    $constraintClass = array_keys($rule)[0];
+                    $constraintOptions = $rule[$constraintClass];
+
                     $fullClass = $this->getFullConstraintClass($constraintClass);
-                    $metadata->addGetterConstraint('get' . ucfirst($propName), new $fullClass($constraintOptions));
+                    $metadata->addGetterConstraint($propName, new $fullClass($constraintOptions));
                 }
             }
         }
