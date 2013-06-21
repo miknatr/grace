@@ -20,22 +20,73 @@ abstract class ModelAbstract
     //TODO выпилить бы это автодополнение в плагин
     /** @var Grace|GracePlusSymfony */
     protected $orm;
-    private $id;
     private $defaultProperties = array();
     protected $properties = array();
 
-    final public function __construct(array $properties, Grace $orm = null)
+    final public function __construct($id = null, array $dbArray = null, Grace $orm = null)
     {
         $this->orm = $orm;
 
-        //TODO id в константу бы на уровне орм
-        if (!isset($properties['id'])) {
-            throw new \LogicException('Id property is not given');
+        //$dbArray - model creation from database
+        //$id - new model creation
+        //both can't be filled
+        if (!($dbArray !== null xor $id !== null)) {
+            throw new \Exception;
         }
 
-        $this->id                = $properties['id'];
-        $this->defaultProperties = $properties;
-        $this->properties        = $properties;
+        if ($dbArray == null) {
+            $this->setPropertiesNull();
+
+            $type = $this->orm->config->models[$this->getBaseClass()]->properties['id']->mapping->localPropertyType;
+            $this->properties['id'] = $this->orm->typeConverter->convertOnSetter($type, $id);
+        } else {
+            $this->setPropertiesFromDbArray($dbArray);
+        }
+
+        $this->defaultProperties = $this->properties;
+    }
+
+    private function setPropertiesFromDbArray(array $dbArray)
+    {
+        $baseClass = $this->getBaseClass();
+
+        $properties = array();
+        foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
+            //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
+            if ($propertyConfig->mapping->localPropertyType) {
+                $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
+            } elseif ($propertyConfig->mapping->relationForeignProperty) {
+                // если поле задано как проброс чужого поля по связи, выковыриваем тип этого поля
+                $modelConfig       = $this->orm->config->models[$baseClass];
+                $foreignBaseClass  = $modelConfig->parents[$propertyConfig->mapping->relationLocalProperty]->parentModel;
+                $parentModelConfig = $this->orm->config->models[$foreignBaseClass];
+                $type = $parentModelConfig->properties[$propertyConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
+                if (!$type) {
+                    throw new \LogicException("Property {$foreignBaseClass}.{$propertyConfig->mapping->relationForeignProperty} must be defined with local mapping");
+                }
+                $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, $dbArray[$propertyName]);
+            } else {
+                throw new \LogicException("Bad mapping in $baseClass:$propertyName");
+            }
+        }
+
+        $this->properties = $properties;
+    }
+
+    private function setPropertiesNull()
+    {
+        $baseClass = $this->getBaseClass();
+
+        $properties = array();
+        foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
+            if ($propertyConfig->mapping->localPropertyType or $propertyConfig->mapping->relationForeignProperty) {
+                $properties[$propertyName] = null;
+            } else {
+                throw new \LogicException("Bad mapping in $baseClass:$propertyName");
+            }
+        }
+
+        $this->properties = $properties;
     }
 
 
@@ -65,7 +116,7 @@ abstract class ModelAbstract
     }
     final public function getId()
     {
-        return $this->id;
+        return $this->getProperty('id');
     }
     final public function getProperties()
     {

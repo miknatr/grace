@@ -118,6 +118,25 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         return $this;
     }
 
+    /**
+     * @param array $dbArray
+     * @return ModelAbstract
+     */
+    protected function getFromIdentityMapOrMakeModel(array $dbArray)
+    {
+        //TODO magic string 'id'
+        //if already exists in IdentityMap -  we get from IdentityMap because we don't want different objects related to one db row
+        if ($this->orm->identityMap->issetModel($this->baseClass, $dbArray['id'])) {
+            $model = $this->orm->identityMap->getModel($this->baseClass, $dbArray['id']);
+        } else {
+            $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
+            $model = new $modelClass(null, $dbArray, $this->orm);
+            $this->orm->identityMap->setModel($this->baseClass, $dbArray['id'], $model);
+        }
+
+        return $model;
+    }
+
 
 
     // MODEL SEARCH
@@ -168,6 +187,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
             return $this->orm->identityMap->getModel($this->baseClass, $id);
         }
 
+        // db array is already converted to model object in fetchOneOrFalse
         return $this->getSelectBuilder()->eq('id', $id)->fetchOneOrFalse();
     }
 
@@ -179,25 +199,22 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
     public function create(array $properties = array())
     {
         //TODO magic string 'id'
-        if (!isset($properties['id'])) {
-            $properties['id'] = $this->orm->db->generateNewId($this->baseClass);
+        if (!array_key_exists('id', $properties)) {
+            $id = $this->orm->db->generateNewId($this->baseClass);
+        } else {
+            $id = $properties['id'];
         }
 
-        if ($this->orm->identityMap->issetModel($this->baseClass, $properties['id'])) {
-            throw new \LogicException('Model with id ' . $properties['id'] . ' already exists in identity map');
+        if ($this->orm->identityMap->issetModel($this->baseClass, $id)) {
+            throw new \LogicException('Model with id ' . $id . ' already exists in identity map');
         }
 
-        $model = $this->makeEmptyModel($properties['id']);
+        $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
+        /** @var ModelAbstract $model */
+        $model = new $modelClass($id, null, $this->orm);
+        $model->setProperties($properties);
 
-        //TODO сомнительно, что этот мэппинг нужно делать именно здесь и через сеттеры
-        foreach ($properties as $k => $v) {
-            if ($k != 'id') {
-                $setterName = 'set' . ucfirst($k);
-                $model->$setterName($v);
-            }
-        }
-
-        $this->orm->identityMap->setModel($this->baseClass, $properties['id'], $model);
+        $this->orm->identityMap->setModel($this->baseClass, $id, $model);
         $this->orm->unitOfWork->markAsNew($model);
 
         return $model;
@@ -206,24 +223,6 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
 
     //MAPPING
-
-    /**
-     * @param array $dbArray
-     * @return ModelAbstract
-     */
-    protected function getFromIdentityMapOrMakeModel(array $dbArray)
-    {
-        //TODO magic string 'id'
-        //if already exists in IdentityMap -  we get from IdentityMap because we don't want different objects related to one db row
-        if ($this->orm->identityMap->issetModel($this->baseClass, $dbArray['id'])) {
-            $model = $this->orm->identityMap->getModel($this->baseClass, $dbArray['id']);
-        } else {
-            $model = $this->convertDbArrayToModel($dbArray);
-            $this->orm->identityMap->setModel($this->baseClass, $dbArray['id'], $model);
-        }
-
-        return $model;
-    }
 
     protected function convertModelToDbArray(ModelAbstract $model)
     {
@@ -235,50 +234,6 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
             }
         }
         return $dbArray;
-    }
-
-    protected function makeEmptyModel($id)
-    {
-        $modelArray = array();
-        foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
-            //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
-            if ($propertyConfig->mapping->localPropertyType or $propertyConfig->mapping->relationForeignProperty) {
-                $modelArray[$propertyName] = null;
-            } else {
-                throw new \LogicException("Bad mapping in $this->baseClass:$propertyName");
-            }
-        }
-
-        $modelArray['id'] = $id;
-
-        $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
-        return new $modelClass($modelArray, $this->orm);
-    }
-
-    protected function convertDbArrayToModel(array $dbArray)
-    {
-        $modelArray = array();
-        foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
-            //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
-            if ($propertyConfig->mapping->localPropertyType) {
-                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
-            } elseif ($propertyConfig->mapping->relationForeignProperty) {
-                // если поле задано как проброс чужого поля по связи, выковыриваем тип этого поля
-                $modelConfig       = $this->orm->config->models[$this->baseClass];
-                $foreignBaseClass  = $modelConfig->parents[$propertyConfig->mapping->relationLocalProperty]->parentModel;
-                $parentModelConfig = $this->orm->config->models[$foreignBaseClass];
-                $type = $parentModelConfig->properties[$propertyConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
-                if (!$type) {
-                    throw new \LogicException("Property {$foreignBaseClass}.{$propertyConfig->mapping->relationForeignProperty} must be defined with local mapping");
-                }
-                $modelArray[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, $dbArray[$propertyName]);
-            } else {
-                throw new \LogicException("Bad mapping in $this->baseClass:$propertyName");
-            }
-        }
-
-        $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
-        return new $modelClass($modelArray, $this->orm);
     }
 
     protected function convertModelToDbChangesArray(ModelAbstract $model)
