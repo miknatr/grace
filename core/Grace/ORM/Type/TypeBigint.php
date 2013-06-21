@@ -30,7 +30,7 @@ class TypeBigint implements TypeInterface
     }
     public function convertOnSetter($value)
     {
-        if (is_scalar($value)) {
+        if (!is_scalar($value)) {
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as integer');
         }
         return strval(preg_replace('/[^\d-]+/', '', $value));
