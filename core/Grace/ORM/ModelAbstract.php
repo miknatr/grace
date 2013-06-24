@@ -23,7 +23,7 @@ abstract class ModelAbstract
     private $defaultProperties = array();
     protected $properties = array();
 
-    final public function __construct($id = null, array $dbArray = null, Grace $orm = null)
+    final public function __construct($id = null, array $dbArray = null, Grace $orm)
     {
         $this->orm = $orm;
 

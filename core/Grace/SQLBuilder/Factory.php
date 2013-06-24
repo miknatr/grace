@@ -35,10 +35,6 @@ class Factory
      */
     public function select($table)
     {
-        if ($this->executable instanceof SelectBuilderProvider) {
-            return $this->executable->provideSelectBuilder($table);
-        }
-
         return new SelectBuilder($table, $this->executable);
     }
 
