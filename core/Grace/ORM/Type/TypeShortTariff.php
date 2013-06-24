@@ -10,15 +10,15 @@
 
 namespace Grace\ORM\Type;
 
-class TypeShortTarif implements TypeInterface
+class TypeShortTariff implements TypeInterface
 {
     public function getAlias()
     {
-        return 'short_tarif';
+        return 'short_tariff';
     }
     public function getPhpType()
     {
-        return '\Grace\ORM\Type\ShortTarifValue';
+        return '\Grace\ORM\Type\ShortTariffValue';
     }
     public function getDbType()
     {
@@ -26,11 +26,11 @@ class TypeShortTarif implements TypeInterface
     }
     public function convertDbToPhp($value)
     {
-        return new ShortTarifValue($value);
+        return new ShortTariffValue($value);
     }
     public function convertOnSetter($value)
     {
-        if ($value instanceof ShortTarifValue) {
+        if ($value instanceof ShortTariffValue) {
             return $value;
         }
 
@@ -38,7 +38,7 @@ class TypeShortTarif implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as tarif string');
         }
 
-        return new ShortTarifValue($value);
+        return new ShortTariffValue($value);
     }
     public function convertPhpToDb($value)
     {

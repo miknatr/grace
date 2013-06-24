@@ -17,7 +17,7 @@ use Grace\ORM\Type\TypeInterface;
 use Grace\ORM\Type\TypeMoney;
 use Grace\ORM\Type\TypePercent;
 use Grace\ORM\Type\TypePgsqlPoint;
-use Grace\ORM\Type\TypeShortTarif;
+use Grace\ORM\Type\TypeShortTariff;
 use Grace\ORM\Type\TypeString;
 use Grace\ORM\Type\TypeText;
 use Grace\ORM\Type\TypeTime;
@@ -43,7 +43,7 @@ class TypeConverter
         $this->addType(new TypeTime);
         $this->addType(new TypeTimestamp);
         $this->addType(new TypeYear);
-        $this->addType(new TypeShortTarif);
+        $this->addType(new TypeShortTariff);
     }
 
     public function addType(TypeInterface $type)
