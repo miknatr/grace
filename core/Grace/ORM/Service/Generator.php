@@ -220,10 +220,12 @@ class Generator
             file_put_contents($filename, $contents);
         }
 
+        $trimmedFilename = substr($filename, strlen($this->baseDir) + 1);
+
         if ($oldContents === null) {
-            $this->log("Created $filename");
+            $this->log("Created $trimmedFilename");
         } elseif ($oldContents !== $contents) {
-            $this->log("Touched $filename");
+            $this->log("Touched $trimmedFilename");
         }
     }
 
