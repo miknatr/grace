@@ -31,10 +31,11 @@ class TypePgsqlPoint implements TypeInterface
 
     public function convertDbToPhp($value)
     {
-        if (!is_array($value) && preg_match('/^\(([\d]+),([\d]+)\)$/', $value, $match)) {
-            $value = array($value[1], $value[2]);
+        if (preg_match('/^\(([\d]+),([\d]+)\)$/', $value, $match)) {
+            return new PgsqlPointValue(array($match[1], $match[2]));
         }
-        return new PgsqlPointValue($value);
+
+        throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as point string');
     }
 
     public function convertOnSetter($value)
@@ -54,7 +55,7 @@ class TypePgsqlPoint implements TypeInterface
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql
         /** @var $value PgsqlPointValue */
-        return new SqlValue('(?e, ?e)', array($value->getLatitude(), $value->getLongitude()));
+        return new SqlValue('POINT(?e, ?e)', array($value->getLatitude(), $value->getLongitude()));
     }
 }
 
