@@ -34,11 +34,15 @@ class ModelAbstractTest extends \PHPUnit_Framework_TestCase
             $cache
         );
 
-        $this->taxiPassenger = new TaxiPassenger(array(
-            'id'    => 123,
-            'name'  => 'Mike',
-            'phone' => '+79991234567',
-        ), $this->orm);
+        $this->taxiPassenger = new TaxiPassenger(
+            null,
+            array(
+                'id'    => 123,
+                'name'  => 'Mike',
+                'phone' => '+79991234567',
+            ),
+            $this->orm
+        );
     }
     public function testGettingIdAndFields()
     {

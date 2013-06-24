@@ -2,17 +2,39 @@
 
 namespace Grace\Tests\ORM\Service;
 
+use Grace\Cache\CacheInterface;
+use Grace\DBAL\Mysqli\Connection;
+use Grace\ORM\Grace;
+use Grace\ORM\Service\ClassNameProvider;
+use Grace\ORM\Service\ModelObserver;
+use Grace\ORM\Service\TypeConverter;
 use Grace\ORM\Service\UnitOfWork;
 use Grace\Tests\ORM\Plug\Model\TaxiPassenger;
+use Grace\Tests\ORM\Plug\TaxiModelsConfig;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 {
     /** @var UnitOfWork */
     protected $unitOfWork;
+    /** @var Grace */
+    protected $orm;
 
     protected function setUp()
     {
-        $this->unitOfWork = new UnitOfWork;
+        /** @var $cache CacheInterface */
+        $cache = $this->getMock('\\Grace\\Cache\\CacheInterface');
+        $connection = new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+
+        $this->orm = new Grace(
+            $connection,
+            new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
+            new ModelObserver(),
+            new TypeConverter(),
+            new TaxiModelsConfig(),
+            $cache
+        );
+
+        $this->unitOfWork = $this->orm->unitOfWork;
     }
     public function testEmptyReturn()
     {
@@ -22,8 +44,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
     public function testNewMarkers()
     {
-        $model1 = new TaxiPassenger(array('id' => 1));
-        $model2 = new TaxiPassenger(array('id' => 2));
+        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), $this->orm);
+        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), $this->orm);
         $model3 = $model2;
 
         $this->unitOfWork->markAsNew($model1);
@@ -36,8 +58,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
     public function testChangedMarkers()
     {
-        $model1 = new TaxiPassenger(array('id' => 1));
-        $model2 = new TaxiPassenger(array('id' => 2));
+        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), $this->orm);
+        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), $this->orm);
         $model3 = $model2;
 
         $this->unitOfWork->markAsChanged($model1);
@@ -50,8 +72,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
     public function testDeleteMarkers()
     {
-        $model1 = new TaxiPassenger(array('id' => 1));
-        $model2 = new TaxiPassenger(array('id' => 2));
+        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), $this->orm);
+        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), $this->orm);
         $model3 = $model2;
 
         $this->unitOfWork->markAsDeleted($model1);
@@ -64,8 +86,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
     public function testRevert()
     {
-        $model1 = new TaxiPassenger(array('id' => 1));
-        $model2 = new TaxiPassenger(array('id' => 2));
+        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), $this->orm);
+        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), $this->orm);
         $model3 = $model2;
 
         $this->unitOfWork->markAsNew($model1);
