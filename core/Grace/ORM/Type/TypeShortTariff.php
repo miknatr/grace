@@ -43,7 +43,8 @@ class TypeShortTariff implements TypeInterface
     }
     public function convertPhpToDb($value)
     {
-        return $value;
+        /** @var ShortTariffValue $value */
+        return (string) $value;
     }
 }
 
