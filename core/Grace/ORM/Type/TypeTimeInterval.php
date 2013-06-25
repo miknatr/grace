@@ -22,9 +22,8 @@ class TypeTimeInterval implements TypeInterface
     }
     public function getDbType()
     {
-        // STOPPER надо наверное не выёживаться и сделать с секундами
-        // 22:22-22:22
-        return 'char(11)';
+        // 01:00:00-02:00:00
+        return 'char(17)';
     }
     public function convertDbToPhp($value)
     {
@@ -36,8 +35,9 @@ class TypeTimeInterval implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as time interval');
         }
 
-        if (!preg_match('/^\d\d:\d\d-\d\d:\d\d$/', $value)) {
-            throw new ConversionImpossibleException('Invalid time interval "' . $value . '" (should be hh:mm-hh:mm)');
+        // STOPPER надо ли валидировать?
+        if (!preg_match('/^\d\d:\d\d:\d\d-\d\d:\d\d:\d\d$/', $value)) {
+            throw new ConversionImpossibleException('Invalid time interval "' . $value . '" (should be hh:mm:ss-hh:mm:ss)');
         }
         return $value;
     }
