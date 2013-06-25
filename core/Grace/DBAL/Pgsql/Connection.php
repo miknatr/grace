@@ -179,8 +179,9 @@ class Connection extends ConnectionAbstract
      */
     private function close()
     {
-        if ($this->resource) {
+        if (is_resource($this->resource)) {
             pg_close($this->resource);
+            $this->resource = null;
         }
     }
     /**
