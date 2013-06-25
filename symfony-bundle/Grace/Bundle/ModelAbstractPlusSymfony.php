@@ -23,6 +23,7 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
     {
         $constraintViolationList = $this->orm->validator->validate($this);
         if ($constraintViolationList->count() != 0) {
+            $this->revert();
             throw new ValidationException($constraintViolationList);
         }
     }
