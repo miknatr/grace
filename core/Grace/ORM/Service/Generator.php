@@ -59,14 +59,15 @@ class Generator
             $this->generateGraceClassPhpdoc()
         );
 
-        $modelClassPhpdoc = $this->generateModelClassPhpdoc();
-
         foreach ($this->modelsConfig->models as $modelName => $config) {
             $modelClass = $this->classNameProvider->getModelClass($modelName);
             $modelClassFilename = $this->getClassFilename($modelClass, $this->baseModelClass);
 
             // PHPDOC
-            $this->addPhpdocToClass($modelClassFilename, $modelClassPhpdoc);
+            $this->addPhpdocToClass(
+                $modelClassFilename,
+                $this->generateModelClassPhpdoc($modelName)
+            );
 
             $finderClass = $this->classNameProvider->getFinderClass($modelName);
             $this->addPhpdocToClass(
@@ -103,10 +104,13 @@ class Generator
         return $phpdoc;
     }
 
-    private function generateModelClassPhpdoc()
+    private function generateModelClassPhpdoc($modelName)
     {
+        $modelClass = $this->classNameProvider->getModelClass($modelName);
+
         $phpdoc = '';
         $phpdoc .= " * @property {$this->graceClass} \$orm\n";
+        $phpdoc .= " * @method $modelClass getOriginalModel()\n";
         return $phpdoc;
     }
 

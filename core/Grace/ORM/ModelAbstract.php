@@ -98,7 +98,7 @@ abstract class ModelAbstract
     {
         return $this->orm->classNameProvider->getBaseClass(get_class($this));
     }
-    final public function getOriginalModel()
+    public function getOriginalModel()
     {
         $class = get_class($this);
         return new $class($this->defaultProperties);
