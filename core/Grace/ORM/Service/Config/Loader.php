@@ -3,6 +3,7 @@
 namespace Grace\ORM\Service\Config;
 
 use Grace\Cache\CacheInterface;
+use Grace\ORM\Service\Config\Element\DefaultElement;
 use Grace\ORM\Service\Config\Element\MappingElement;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\Config\Element\ParentElement;
@@ -47,6 +48,9 @@ class Loader
                 $property->mapping = $mapping;
                 if (isset($propertyConfig['validation'])) {
                     $property->validation = $propertyConfig['validation'];
+                }
+                if (isset($propertyConfig['default'])) {
+                    $property->default = new DefaultElement($propertyConfig['default']);
                 }
 
                 $properties[$propertyNameWithParentId] = $property;

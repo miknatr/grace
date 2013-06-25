@@ -23,7 +23,7 @@ abstract class ModelAbstract
     private $defaultProperties = array();
     protected $properties = array();
 
-    final public function __construct($id = null, array $dbArray = null, Grace $orm)
+    public function __construct($id = null, array $dbArray = null, Grace $orm)
     {
         $this->orm = $orm;
 
@@ -35,7 +35,7 @@ abstract class ModelAbstract
         }
 
         if ($dbArray == null) {
-            $this->setPropertiesNull();
+            $this->setDefaultPropertyValues();
 
             $type = $this->orm->config->models[$this->getBaseClass()]->properties['id']->mapping->localPropertyType;
             $this->properties['id'] = $this->orm->typeConverter->convertOnSetter($type, $id);
@@ -73,31 +73,20 @@ abstract class ModelAbstract
         $this->properties = $properties;
     }
 
-    private function setPropertiesNull()
+    private function setDefaultPropertyValues()
     {
         $baseClass = $this->getBaseClass();
 
         $properties = array();
         foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
             if ($propertyConfig->mapping->localPropertyType or $propertyConfig->mapping->relationForeignProperty) {
-                $properties[$propertyName] = null;
+                $properties[$propertyName] = empty($propertyConfig->default) ? null : $propertyConfig->default->getValue();
             } else {
                 throw new \LogicException("Bad mapping in $baseClass:$propertyName");
             }
         }
 
         $this->properties = $properties;
-    }
-
-
-    //
-    // OVERRIDE
-    //
-
-    //STOPPER модель в супер грейсе зависит от интертосного юзера
-    public function initCreatedModel(UserAbstract $user = null)
-    {
-        return $this;
     }
 
 

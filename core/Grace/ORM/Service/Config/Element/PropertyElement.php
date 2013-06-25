@@ -21,4 +21,7 @@ class PropertyElement
      * @var mixed
      */
     public $validation;
+
+    /** @var DefaultElement */
+    public $default;
 }

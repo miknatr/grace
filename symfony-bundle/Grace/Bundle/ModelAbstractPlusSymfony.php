@@ -19,6 +19,24 @@ use Intertos\CoreBundle\Security\Core\User\UserAbstract;
 /** @property GracePlusSymfony $orm */
 abstract class ModelAbstractPlusSymfony extends ModelAbstract
 {
+    private $needsInitCreatedModel = false;
+
+    public function __construct($id = null, array $dbArray = null, Grace $orm)
+    {
+        parent::__construct($id, $dbArray, $orm);
+        if (is_null($dbArray)) {
+            $this->needsInitCreatedModel = true;
+        }
+    }
+
+    protected function initCreatedModel()
+    {
+    }
+
+    /**
+     * @throws Validator\ValidationException
+     * @return $this
+     */
     public function ensureValid()
     {
         $constraintViolationList = $this->orm->validator->validate($this);
@@ -26,5 +44,12 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
             $this->revert();
             throw new ValidationException($constraintViolationList);
         }
+
+        if ($this->needsInitCreatedModel) {
+            $this->initCreatedModel();
+            $this->needsInitCreatedModel = false;
+        }
+
+        return $this;
     }
 }

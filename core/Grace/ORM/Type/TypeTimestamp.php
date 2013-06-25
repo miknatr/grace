@@ -34,12 +34,18 @@ class TypeTimestamp implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as datetime');
         }
 
+        // STOPPER нормальная валидация времени
         $dt = date_parse_from_format('Y-m-d H:i:s', $value);
-        return date('Y-m-d H:i:s', mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']));
+        return static::format(mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']));
     }
     public function convertPhpToDb($value)
     {
         return $value;
+    }
+
+    public static function format($unixtime)
+    {
+        return date('Y-m-d H:i:s', $unixtime);
     }
 }
 
