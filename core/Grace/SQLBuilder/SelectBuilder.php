@@ -224,6 +224,26 @@ class SelectBuilder extends WhereBuilderAbstract
     //
 
     /**
+     * Adds IS NULL statement into where statement
+     * @param $field
+     * @return $this
+     */
+    public function isNull($field)
+    {
+        return parent::isNull($this->alias . '.' . $field);
+    }
+
+    /**
+     * Adds IS NOT NULL statement into where statement
+     * @param $field
+     * @return $this
+     */
+    public function notNull($field)
+    {
+        return parent::notNull($this->alias . '.' . $field);
+    }
+
+    /**
      * Adds '=' statement into where statement
      * @param $field
      * @param $value

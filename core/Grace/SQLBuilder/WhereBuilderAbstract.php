@@ -43,6 +43,29 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
         $this->arguments[]          = $value;
         return $this;
     }
+
+    /**
+     * Adds IS NULL statement into where statement
+     * @param $field
+     * @return $this
+     */
+    public function isNull($field)
+    {
+        $this->whereSqlConditions[] = '?f IS NULL';
+        $this->arguments[]          = $field;
+        return $this;
+    }
+    /**
+     * Adds IS NOT NULL statement into where statement
+     * @param $field
+     * @return $this
+     */
+    public function notNull($field)
+    {
+        $this->whereSqlConditions[] = '?f IS NOT NULL';
+        $this->arguments[]          = $field;
+        return $this;
+    }
     /**
      * Adds '=' statement into where statement
      * @param $field
