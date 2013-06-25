@@ -18,6 +18,7 @@ class TypeShortTariff implements TypeInterface
     }
     public function getPhpType()
     {
+        // STOPPER setter can be by string too
         return '\Grace\ORM\Type\ShortTariffValue';
     }
     public function getDbType()
