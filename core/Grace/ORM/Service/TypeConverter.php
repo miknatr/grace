@@ -21,6 +21,7 @@ use Grace\ORM\Type\TypeShortTariff;
 use Grace\ORM\Type\TypeString;
 use Grace\ORM\Type\TypeText;
 use Grace\ORM\Type\TypeTime;
+use Grace\ORM\Type\TypeTimeInterval;
 use Grace\ORM\Type\TypeTimestamp;
 use Grace\ORM\Type\TypeYear;
 
@@ -41,6 +42,7 @@ class TypeConverter
         $this->addType(new TypeString);
         $this->addType(new TypeText);
         $this->addType(new TypeTime);
+        $this->addType(new TypeTimeInterval);
         $this->addType(new TypeTimestamp);
         $this->addType(new TypeYear);
         $this->addType(new TypeShortTariff);
