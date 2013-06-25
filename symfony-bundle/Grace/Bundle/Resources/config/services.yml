@@ -20,6 +20,7 @@ services:
       - %grace.class_directory%
       - %grace.grace_class%
       - Grace\Bundle\GracePlusSymfony
+      - Grace\Bundle\ModelAbstractPlusSymfony
 
 
   #DB connections
@@ -64,6 +65,7 @@ services:
       - @event_dispatcher
       - @logger
       - @security.role_hierarchy
+      - @validator
 
 
   #Symfony integration services

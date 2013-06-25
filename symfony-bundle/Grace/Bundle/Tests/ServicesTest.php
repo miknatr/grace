@@ -25,6 +25,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
+use Symfony\Component\Validator\Tests\ValidatorBuilderTest;
+use Symfony\Component\Validator\Validator;
+use Symfony\Component\Validator\ValidatorBuilder;
 
 class ServicesTest extends \PHPUnit_Framework_TestCase
 {
@@ -47,6 +50,7 @@ class ServicesTest extends \PHPUnit_Framework_TestCase
         )));
         $container->set('annotation_reader', new AnnotationReader());
         $container->set('event_dispatcher', new EventDispatcher());
+        $container->set('validator', (new ValidatorBuilder())->getValidator());
         $container->set('logger', new Logger('test'));
         $container->set('security.role_hierarchy', new RoleHierarchy(array()));
 

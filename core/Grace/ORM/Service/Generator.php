@@ -27,6 +27,7 @@ class Generator
     private $baseDir;
     private $graceClass;
     private $baseGraceClass;
+    private $baseModelClass;
 
     private $isDryRun = false;
     /** @var callable */
@@ -34,7 +35,7 @@ class Generator
 
     const INLINE_GENCODE_MARKER = 'BEGIN GRACE GENERATED CODE';
 
-    public function __construct(Config $modelsConfig, TypeConverter $typeConverter, ClassNameProvider $classNameProvider, $baseDir, $graceClass, $baseGraceClass = '\\Grace\\ORM\\Grace')
+    public function __construct(Config $modelsConfig, TypeConverter $typeConverter, ClassNameProvider $classNameProvider, $baseDir, $graceClass, $baseGraceClass = '\\Grace\\ORM\\Grace', $baseModelClass = '\\Grace\\ORM\\ModelAbstract')
     {
         $this->modelsConfig      = $modelsConfig;
         $this->classNameProvider = $classNameProvider;
@@ -42,6 +43,7 @@ class Generator
         $this->graceClass        = '\\' . ltrim($graceClass, '\\');
         $this->baseGraceClass    = '\\' . ltrim($baseGraceClass, '\\');
         $this->typeConverter     = $typeConverter;
+        $this->baseModelClass    = $baseModelClass;
     }
 
     public function generate($dryRun = false, callable $logger = null)
@@ -61,7 +63,7 @@ class Generator
 
         foreach ($this->modelsConfig->models as $modelName => $config) {
             $modelClass = $this->classNameProvider->getModelClass($modelName);
-            $modelClassFilename = $this->getClassFilename($modelClass, '\\Grace\\ORM\\ModelAbstract');
+            $modelClassFilename = $this->getClassFilename($modelClass, $this->baseModelClass);
 
             // PHPDOC
             $this->addPhpdocToClass($modelClassFilename, $modelClassPhpdoc);

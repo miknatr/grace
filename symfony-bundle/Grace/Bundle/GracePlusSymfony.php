@@ -13,12 +13,18 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
 use Monolog\Logger;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
+use Symfony\Component\Validator\Validator;
 
 class GracePlusSymfony extends Grace
 {
+    /** @var EventDispatcher */
     public $eventDispatcher;
+    /** @var Logger */
     public $logger;
+    /** @var RoleHierarchyInterface */
     public $roleHierarchy;
+    /** @var Validator */
+    public $validator;
 
     public function __construct(
         ConnectionInterface $db,
@@ -29,12 +35,14 @@ class GracePlusSymfony extends Grace
         CacheInterface $cache,
         EventDispatcher $eventDispatcher,
         Logger $logger,
-        RoleHierarchyInterface $roleHierarchy
+        RoleHierarchyInterface $roleHierarchy,
+        Validator $validator
     ) {
         parent::__construct($db, $classNameProvider, $modelObserver, $typeConverter, $config, $cache);
 
         $this->eventDispatcher = $eventDispatcher;
         $this->logger          = $logger;
         $this->roleHierarchy   = $roleHierarchy;
+        $this->validator       = $validator;
     }
 }
