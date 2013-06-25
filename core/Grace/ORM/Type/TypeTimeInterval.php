@@ -22,6 +22,7 @@ class TypeTimeInterval implements TypeInterface
     }
     public function getDbType()
     {
+        // STOPPER надо наверное не выёживаться и сделать с секундами
         // 22:22-22:22
         return 'char(11)';
     }
