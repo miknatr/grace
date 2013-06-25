@@ -1,15 +1,40 @@
 <?php
 
 /* CONFIGURATION FOR MySQL tests */
-define('TEST_MYSQLI_HOST', '127.0.0.1');
-define('TEST_MYSQLI_PORT', 3306);
-define('TEST_MYSQLI_NAME', 'root');
-define('TEST_MYSQLI_PASSWORD', '1');
+$mysql = mysql_client_defaults();
+define('TEST_MYSQLI_HOST',     $mysql['host']     ?: '127.0.0.1');
+define('TEST_MYSQLI_PORT',     $mysql['port']     ?: 3306);
+define('TEST_MYSQLI_NAME',     $mysql['user']     ?: 'root');
+define('TEST_MYSQLI_PASSWORD', $mysql['password'] ?: '1');
 define('TEST_MYSQLI_DATABASE', 'tests');
 
 /* CONFIGURATION FOR PostgreSQL tests */
-define('TEST_PGSQL_HOST', 'localhost');
-define('TEST_PGSQL_PORT', 5432);
-define('TEST_PGSQL_NAME', 'postgres');
+define('TEST_PGSQL_HOST',     '127.0.0.1');
+define('TEST_PGSQL_PORT',     5432);
+define('TEST_PGSQL_NAME',     'postgres');
 define('TEST_PGSQL_PASSWORD', '1');
 define('TEST_PGSQL_DATABASE', 'tests');
+
+
+
+function mysql_client_defaults()
+{
+	// loading mysql info from .my.cnf
+	$line = exec('mysql --print-defaults', $ret, $exit_status);
+	if ($exit_status) {
+	    return array();
+	}
+
+	$params = array();
+	preg_match_all('/--(\w+)=(\S+)/', $line, $mm, PREG_SET_ORDER);
+	foreach ($mm as $m) {
+	    $params[$m[1]] = $m[2];
+	}
+
+	return array(
+		'host'     => empty($params['host']) ? '127.0.0.1'    : $params['host'],
+		'port'     => empty($params['port']) ? ''             : $params['port'],
+		'user'     => empty($params['user']) ? exec('whoami') : $params['user'],
+		'password' => empty($params['password']) ? ''         : $params['password'],
+	);
+}
