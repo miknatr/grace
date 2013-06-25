@@ -35,7 +35,6 @@ class TypeTimeInterval implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as time interval');
         }
 
-        // STOPPER надо ли валидировать?
         if (!preg_match('/^\d\d:\d\d:\d\d-\d\d:\d\d:\d\d$/', $value)) {
             throw new ConversionImpossibleException('Invalid time interval "' . $value . '" (should be hh:mm:ss-hh:mm:ss)');
         }
