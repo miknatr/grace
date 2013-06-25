@@ -11,7 +11,7 @@ class ValidationException extends \Exception
     public function __construct(ConstraintViolationList $errors, $code = 0, \Exception $previous = null)
     {
         $this->errors = $errors;
-        parent::__construct('Ошибка валидации', $code, $previous);
+        parent::__construct('Ошибка валидации' . "\n" . $this->errors->__toString(), $code, $previous);
     }
 
     public function getErrors()
