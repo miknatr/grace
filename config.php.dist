@@ -1,7 +1,7 @@
 <?php
 
 /* CONFIGURATION FOR MySQL tests */
-$mysql = mysql_client_defaults();
+$mysql = mysqlClientDefaults();
 define('TEST_MYSQLI_HOST',     $mysql['host']     ?: '127.0.0.1');
 define('TEST_MYSQLI_PORT',     $mysql['port']     ?: 3306);
 define('TEST_MYSQLI_NAME',     $mysql['user']     ?: 'root');
@@ -17,24 +17,24 @@ define('TEST_PGSQL_DATABASE', 'tests');
 
 
 
-function mysql_client_defaults()
+function mysqlClientDefaults()
 {
 	// loading mysql info from .my.cnf
-	$line = exec('mysql --print-defaults', $ret, $exit_status);
-	if ($exit_status) {
+	$line = exec('mysql --print-defaults', $ret, $exitStatus);
+	if ($exitStatus) {
 	    return array();
 	}
 
 	$params = array();
-	preg_match_all('/--(\w+)=(\S+)/', $line, $mm, PREG_SET_ORDER);
-	foreach ($mm as $m) {
-	    $params[$m[1]] = $m[2];
+	preg_match_all('/--(\w+)=(\S+)/', $line, $matches, PREG_SET_ORDER);
+	foreach ($matches as $match) {
+	    $params[$match[1]] = $match[2];
 	}
 
 	return array(
-		'host'     => empty($params['host']) ? '127.0.0.1'    : $params['host'],
-		'port'     => empty($params['port']) ? ''             : $params['port'],
-		'user'     => empty($params['user']) ? exec('whoami') : $params['user'],
-		'password' => empty($params['password']) ? ''         : $params['password'],
+		'host'     => empty($params['host'])     ? '' : $params['host'],
+		'port'     => empty($params['port'])     ? 0  : (int) $params['port'],
+		'user'     => empty($params['user'])     ? '' : $params['user'],
+		'password' => empty($params['password']) ? '' : $params['password'],
 	);
 }
