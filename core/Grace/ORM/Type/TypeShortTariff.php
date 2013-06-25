@@ -35,7 +35,7 @@ class TypeShortTariff implements TypeInterface
         }
 
         if (!is_scalar($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as tarif string');
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as tariff string');
         }
 
         return new ShortTariffValue($value);
