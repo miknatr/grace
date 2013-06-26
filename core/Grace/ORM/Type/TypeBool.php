@@ -26,7 +26,7 @@ class TypeBool implements TypeInterface
     }
     public function convertDbToPhp($value)
     {
-        if ($value == 'f') {
+        if ($value === 'f') {
             return false;
         }
 
@@ -34,7 +34,7 @@ class TypeBool implements TypeInterface
     }
     public function convertOnSetter($value)
     {
-        if ($value == 'f' or $value == 'off') {
+        if ($value === 'f' or $value === 'off') {
             return false;
         }
 
