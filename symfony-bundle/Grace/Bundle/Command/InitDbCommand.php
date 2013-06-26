@@ -3,6 +3,7 @@
 namespace Grace\Bundle\Command;
 
 use Doctrine\Tests\DBAL\Functional\TypeConversionTest;
+use Grace\Bundle\GracePlusSymfony;
 use Grace\DBAL\Exception\QueryException;
 use Grace\ORM\Grace;
 use Grace\ORM\Service\Config\Element\ModelElement;
@@ -63,7 +64,7 @@ class InitDbCommand extends ContainerAwareCommand
             $fakes = $this->getFakes($fakesFile);
             if (!empty($fakes)) {
                 foreach ($fakes as $tableName => $rows) {
-                    $this->insertFakes($db, $tableName, $rows);
+                    $this->insertFakes($orm, $tableName, $rows);
                     $output->writeln(" > {$tableName}");
                 }
                 $output->writeln("ok");
@@ -130,10 +131,11 @@ class InitDbCommand extends ContainerAwareCommand
         return Yaml::parse($fakesFile);
     }
 
-    private function insertFakes(ConnectionInterface $db, $tableName, $fakeList)
+    private function insertFakes(GracePlusSymfony $orm, $modelName, $fakeList)
     {
         foreach ($fakeList as $fake) {
-            $db->getSQLBuilder()->insert($tableName)->values($fake)->execute();
+            $orm->getFinder($modelName)->create($fake);
         }
+        $orm->commit();
     }
 }

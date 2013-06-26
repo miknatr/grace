@@ -66,10 +66,11 @@ class Connection extends ConnectionAbstract
         $this->getLogger()->stopQuery();
 
         if ($this->lastResult === false) {
+            $error = pg_last_error($this->resource);
             if ($this->transactionProcess) {
                 $this->rollback();
             }
-            throw new QueryException('Query error ' . pg_errormessage($this->resource) . ". \nSQL:\n" . $query);
+            throw new QueryException("Query error: " . $error . "\nSQL:\n" . $query);
         } elseif ($needResult) {
             return new Result($this->lastResult);
         } else {

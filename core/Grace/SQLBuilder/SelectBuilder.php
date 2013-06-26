@@ -251,7 +251,11 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     public function eq($field, $value)
     {
-        return parent::eq($this->alias . '.' . $field, $value);
+        // TODO нормальные алиасы блджад
+        if (!strpos($field, '.')) {
+            $field = $this->alias . '.' . $field;
+        }
+        return parent::eq($field, $value);
     }
 
     /**
