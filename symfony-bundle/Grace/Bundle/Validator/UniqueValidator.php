@@ -2,7 +2,7 @@
 
 namespace Grace\Bundle\Validator;
 
-use Grace\Bundle\Validator\Constraint\UniqueConstraint;
+use Grace\Bundle\Validator\Constraint\Unique;
 use Grace\ORM\Grace;
 use Grace\ORM\ModelAbstract;
 use Symfony\Component\Form\Form;
@@ -20,7 +20,7 @@ class UniqueValidator extends ConstraintValidator
 
     public function validate($value, Constraint $constraint)
     {
-        /** @var $constraint UniqueConstraint */
+        /** @var $constraint Unique */
 
         /** @var $root Form|ModelAbstract */
         $root = $this->context->getRoot();

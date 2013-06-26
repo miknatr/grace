@@ -4,7 +4,7 @@ namespace Grace\Bundle\Validator\Constraint;
 
 use Symfony\Component\Validator\Constraint;
 
-class UniqueConstraint extends Constraint
+class Unique extends Constraint
 {
     public $message = 'This value is already used';
     public $entity;

@@ -33,6 +33,10 @@ class GraceModelValidationLoader implements LoaderInterface
             return false;
         }
 
+        if (!array_key_exists($baseClass, $this->config->models)) {
+            return false;
+        }
+
         foreach ($this->config->models[$baseClass]->properties as $propName => $property) {
             if ($property->validation) {
                 if (!is_array($property->validation)) {
