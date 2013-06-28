@@ -46,5 +46,9 @@ class TypeShortTariff implements TypeInterface
         /** @var ShortTariffValue $value */
         return (string) $value;
     }
+    public function getPhpDefaultValue()
+    {
+        return new ShortTariffValue('');
+    }
 }
 

@@ -12,15 +12,18 @@ namespace Grace\ORM\Service\Config\Element;
 
 class MappingElement
 {
+    public $localPropertyType;
+    public $foreignKeyTable;
     public $relationLocalProperty;
     public $relationForeignProperty;
-    public $localPropertyType;
 
     public function __construct($mapping)
     {
         if (preg_match('/^(\w+):(\w+)$/', $mapping, $match)) {
             $this->relationLocalProperty = $match[1];
             $this->relationForeignProperty = $match[2];
+        } elseif ($mapping[0] == '^') {
+            $this->foreignKeyTable = substr($mapping, 1);
         } elseif ($mapping) {
             $this->localPropertyType = $mapping;
         } else {

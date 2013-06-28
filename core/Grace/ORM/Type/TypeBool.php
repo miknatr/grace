@@ -44,5 +44,9 @@ class TypeBool implements TypeInterface
     {
         return $value ? '1' : '0';
     }
+    public function getPhpDefaultValue()
+    {
+        return false;
+    }
 }
 

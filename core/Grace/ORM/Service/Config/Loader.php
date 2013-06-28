@@ -33,6 +33,8 @@ class Loader
 
     protected function getConfigRaw()
     {
+        //TODO проверки: id всегда локалПропертиТайп, ссылки на паренты тоже проверять как то на существование
+
         $array = $this->loadResource($this->resource);
         $config = new Config;
 
@@ -40,7 +42,7 @@ class Loader
             $properties = array();
             foreach ($modelConfig['properties'] as $propertyNameWithParentId => $propertyConfig) {
                 $mapping = new MappingElement($propertyConfig['mapping']);
-                if (!$mapping->localPropertyType && !$mapping->relationLocalProperty) {
+                if (!$mapping->localPropertyType && !$mapping->relationLocalProperty && !$mapping->foreignKeyTable) {
                     continue;
                 }
 
@@ -63,15 +65,8 @@ class Loader
             $model = new ModelElement();
             $model->properties = $properties;
 
-            if (!isset($modelConfig['parents'])) {
-                throw new \LogicException('There is no "parents" config in ' . $modelName . ' model');
-            }
-
-            foreach ($modelConfig['parents'] as $propertyNameWithParentId => $parentModelName) {
-                $parent = new ParentElement();
-                $parent->parentModel = $parentModelName;
-
-                $model->parents[$propertyNameWithParentId] = $parent;
+            if (isset($modelConfig['parents'])) {
+                throw new \LogicException('There is unsupported "parents" config in ' . $modelName . ' model');
             }
 
             $config->models[$modelName] = $model;

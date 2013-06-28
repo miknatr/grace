@@ -44,5 +44,10 @@ class TypeTimeInterval implements TypeInterface
     {
         return $value;
     }
+    public function getPhpDefaultValue()
+    {
+        //STOPPER ???
+        return '00:00:00-00:00:00';
+    }
 }
 

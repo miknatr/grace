@@ -40,4 +40,8 @@ class TypeText implements TypeInterface
     {
         return $value;
     }
+    public function getPhpDefaultValue()
+    {
+        return '';
+    }
 }

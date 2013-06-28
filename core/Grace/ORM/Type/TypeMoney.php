@@ -48,5 +48,9 @@ class TypeMoney implements TypeInterface
     {
         return $value;
     }
+    public function getPhpDefaultValue()
+    {
+        return '0.00';
+    }
 }
 

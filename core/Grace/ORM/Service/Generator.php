@@ -125,11 +125,15 @@ class Generator
                 continue;
             }
 
-            if ($propConfig->mapping->localPropertyType) {
-                $type = $this->typeConverter->getPhpType($propConfig->mapping->localPropertyType);
-            } elseif ($propConfig->mapping->relationLocalProperty) {
-                $parentName = $this->modelsConfig->models[$modelName]->parents[$propConfig->mapping->relationLocalProperty]->parentModel;
-                $typeAlias = $this->modelsConfig->models[$parentName]->properties[$propConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
+            $mapping = $propConfig->mapping;
+
+            if ($mapping->localPropertyType) {
+                $type = $this->typeConverter->getPhpType($mapping->localPropertyType);
+            } elseif ($mapping->foreignKeyTable) {
+                $type = $this->typeConverter->getPhpType($this->modelsConfig->models[$mapping->foreignKeyTable]->properties['id']->localPropertyType);
+            } elseif ($mapping->relationLocalProperty) {
+                $parentName = $this->modelsConfig->models[$modelName]->properties[$mapping->relationLocalProperty]->mapping->foreignKeyTable;
+                $typeAlias = $this->modelsConfig->models[$parentName]->properties[$mapping->relationForeignProperty]->mapping->localPropertyType;
                 $type = $this->typeConverter->getPhpType($typeAlias);
             } else {
                 throw new \LogicException("Bad mapping in $modelName:$propName");
@@ -145,8 +149,15 @@ class Generator
                 }
             ");
 
-            if ($propConfig->mapping->localPropertyType) {
-                $type = $this->typeConverter->getPhpType($propConfig->mapping->localPropertyType);
+            if ($mapping->localPropertyType or $mapping->foreignKeyTable) {
+                if ($mapping->localPropertyType) {
+                    $type = $this->typeConverter->getPhpType($mapping->localPropertyType);
+                } elseif ($mapping->foreignKeyTable) {
+                    $type = $this->typeConverter->getPhpType($this->modelsConfig->models[$mapping->foreignKeyTable]->properties['id']->localPropertyType);
+                } else {
+                    throw new \Exception;
+                }
+
                 $methods['set' . $name] = $this->dedent(4, "
                     /**
                      * @param {$type} \${$propName}
@@ -158,22 +169,22 @@ class Generator
                     }
                 ");
             }
-        }
 
-        foreach ($this->modelsConfig->models[$modelName]->parents as $propName => $parentConfig) {
-            $name = ucfirst(substr($propName, 0, -2)); // removing Id suffix
-            $parentClass = $this->classNameProvider->getModelClass($parentConfig->parentModel);
-            $finderProperty = lcfirst($parentConfig->parentModel);
+            if ($mapping->foreignKeyTable) {
+                $name = ucfirst(substr($propName, 0, -2)); // removing Id suffix
+                $parentClass = $this->classNameProvider->getModelClass($mapping->foreignKeyTable);
+                $finderProperty = lcfirst($mapping->foreignKeyTable);
 
-            $methods['get' . $name] = $this->dedent(3, "
-                /**
-                 * @return {$parentClass}
-                 */
-                public function get{$name}()
-                {
-                    return \$this->orm->{$finderProperty}Finder->getByIdOrFalse(\$this->getProperty('{$propName}'));
-                }
-            ");
+                $methods['get' . $name] = $this->dedent(4, "
+                    /**
+                     * @return {$parentClass}
+                     */
+                    public function get{$name}()
+                    {
+                        return \$this->orm->{$finderProperty}Finder->getByIdOrFalse(\$this->getProperty('{$propName}'));
+                    }
+                ");
+            }
         }
 
         return $methods;

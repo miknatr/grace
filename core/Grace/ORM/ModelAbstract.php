@@ -53,18 +53,22 @@ abstract class ModelAbstract
         $properties = array();
         foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
             //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
-            if ($propertyConfig->mapping->localPropertyType) {
-                $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($propertyConfig->mapping->localPropertyType, $dbArray[$propertyName]);
-            } elseif ($propertyConfig->mapping->relationForeignProperty) {
-                // если поле задано как проброс чужого поля по связи, выковыриваем тип этого поля
+            $mapping = $propertyConfig->mapping;
+
+            if ($mapping->localPropertyType) {
+                $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($mapping->localPropertyType, $dbArray[$propertyName]);
+            } elseif ($mapping->relationForeignProperty) {
                 $modelConfig       = $this->orm->config->models[$baseClass];
-                $foreignBaseClass  = $modelConfig->parents[$propertyConfig->mapping->relationLocalProperty]->parentModel;
+                $foreignBaseClass  = $modelConfig->properties[$mapping->relationLocalProperty]->mapping->foreignKeyTable;
                 $parentModelConfig = $this->orm->config->models[$foreignBaseClass];
-                $type = $parentModelConfig->properties[$propertyConfig->mapping->relationForeignProperty]->mapping->localPropertyType;
+                $type = $parentModelConfig->properties[$mapping->relationForeignProperty]->mapping->localPropertyType;
                 if (!$type) {
-                    throw new \LogicException("Property {$foreignBaseClass}.{$propertyConfig->mapping->relationForeignProperty} must be defined with local mapping");
+                    throw new \LogicException("Property {$foreignBaseClass}.{$mapping->relationForeignProperty} must be defined with local mapping");
                 }
                 $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, $dbArray[$propertyName]);
+            } elseif ($mapping->relationForeignProperty) {
+                $type = $this->orm->config->models[$mapping->foreignKeyTable]->properties['id']->mapping->localPropertyType;
+                $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, null, true);
             } else {
                 throw new \LogicException("Bad mapping in $baseClass:$propertyName");
             }
@@ -79,8 +83,28 @@ abstract class ModelAbstract
 
         $properties = array();
         foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
-            if ($propertyConfig->mapping->localPropertyType or $propertyConfig->mapping->relationForeignProperty) {
-                $properties[$propertyName] = empty($propertyConfig->default) ? null : $propertyConfig->default->getValue();
+            $mapping = $propertyConfig->mapping;
+
+            if ($mapping->localPropertyType) {
+                if ($propertyConfig->default) {
+                    $properties[$propertyName] = $this->orm->typeConverter->convertOnSetter($mapping->localPropertyType, $propertyConfig->default->getValue());
+                } else {
+                    $properties[$propertyName] = $this->orm->typeConverter->getPhpDefaultValue($mapping->localPropertyType);
+                }
+            } elseif ($mapping->localPropertyType or $mapping->relationForeignProperty) {
+                if ($propertyConfig->default) {
+                    throw new \LogicException("\"default\" option is unsupported for foreign keys in $baseClass:$propertyName");
+                } else {
+                    //STOPPER вытаскивать же нужно из таблицы? (и в сеттерах получается тоже)
+                    $properties[$propertyName] = 'ХУЙ';
+                }
+            } elseif ($mapping->foreignKeyTable) {
+                if ($propertyConfig->default) {
+                    throw new \LogicException("\"default\" option is unsupported for foreign keys in $baseClass:$propertyName");
+                } else {
+                    $type = $this->orm->config->models[$mapping->foreignKeyTable]->properties['id']->mapping->localPropertyType;
+                    $properties[$propertyName] = $this->orm->typeConverter->convertOnSetter($type, null, true);
+                }
             } else {
                 throw new \LogicException("Bad mapping in $baseClass:$propertyName");
             }
@@ -133,12 +157,16 @@ abstract class ModelAbstract
             throw new \InvalidArgumentException('WTF is this');
         }
 
-        $type = $this->orm->config->models[$this->getBaseClass()]->properties[$name]->mapping->localPropertyType;
-        if (!$type) {
+        $mapping = $this->orm->config->models[$this->getBaseClass()]->properties[$name]->mapping;
+        if ($mapping->localPropertyType) {
+            $this->properties[$name] = $this->orm->typeConverter->convertOnSetter($mapping->localPropertyType, $value);
+        } elseif ($mapping->foreignKeyTable) {
+            $type = $this->orm->config->models[$mapping->foreignKeyTable]->properties['id']->mapping->localPropertyType;
+            $this->properties[$name] = $this->orm->typeConverter->convertOnSetter($type, $value, true);
+        } else {
             throw new \InvalidArgumentException('Cannot set the unsettable');
         }
 
-        $this->properties[$name] = $this->orm->typeConverter->convertOnSetter($type, $value);
         $this->markAsChanged();
 
         return $this;

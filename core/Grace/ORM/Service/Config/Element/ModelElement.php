@@ -17,6 +17,7 @@ class ModelElement
 {
     /** @var PropertyElement[] propertyNames as keys*/
     public $properties = array();
+    //STOPPER выпилить и элемент тоже
     /** @var ParentElement[] propertyNames linked to parent id as keys*/
     public $parents = array();
 }

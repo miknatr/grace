@@ -18,4 +18,5 @@ interface TypeInterface
     public function convertDbToPhp($value);
     public function convertOnSetter($value);
     public function convertPhpToDb($value);
+    public function getPhpDefaultValue();
 }

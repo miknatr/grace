@@ -5,7 +5,6 @@ namespace Grace\Bundle\Command;
 use Doctrine\Tests\DBAL\Functional\TypeConversionTest;
 use Grace\Bundle\GracePlusSymfony;
 use Grace\DBAL\Exception\QueryException;
-use Grace\ORM\Grace;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\TypeConverter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -35,7 +34,7 @@ class InitDbCommand extends ContainerAwareCommand
     {
         $fakesFile = $this->getContainer()->getParameter('grace.model_config_fakes');
 
-        /** @var $orm Grace */
+        /** @var $orm GracePlusSymfony */
         $orm = $this->getContainer()->get('grace_orm');
         $typeConverter = $orm->typeConverter;
         /** @var $db ConnectionInterface */
@@ -110,17 +109,22 @@ class InitDbCommand extends ContainerAwareCommand
 
     private function getFieldsSQL(ConnectionInterface $db, TypeConverter $typeConverter, ModelElement $config)
     {
-        $fields = array();
+        $sql = array();
 
         foreach ($config->properties as $propName => $propConfig) {
             if ($propConfig->mapping->localPropertyType) {
-               $fields[$propName]['type'] = $typeConverter->getDbType($propConfig->mapping->localPropertyType);
+                $type = $typeConverter->getDbType($propConfig->mapping->localPropertyType);
+                $null = 'NOT NULL';
+            } elseif ($propConfig->mapping->foreignKeyTable) {
+                //STOPPER внешний ключ и нул
+                $type = 'ХУЙ';
+                $null = 'ХУЙ';
+            } else {
+                //STOPPER нормалёк исключения ёпта
+                throw new \Exception;
             }
-        }
 
-        $sql = array();
-        foreach ($fields as $fieldName => $fieldProps) {
-            $sql[] = $db->replacePlaceholders("?f ?p NULL", array($fieldName, $fieldProps['type']));
+            $sql[] = $db->replacePlaceholders("?f ?p $null", array($propName, $type));
         }
 
         return implode(",\n", $sql);

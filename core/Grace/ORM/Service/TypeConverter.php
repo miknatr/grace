@@ -10,6 +10,7 @@
 
 namespace Grace\ORM\Service;
 
+use Grace\ORM\Type\ConversionImpossibleException;
 use Grace\ORM\Type\TypeBool;
 use Grace\ORM\Type\TypeFloat;
 use Grace\ORM\Type\TypeInt;
@@ -58,47 +59,63 @@ class TypeConverter
 
     public function getPhpType($alias)
     {
-        $this->throwIfTypeIsNotDefined($alias);
+        $this->checkTypeAlias($alias);
         return $this->types[$alias]->getPhpType();
     }
 
-    private function throwIfTypeIsNotDefined($alias)
+    private function checkTypeAlias($alias)
     {
         if (!isset($this->types[$alias])) {
             throw new \LogicException('Type named "' . $alias . '" is not defined');
         }
     }
 
+    private function checkNull($value, $isNullAllowed)
+    {
+        if (is_null($value) and !$isNullAllowed) {
+            throw new ConversionImpossibleException('Null is not allowed');
+        }
+    }
+
     public function getDbType($alias)
     {
-        $this->throwIfTypeIsNotDefined($alias);
+        $this->checkTypeAlias($alias);
         return $this->types[$alias]->getDbType();
     }
 
-    public function convertDbToPhp($alias, $value)
+    public function convertDbToPhp($alias, $value, $isNullAllowed = false)
     {
+        $this->checkNull($value, $isNullAllowed);
+        $this->checkTypeAlias($alias);
         if (is_null($value)) {
             return null;
         }
-        $this->throwIfTypeIsNotDefined($alias);
         return $this->types[$alias]->convertDbToPhp($value);
     }
 
-    public function convertOnSetter($alias, $value)
+    public function convertOnSetter($alias, $value, $isNullAllowed = false)
     {
+        $this->checkNull($value, $isNullAllowed);
+        $this->checkTypeAlias($alias);
         if (is_null($value)) {
             return null;
         }
-        $this->throwIfTypeIsNotDefined($alias);
         return $this->types[$alias]->convertOnSetter($value);
     }
 
-    public function convertPhpToDb($alias, $value)
+    public function convertPhpToDb($alias, $value, $isNullAllowed = false)
     {
+        $this->checkNull($value, $isNullAllowed);
+        $this->checkTypeAlias($alias);
         if (is_null($value)) {
             return null;
         }
-        $this->throwIfTypeIsNotDefined($alias);
         return $this->types[$alias]->convertPhpToDb($value);
+    }
+
+    public function getPhpDefaultValue($alias)
+    {
+        $this->checkTypeAlias($alias);
+        return $this->types[$alias]->getPhpDefaultValue();
     }
 }

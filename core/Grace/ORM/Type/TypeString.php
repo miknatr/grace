@@ -40,4 +40,8 @@ class TypeString implements TypeInterface
     {
         return $value;
     }
+    public function getPhpDefaultValue()
+    {
+        return '';
+    }
 }
