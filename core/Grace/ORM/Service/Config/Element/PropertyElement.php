@@ -35,7 +35,7 @@ class PropertyElement
     public $isNullable;
 
     /**
-     * Model name which currect property can be resolved to, if any
+     * Model name which current property can be resolved to, if any
      *
      * E.g. regionId can be resolved into a Region model.
      *
@@ -46,14 +46,14 @@ class PropertyElement
     /**
      * List of proxies that depend on current property
      *
-     * If current property is a foreign key, $dependendProxies
+     * If current property is a foreign key, $dependentProxies
      * will have a list of proxies that are dependent on this relation.
      *
      * Key of the array is property name that contains the proxy.
      *
      * @var ProxyElement[]
      */
-    public $dependendProxies = array();
+    public $dependentProxies = array();
 
     /**
      * Parameters of mapping if the property is a proxy

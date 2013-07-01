@@ -67,7 +67,7 @@ class Loader
                 $property->isNullable = $mapping->foreignKeyTable || $mapping->relationLocalProperty;
 
                 $property->resolvesToModelName = $mapping->foreignKeyTable;
-                $property->dependendProxies = $this->getDependendProxies($array, $modelName, $propertyName);
+                $property->dependentProxies = $this->getDependentProxies($array, $modelName, $propertyName);
 
                 $property->proxy = $this->parseProxy($array, $modelName, $propertyName);
 
@@ -146,7 +146,7 @@ class Loader
         return null;
     }
 
-    private function getDependendProxies($rawConfig, $modelName, $propName)
+    private function getDependentProxies($rawConfig, $modelName, $propName)
     {
         if (empty($rawConfig['models'][$modelName]['properties'][$propName]['mapping'])) {
             return null;

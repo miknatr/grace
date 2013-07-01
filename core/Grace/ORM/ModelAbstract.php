@@ -153,7 +153,7 @@ abstract class ModelAbstract
 
         // при вызове например setRegionId мы должны помимо поля regionId ещё проставить
         // в модели поля, которые подтягиваются по связи через это поле (например regionName)
-        foreach ($propConfig->dependendProxies as $propName =>$proxy) {
+        foreach ($propConfig->dependentProxies as $propName =>$proxy) {
             if ($value === null) {
                 $this->properties[$proxy->localField] = null;
             } else {
