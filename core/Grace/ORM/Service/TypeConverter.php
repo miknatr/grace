@@ -21,7 +21,6 @@ use Grace\ORM\Type\TypePgsqlPoint;
 use Grace\ORM\Type\TypeShortTariff;
 use Grace\ORM\Type\TypeString;
 use Grace\ORM\Type\TypeText;
-use Grace\ORM\Type\TypeTime;
 use Grace\ORM\Type\TypeTimeInterval;
 use Grace\ORM\Type\TypeTimestamp;
 use Grace\ORM\Type\TypeYear;

@@ -8,22 +8,18 @@ class TaxiPassenger extends ModelAbstract
 {
     public function getName()
     {
-        return $this->properties['name'];
+        return $this->getProperty('name');
     }
     public function setName($name)
     {
-        $this->properties['name'] = $name;
-        $this->markAsChanged();
-        return $this;
+        return $this->setProperty('name', $name);
     }
     public function getPhone()
     {
-        return $this->properties['phone'];
+        return $this->getProperty('phone');
     }
     public function setPhone($phone)
     {
-        $this->properties['phone'] = $phone;
-        $this->markAsChanged();
-        return $this;
+        return $this->setProperty('phone', $phone);
     }
 }

@@ -154,23 +154,25 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $fields = array();
         $aliases = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propName => $propertyConfig) {
-            if ($propertyConfig->mapping->localPropertyType or $propertyConfig->mapping->foreignKeyTable) {
+            if ($propertyConfig->isLocalInDb) {
                 $fields[] = $propName;
-            } else if ($propertyConfig->mapping->relationLocalProperty) {
-                $foreignTable = $this->orm->config->models[$this->baseClass]->properties[$propertyConfig->mapping->relationLocalProperty]->mapping->foreignKeyTable;
-                $foreignField = $propertyConfig->mapping->relationForeignProperty;
+                continue;
+            }
 
-                if (!isset($aliases[$foreignTable])) {
+            $proxy = $propertyConfig->proxy;
+            if ($proxy) {
+                if (!isset($aliases[$proxy->foreignTable])) {
                     $alias = ucfirst(substr($propName, 0, -2)); // ownerId => Owner
                     $selectBuilder
-                        ->join($foreignTable, $alias)
-                        ->onEq($propertyConfig->mapping->relationLocalProperty, 'id');
-                    $aliases[$foreignTable] = $alias;
+                        ->join($proxy->foreignTable, $alias)
+                        ->onEq($proxy->localField, 'id');
+                    $aliases[$proxy->foreignTable] = $alias;
                 }
-                $fields[] = array('?f as ?f', array("{$aliases[$foreignTable]}.{$foreignField}", $propName));
-            } else {
-                throw new \LogicException("Bad mapping in $this->baseClass:$propName");
+                $fields[] = array('?f as ?f', array("{$aliases[$proxy->foreignTable]}.{$proxy->foreignField}", $propName));
+                continue;
             }
+
+            throw new \LogicException("Bad mapping in $this->baseClass:$propName");
         }
 
         $selectBuilder->fields($fields);
@@ -230,14 +232,15 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $modelArray = $model->getProperties();
         $dbArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
-            $mapping = $propertyConfig->mapping;
-
-            if ($mapping->localPropertyType) {
-                $dbArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($mapping->localPropertyType, $modelArray[$propertyName]);
-            } elseif ($mapping->foreignKeyTable) {
-                $type = $this->orm->config->models[$mapping->foreignKeyTable]->properties['id']->mapping->localPropertyType;
-                $dbArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($type, $modelArray[$propertyName], true);
+            if (!$propertyConfig->isLocalInDb) {
+                continue;
             }
+
+            $dbArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb(
+                $propertyConfig->type,
+                $modelArray[$propertyName],
+                $propertyConfig->isNullable
+            );
         }
         return $dbArray;
     }
@@ -245,22 +248,23 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
     protected function convertModelToDbChangesArray(ModelAbstract $model)
     {
         $modelArray = $model->getProperties();
-        $modelArrayDefaults = $model->getDefaultProperties();
+        $modelArrayDefaults = $model->getOriginalProperties();
 
         $dbChangesArray = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propertyName => $propertyConfig) {
-            if ($modelArray[$propertyName] != $modelArrayDefaults[$propertyName]) {
+            if ($modelArray[$propertyName] == $modelArrayDefaults[$propertyName]) {
                 continue;
             }
 
-            $mapping = $propertyConfig->mapping;
-
-            if ($mapping->localPropertyType) {
-                $dbChangesArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($mapping->localPropertyType, $modelArray[$propertyName]);
-            } elseif ($mapping->foreignKeyTable) {
-                $type = $this->orm->config->models[$this->baseClass]->properties['id']->mapping->localPropertyType;
-                $dbArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb($type, $modelArray[$propertyName], true);
+            if (!$propertyConfig->isLocalInDb) {
+                continue;
             }
+
+            $dbChangesArray[$propertyName] = $this->orm->typeConverter->convertPhpToDb(
+                $propertyConfig->type,
+                $modelArray[$propertyName],
+                $propertyConfig->isNullable
+            );
         }
 
         return $dbChangesArray;

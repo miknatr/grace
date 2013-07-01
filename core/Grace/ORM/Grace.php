@@ -57,8 +57,8 @@ class Grace
 
     public function commit()
     {
-        $db             = $this->db;
-        $unitOfWork     = $this->unitOfWork;
+        $db            = $this->db;
+        $unitOfWork    = $this->unitOfWork;
         $modelObserver = $this->modelObserver;
 
 

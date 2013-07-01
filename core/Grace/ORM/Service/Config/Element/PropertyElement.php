@@ -12,9 +12,6 @@ namespace Grace\ORM\Service\Config\Element;
 
 class PropertyElement
 {
-    /** @var MappingElement */
-    public $mapping;
-
     /**
      * Grace haven't got own validation service
      * So, validation from config is loaded "as is" and custom validation service has to handle it.
@@ -24,4 +21,46 @@ class PropertyElement
 
     /** @var DefaultElement */
     public $default;
+
+    // the property can be set (i.e. there can be a setPropName() in the model)
+    public $isSettable;
+
+    // the property is stored in the model table (there is an actual propName field in the table)
+    public $isLocalInDb;
+
+    // a type alias (see TypeConverter class)
+    public $type;
+
+    // whether the property can have a NULL value (both in DB and in the model object)
+    public $isNullable;
+
+    /**
+     * Model name which currect property can be resolved to, if any
+     *
+     * E.g. regionId can be resolved into a Region model.
+     *
+     * @var string
+     */
+    public $resolvesToModelName;
+
+    /**
+     * List of proxies that depend on current property
+     *
+     * If current property is a foreign key, $dependendProxies
+     * will have a list of proxies that are dependent on this relation.
+     *
+     * @var ProxyElement[]
+     */
+    public $dependendProxies = array();
+
+    /**
+     * Parameters of mapping if the property is a proxy
+     *
+     * That is, the mapping is like 'regionId:name' and the property simply
+     * mirrors a property of another model that is linked to current model
+     * via a foreign key.
+     *
+     * @var ProxyElement
+     */
+    public $proxy;
 }

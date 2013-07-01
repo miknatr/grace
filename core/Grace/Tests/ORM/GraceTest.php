@@ -9,7 +9,7 @@ use Grace\ORM\Service\ModelObserver;
 use Grace\DBAL\Mysqli\Connection;
 use Grace\ORM\Service\TypeConverter;
 use Grace\Tests\ORM\Plug\Finder\TaxiPassengerFinder;
-use Grace\Tests\ORM\Plug\TaxiModelsConfig;
+use Grace\Tests\ORM\Plug\GraceConfigHelper;
 
 class GraceTest extends \PHPUnit_Framework_TestCase
 {
@@ -32,7 +32,7 @@ class GraceTest extends \PHPUnit_Framework_TestCase
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
             new TypeConverter(),
-            new TaxiModelsConfig(),
+            GraceConfigHelper::create(),
             $cache
         );
 

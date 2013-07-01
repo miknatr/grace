@@ -10,7 +10,7 @@ use Grace\ORM\Service\ModelObserver;
 use Grace\ORM\Service\TypeConverter;
 use Grace\ORM\Service\UnitOfWork;
 use Grace\Tests\ORM\Plug\Model\TaxiPassenger;
-use Grace\Tests\ORM\Plug\TaxiModelsConfig;
+use Grace\Tests\ORM\Plug\GraceConfigHelper;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +30,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
             new TypeConverter(),
-            new TaxiModelsConfig(),
+            GraceConfigHelper::create(),
             $cache
         );
 

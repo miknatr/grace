@@ -33,6 +33,9 @@ class Generator
     /** @var callable */
     private $logger;
 
+    // we use this to make error messages more detailed
+    private $lastProcessedElement = '';
+
     const INLINE_GENCODE_MARKER = 'BEGIN GRACE GENERATED CODE';
 
     public function __construct(Config $modelsConfig, TypeConverter $typeConverter, ClassNameProvider $classNameProvider, $baseDir, $graceClass, $baseGraceClass = '\\Grace\\ORM\\Grace', $baseModelClass = '\\Grace\\ORM\\ModelAbstract')
@@ -54,38 +57,42 @@ class Generator
         // so we can do this! yay!
         $this->isDryRun = $dryRun;
 
-        $this->addPhpdocToClass(
-            $this->getClassFilename($this->graceClass, $this->baseGraceClass),
-            $this->generateGraceClassPhpdoc()
-        );
-
-        foreach ($this->modelsConfig->models as $modelName => $config) {
-            $modelClass = $this->classNameProvider->getModelClass($modelName);
-            $modelClassFilename = $this->getClassFilename($modelClass, $this->baseModelClass);
-
-            // PHPDOC
+        try {
             $this->addPhpdocToClass(
-                $modelClassFilename,
-                $this->generateModelClassPhpdoc($modelName)
+                $this->getClassFilename($this->graceClass, $this->baseGraceClass),
+                $this->generateGraceClassPhpdoc()
             );
 
-            $finderClass = $this->classNameProvider->getFinderClass($modelName);
-            $this->addPhpdocToClass(
-                $this->getClassFilename($finderClass, '\\Grace\\ORM\\FinderAbstract'),
-                $this->generateFinderClassPhpdoc($modelName)
-            );
+            foreach ($this->modelsConfig->models as $modelName => $config) {
+                $modelClass = $this->classNameProvider->getModelClass($modelName);
+                $modelClassFilename = $this->getClassFilename($modelClass, $this->baseModelClass);
 
-            $sbClass = $this->classNameProvider->getSelectBuilderClass($modelName);
-            $this->addPhpdocToClass(
-                $this->getClassFilename($sbClass, '\\Grace\\SQLBuilder\\SelectBuilder'),
-                $this->generateSelectBuilderClassPhpdoc($modelName)
-            );
+                // PHPDOC
+                $this->addPhpdocToClass(
+                    $modelClassFilename,
+                    $this->generateModelClassPhpdoc($modelName)
+                );
 
-            // METHODS
-            $this->addMethodsToClass(
-                $modelClassFilename,
-                $this->generateModelClassMethods($modelName)
-            );
+                $finderClass = $this->classNameProvider->getFinderClass($modelName);
+                $this->addPhpdocToClass(
+                    $this->getClassFilename($finderClass, '\\Grace\\ORM\\FinderAbstract'),
+                    $this->generateFinderClassPhpdoc($modelName)
+                );
+
+                $sbClass = $this->classNameProvider->getSelectBuilderClass($modelName);
+                $this->addPhpdocToClass(
+                    $this->getClassFilename($sbClass, '\\Grace\\SQLBuilder\\SelectBuilder'),
+                    $this->generateSelectBuilderClassPhpdoc($modelName)
+                );
+
+                // METHODS
+                $this->addMethodsToClass(
+                    $modelClassFilename,
+                    $this->generateModelClassMethods($modelName)
+                );
+            }
+        } catch (\Exception $e) {
+            throw new \Exception("Error while processing {$this->lastProcessedElement}: " . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -96,6 +103,8 @@ class Generator
 
     private function generateSelectBuilderClassPhpdoc($modelName)
     {
+        $this->lastProcessedElement = $modelName;
+
         $modelClass = $this->classNameProvider->getModelClass($modelName);
 
         $phpdoc = '';
@@ -106,6 +115,8 @@ class Generator
 
     private function generateModelClassPhpdoc($modelName)
     {
+        $this->lastProcessedElement = $modelName;
+
         $modelClass = $this->classNameProvider->getModelClass($modelName);
 
         $phpdoc = '';
@@ -121,25 +132,15 @@ class Generator
         foreach ($this->modelsConfig->models[$modelName]->properties as $propName => $propConfig) {
             $name = ucfirst($propName);
 
+            $this->lastProcessedElement = $modelName . '.' . $propName;
+
             if ($propName == 'id') {
                 continue;
             }
 
-            $mapping = $propConfig->mapping;
+            $type = $this->typeConverter->getPhpType($propConfig->type);
 
-            if ($mapping->localPropertyType) {
-                $type = $this->typeConverter->getPhpType($mapping->localPropertyType);
-            } elseif ($mapping->foreignKeyTable) {
-                $type = $this->typeConverter->getPhpType($this->modelsConfig->models[$mapping->foreignKeyTable]->properties['id']->localPropertyType);
-            } elseif ($mapping->relationLocalProperty) {
-                $parentName = $this->modelsConfig->models[$modelName]->properties[$mapping->relationLocalProperty]->mapping->foreignKeyTable;
-                $typeAlias = $this->modelsConfig->models[$parentName]->properties[$mapping->relationForeignProperty]->mapping->localPropertyType;
-                $type = $this->typeConverter->getPhpType($typeAlias);
-            } else {
-                throw new \LogicException("Bad mapping in $modelName:$propName");
-            }
-
-            $methods['get' . $name] = $this->dedent(3, "
+            $methods['get' . $name] = $this->unindent(3, "
                 /**
                  * @return {$type}
                  */
@@ -149,16 +150,8 @@ class Generator
                 }
             ");
 
-            if ($mapping->localPropertyType or $mapping->foreignKeyTable) {
-                if ($mapping->localPropertyType) {
-                    $type = $this->typeConverter->getPhpType($mapping->localPropertyType);
-                } elseif ($mapping->foreignKeyTable) {
-                    $type = $this->typeConverter->getPhpType($this->modelsConfig->models[$mapping->foreignKeyTable]->properties['id']->localPropertyType);
-                } else {
-                    throw new \Exception;
-                }
-
-                $methods['set' . $name] = $this->dedent(4, "
+            if ($propConfig->isSettable) {
+                $methods['set' . $name] = $this->unindent(4, "
                     /**
                      * @param {$type} \${$propName}
                      * @return \$this
@@ -170,18 +163,18 @@ class Generator
                 ");
             }
 
-            if ($mapping->foreignKeyTable) {
-                $name = ucfirst(substr($propName, 0, -2)); // removing Id suffix
-                $parentClass = $this->classNameProvider->getModelClass($mapping->foreignKeyTable);
-                $finderProperty = lcfirst($mapping->foreignKeyTable);
+            if ($propConfig->resolvesToModelName) {
+                $getterName = 'get' . ucfirst(substr($propName, 0, -2)); // removing Id suffix: regionId => getRegion
+                $foreignClass = $this->classNameProvider->getModelClass($propConfig->resolvesToModelName);
+                $finderProperty = lcfirst($propConfig->resolvesToModelName) . 'Finder';
 
-                $methods['get' . $name] = $this->dedent(4, "
+                $methods[$getterName] = $this->unindent(4, "
                     /**
-                     * @return {$parentClass}
+                     * @return {$foreignClass}
                      */
-                    public function get{$name}()
+                    public function {$getterName}()
                     {
-                        return \$this->orm->{$finderProperty}Finder->getByIdOrFalse(\$this->getProperty('{$propName}'));
+                        return \$this->orm->{$finderProperty}->getByIdOrFalse(\$this->getProperty('{$propName}'));
                     }
                 ");
             }
@@ -190,7 +183,7 @@ class Generator
         return $methods;
     }
 
-    private function dedent($indentLevel, $codeBlock)
+    private function unindent($indentLevel, $codeBlock)
     {
         $prefix = str_repeat('    ', $indentLevel);
         return preg_replace('/^' . preg_quote($prefix) . '/m', '', $codeBlock);
@@ -198,6 +191,8 @@ class Generator
 
     private function generateFinderClassPhpdoc($modelName)
     {
+        $this->lastProcessedElement = $modelName;
+
         $modelClass = $this->classNameProvider->getModelClass($modelName);
         $sbClass    = $this->classNameProvider->getSelectBuilderClass($modelName);
 
@@ -216,6 +211,8 @@ class Generator
     {
         $phpdoc = '';
         foreach ($this->modelsConfig->models as $name => $config) {
+            $this->lastProcessedElement = $name;
+
             // example:
             //  * @property \Grace\Bundle\Finder\TaxiPassengerFinder $taxiPassengerFinder
             $propName = lcfirst($name);

@@ -10,10 +10,9 @@
 
 namespace Grace\ORM\Service\Config\Element;
 
-use Grace\ORM\Service\Config\Element\PropertyElement;
-
-class ModelElement
+class ProxyElement
 {
-    /** @var PropertyElement[] propertyNames as keys */
-    public $properties = array();
+    public $localField;
+    public $foreignTable;
+    public $foreignField;
 }

@@ -5,11 +5,12 @@ namespace Grace\Tests\ORM;
 use Grace\Cache\CacheInterface;
 use Grace\ORM\Grace;
 use Grace\ORM\Service\ClassNameProvider;
+use Grace\ORM\Service\Config\Loader;
 use Grace\ORM\Service\ModelObserver;
 use Grace\DBAL\Mysqli\Connection;
 use Grace\ORM\Service\TypeConverter;
 use Grace\Tests\ORM\Plug\Finder\TaxiPassengerFinder;
-use Grace\Tests\ORM\Plug\TaxiModelsConfig;
+use Grace\Tests\ORM\Plug\GraceConfigHelper;
 use Grace\Tests\ORM\Plug\Model\TaxiPassenger;
 
 class FinderAbstractTest extends \PHPUnit_Framework_TestCase
@@ -31,7 +32,7 @@ class FinderAbstractTest extends \PHPUnit_Framework_TestCase
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
             new TypeConverter(),
-            new TaxiModelsConfig(),
+            GraceConfigHelper::create(),
             $cache
         );
 

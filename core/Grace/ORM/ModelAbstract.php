@@ -20,7 +20,7 @@ abstract class ModelAbstract
     //TODO выпилить бы это автодополнение в плагин
     /** @var Grace|GracePlusSymfony */
     protected $orm;
-    private $defaultProperties = array();
+    private $originalProperties = array();
     protected $properties = array();
 
     public function __construct($id = null, array $dbArray = null, Grace $orm)
@@ -31,19 +31,19 @@ abstract class ModelAbstract
         //$id - new model creation
         //both can't be filled
         if (!($dbArray !== null xor $id !== null)) {
-            throw new \Exception;
+            throw new \Exception('Invalid model initialization');
         }
 
-        if ($dbArray == null) {
+        if ($dbArray === null) {
             $this->setDefaultPropertyValues();
 
-            $type = $this->orm->config->models[$this->getBaseClass()]->properties['id']->mapping->localPropertyType;
+            $type = $this->orm->config->models[$this->getBaseClass()]->properties['id']->type;
             $this->properties['id'] = $this->orm->typeConverter->convertOnSetter($type, $id);
         } else {
             $this->setPropertiesFromDbArray($dbArray);
         }
 
-        $this->defaultProperties = $this->properties;
+        $this->originalProperties = $this->properties;
     }
 
     private function setPropertiesFromDbArray(array $dbArray)
@@ -53,60 +53,33 @@ abstract class ModelAbstract
         $properties = array();
         foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
             //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
-            $mapping = $propertyConfig->mapping;
-
-            if ($mapping->localPropertyType) {
-                $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($mapping->localPropertyType, $dbArray[$propertyName]);
-            } elseif ($mapping->relationForeignProperty) {
-                $modelConfig       = $this->orm->config->models[$baseClass];
-                $foreignBaseClass  = $modelConfig->properties[$mapping->relationLocalProperty]->mapping->foreignKeyTable;
-                $parentModelConfig = $this->orm->config->models[$foreignBaseClass];
-                $type = $parentModelConfig->properties[$mapping->relationForeignProperty]->mapping->localPropertyType;
-                if (!$type) {
-                    throw new \LogicException("Property {$foreignBaseClass}.{$mapping->relationForeignProperty} must be defined with local mapping");
-                }
-                $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, $dbArray[$propertyName]);
-            } elseif ($mapping->relationForeignProperty) {
-                $type = $this->orm->config->models[$mapping->foreignKeyTable]->properties['id']->mapping->localPropertyType;
-                $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp($type, null, true);
-            } else {
-                throw new \LogicException("Bad mapping in $baseClass:$propertyName");
-            }
+            $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp(
+                $propertyConfig->type,
+                $dbArray[$propertyName],
+                $propertyConfig->isNullable
+            );
         }
 
         $this->properties = $properties;
     }
 
+    /**
+     * Делаем значения для пустой модели (только что создали, никаких данных ещё нет и в БД её нет)
+     */
     private function setDefaultPropertyValues()
     {
         $baseClass = $this->getBaseClass();
 
         $properties = array();
         foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
-            $mapping = $propertyConfig->mapping;
+            $type = $propertyConfig->type;
 
-            if ($mapping->localPropertyType) {
-                if ($propertyConfig->default) {
-                    $properties[$propertyName] = $this->orm->typeConverter->convertOnSetter($mapping->localPropertyType, $propertyConfig->default->getValue());
-                } else {
-                    $properties[$propertyName] = $this->orm->typeConverter->getPhpDefaultValue($mapping->localPropertyType);
-                }
-            } elseif ($mapping->localPropertyType or $mapping->relationForeignProperty) {
-                if ($propertyConfig->default) {
-                    throw new \LogicException("\"default\" option is unsupported for foreign keys in $baseClass:$propertyName");
-                } else {
-                    //STOPPER вытаскивать же нужно из таблицы? (и в сеттерах получается тоже)
-                    $properties[$propertyName] = 'ХУЙ';
-                }
-            } elseif ($mapping->foreignKeyTable) {
-                if ($propertyConfig->default) {
-                    throw new \LogicException("\"default\" option is unsupported for foreign keys in $baseClass:$propertyName");
-                } else {
-                    $type = $this->orm->config->models[$mapping->foreignKeyTable]->properties['id']->mapping->localPropertyType;
-                    $properties[$propertyName] = $this->orm->typeConverter->convertOnSetter($type, null, true);
-                }
+            if ($propertyConfig->default) {
+                $properties[$propertyName] = $this->orm->typeConverter->convertOnSetter($type, $propertyConfig->default->getValue(), $propertyConfig->isNullable);
+            } else if ($propertyConfig->isNullable) {
+                $properties[$propertyName] = null;
             } else {
-                throw new \LogicException("Bad mapping in $baseClass:$propertyName");
+                $properties[$propertyName] = $this->orm->typeConverter->getPhpDefaultValue($type);
             }
         }
 
@@ -124,8 +97,12 @@ abstract class ModelAbstract
     }
     public function getOriginalModel()
     {
+        // TODO кеширование
         $class = get_class($this);
-        return new $class($this->defaultProperties);
+        /** @var ModelAbstract $model */
+        $model = new $class($this->getId(), null, $this->orm);
+        $model->setProperties($this->originalProperties);
+        return $model;
     }
     final public function getId()
     {
@@ -157,14 +134,27 @@ abstract class ModelAbstract
             throw new \InvalidArgumentException('WTF is this');
         }
 
-        $mapping = $this->orm->config->models[$this->getBaseClass()]->properties[$name]->mapping;
-        if ($mapping->localPropertyType) {
-            $this->properties[$name] = $this->orm->typeConverter->convertOnSetter($mapping->localPropertyType, $value);
-        } elseif ($mapping->foreignKeyTable) {
-            $type = $this->orm->config->models[$mapping->foreignKeyTable]->properties['id']->mapping->localPropertyType;
-            $this->properties[$name] = $this->orm->typeConverter->convertOnSetter($type, $value, true);
-        } else {
-            throw new \InvalidArgumentException('Cannot set the unsettable');
+        $propConfig = $this->orm->config->models[$this->getBaseClass()]->properties[$name];
+        if (!$propConfig->isSettable) {
+            throw new \Exception('FUCK OFF');
+        }
+
+        $type = $propConfig->type;
+        $this->properties[$name] = $this->orm->typeConverter->convertOnSetter($type, $value, $propConfig->isNullable);
+
+        // при вызове например setRegionId мы должны помимо поля regionId ещё проставить
+        // в модели поля, которые подтягиваются по связи через это поле (например regionName)
+        foreach ($propConfig->dependendProxies as $proxy) {
+            if ($value === null) {
+                $this->properties[$proxy->localField] = null;
+            } else {
+                $foreignModel = $this->orm->getFinder($proxy->foreignTable)->getByIdOrFalse($value);
+                if (!$foreignModel) {
+                    throw new \Exception('KEKEKEKE cannot set inexistent relation blah');
+                }
+
+                $this->properties[$proxy->localField] = $foreignModel->getProperty($proxy->foreignField);
+            }
         }
 
         $this->markAsChanged();
@@ -173,21 +163,27 @@ abstract class ModelAbstract
     }
     final public function getParent($name)
     {
+        // STOPPER TSTSTSTSTSTTS
         $parentModelName = $this->orm->config->models[$this->getBaseClass()]->parents[$name . 'Id']->parentModel;
         return $this->orm->getFinder($parentModelName)->getByIdOrFalse($this->properties[$name . 'Id']);
     }
-    final public function getDefaultProperties()
+
+    /**
+     * Array of original model properties (i.e. before editing)
+     * @return array
+     */
+    final public function getOriginalProperties()
     {
-        return $this->defaultProperties;
+        return $this->originalProperties;
     }
     final public function flushDefaults()
     {
-        $this->defaultProperties = $this->properties;
+        $this->originalProperties = $this->properties;
     }
     final public function revert()
     {
         $this->orm->unitOfWork->revert($this);
-        $this->properties = $this->defaultProperties;
+        $this->properties = $this->originalProperties;
     }
     final public function delete()
     {

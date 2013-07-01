@@ -5,6 +5,7 @@ namespace Grace\Bundle\Command;
 use Doctrine\Tests\DBAL\Functional\TypeConversionTest;
 use Grace\Bundle\GracePlusSymfony;
 use Grace\DBAL\Exception\QueryException;
+use Grace\ORM\Service\Config\Config;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\TypeConverter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -112,19 +113,13 @@ class InitDbCommand extends ContainerAwareCommand
         $sql = array();
 
         foreach ($config->properties as $propName => $propConfig) {
-            if ($propConfig->mapping->localPropertyType) {
-                $type = $typeConverter->getDbType($propConfig->mapping->localPropertyType);
-                $null = 'NOT NULL';
-            } elseif ($propConfig->mapping->foreignKeyTable) {
-                //STOPPER внешний ключ и нул
-                $type = 'ХУЙ';
-                $null = 'ХУЙ';
-            } else {
-                //STOPPER нормалёк исключения ёпта
-                throw new \Exception;
+            if (!$propConfig->isLocalInDb) {
+                continue;
             }
+            $type = $typeConverter->getDbType($propConfig->type);
+            $nullSql = $propConfig->isNullable ? '' : 'NOT NULL';
 
-            $sql[] = $db->replacePlaceholders("?f ?p $null", array($propName, $type));
+            $sql[] = $db->replacePlaceholders("?f ?p $nullSql", array($propName, $type));
         }
 
         return implode(",\n", $sql);
