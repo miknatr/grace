@@ -215,9 +215,8 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
         /** @var ModelAbstract $model */
         $model = new $modelClass($id, null, $this->orm);
-        $model->setProperties($properties);
-
         $this->orm->identityMap->setModel($this->baseClass, $id, $model);
+        $model->setProperties($properties);
         $this->orm->unitOfWork->markAsNew($model);
 
         return $model;

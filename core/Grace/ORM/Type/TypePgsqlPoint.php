@@ -59,7 +59,7 @@ class TypePgsqlPoint implements TypeInterface
     }
     public function getPhpDefaultValue()
     {
-        return new PgsqlPointValue('0,0');
+        return new PgsqlPointValue(array(0, 0));
     }
 }
 

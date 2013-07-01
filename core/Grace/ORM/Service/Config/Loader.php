@@ -161,7 +161,7 @@ class Loader
         foreach ($rawConfig['models'][$modelName]['properties'] as $iPropName => $rawPropConfig) {
             $proxy = $this->parseProxy($rawConfig, $modelName, $iPropName);
             if ($proxy && $proxy->localField == $propName) {
-                $list[] = $proxy;
+                $list[$iPropName] = $proxy;
             }
         }
         return $list;

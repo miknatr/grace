@@ -10,6 +10,7 @@
 
 namespace Grace\ORM;
 use Grace\Bundle\GracePlusSymfony;
+use Grace\ORM\Type\ConversionImpossibleException;
 use Intertos\CoreBundle\Security\Core\User\UserAbstract;
 
 /**
@@ -140,32 +141,34 @@ abstract class ModelAbstract
         }
 
         $type = $propConfig->type;
-        $this->properties[$name] = $this->orm->typeConverter->convertOnSetter($type, $value, $propConfig->isNullable);
+        try {
+            $this->properties[$name] = $this->orm->typeConverter->convertOnSetter(
+                $type,
+                $value,
+                $propConfig->isNullable
+            );
+        } catch (ConversionImpossibleException $e) {
+            throw new ConversionImpossibleException($e->getMessage() . " in {$this->getBaseClass()} when setting {$name}", $e->getCode(), $e);
+        }
 
         // при вызове например setRegionId мы должны помимо поля regionId ещё проставить
         // в модели поля, которые подтягиваются по связи через это поле (например regionName)
-        foreach ($propConfig->dependendProxies as $proxy) {
+        foreach ($propConfig->dependendProxies as $propName =>$proxy) {
             if ($value === null) {
                 $this->properties[$proxy->localField] = null;
             } else {
                 $foreignModel = $this->orm->getFinder($proxy->foreignTable)->getByIdOrFalse($value);
                 if (!$foreignModel) {
-                    throw new \Exception('KEKEKEKE cannot set inexistent relation blah');
+                    throw new \Exception("Cannot set {$this->getBaseClass()}.{$name}: there is no {$proxy->foreignTable} with ID {$value}");
                 }
 
-                $this->properties[$proxy->localField] = $foreignModel->getProperty($proxy->foreignField);
+                $this->properties[$propName] = $foreignModel->getProperty($proxy->foreignField);
             }
         }
 
         $this->markAsChanged();
 
         return $this;
-    }
-    final public function getParent($name)
-    {
-        // STOPPER TSTSTSTSTSTTS
-        $parentModelName = $this->orm->config->models[$this->getBaseClass()]->parents[$name . 'Id']->parentModel;
-        return $this->orm->getFinder($parentModelName)->getByIdOrFalse($this->properties[$name . 'Id']);
     }
 
     /**

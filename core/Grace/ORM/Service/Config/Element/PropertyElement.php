@@ -49,6 +49,8 @@ class PropertyElement
      * If current property is a foreign key, $dependendProxies
      * will have a list of proxies that are dependent on this relation.
      *
+     * Key of the array is property name that contains the proxy.
+     *
      * @var ProxyElement[]
      */
     public $dependendProxies = array();

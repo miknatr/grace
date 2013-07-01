@@ -12,5 +12,4 @@ namespace Grace\ORM\Type;
 
 class ConversionImpossibleException extends \Exception
 {
-
 }

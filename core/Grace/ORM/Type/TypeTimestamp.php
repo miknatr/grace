@@ -31,7 +31,7 @@ class TypeTimestamp implements TypeInterface
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as datetime');
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as timestamp');
         }
 
         // STOPPER нормальная валидация времени
@@ -53,4 +53,3 @@ class TypeTimestamp implements TypeInterface
         return '1970-01-01 00:00:00';
     }
 }
-
