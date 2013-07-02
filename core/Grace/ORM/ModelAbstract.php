@@ -131,8 +131,12 @@ abstract class ModelAbstract
     }
     final public function setProperty($name, $value)
     {
-        if ($name == 'id' or !isset($this->orm->config->models[$this->getBaseClass()]->properties[$name])) {
-            throw new \InvalidArgumentException('WTF is this');
+        if ($name == 'id') {
+            throw new \InvalidArgumentException('Cannot set ID of a model');
+        }
+
+        if (!isset($this->orm->config->models[$this->getBaseClass()]->properties[$name])) {
+            throw new \InvalidArgumentException("Cannot set unknown property: {$this->getBaseClass()}.{$name}");
         }
 
         $propConfig = $this->orm->config->models[$this->getBaseClass()]->properties[$name];
