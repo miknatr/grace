@@ -107,10 +107,10 @@ class Generator
 
         $modelClass = $this->classNameProvider->getModelClass($modelName);
 
-        $phpdoc = '';
-        $phpdoc .= " * @method {$modelClass} fetchOneOrFalse()\n";
-        $phpdoc .= " * @method {$modelClass}[] fetchAll()\n";
-        return $phpdoc;
+        return array(
+            "@method {$modelClass} fetchOneOrFalse()",
+            "@method {$modelClass}[] fetchAll()",
+        );
     }
 
     private function generateModelClassPhpdoc($modelName)
@@ -119,10 +119,10 @@ class Generator
 
         $modelClass = $this->classNameProvider->getModelClass($modelName);
 
-        $phpdoc = '';
-        $phpdoc .= " * @property {$this->graceClass} \$orm\n";
-        $phpdoc .= " * @method $modelClass getOriginalModel()\n";
-        return $phpdoc;
+        return array(
+            "@property {$this->graceClass} \$orm",
+            "@method $modelClass getOriginalModel()",
+        );
     }
 
     private function generateModelClassMethods($modelName)
@@ -196,27 +196,26 @@ class Generator
         $modelClass = $this->classNameProvider->getModelClass($modelName);
         $sbClass    = $this->classNameProvider->getSelectBuilderClass($modelName);
 
-        $phpdoc = '';
-        $phpdoc .= " * @property {$this->graceClass} \$orm\n";
-        $phpdoc .= " * @method {$modelClass} fetchOneOrFalse()\n";
-        $phpdoc .= " * @method {$modelClass} getByIdOrFalse(\$id)\n";
-        $phpdoc .= " * @method {$modelClass} create(array \$properties = array())\n";
-        $phpdoc .= " * @method {$modelClass}[] fetchAll()\n";
-        $phpdoc .= " * @method {$sbClass} getSelectBuilder()\n";
-
-        return $phpdoc;
+        return array(
+            "@property {$this->graceClass} \$orm",
+            "@method {$modelClass} fetchOneOrFalse()",
+            "@method {$modelClass} getByIdOrFalse(\$id)",
+            "@method {$modelClass} create(array \$properties = array())",
+            "@method {$modelClass}[] fetchAll()",
+            "@method {$sbClass} getSelectBuilder()",
+        );
     }
 
     private function generateGraceClassPhpdoc()
     {
-        $phpdoc = '';
+        $phpdoc = array();
         foreach ($this->modelsConfig->models as $name => $config) {
             $this->lastProcessedElement = $name;
 
             // example:
             //  * @property \Grace\Bundle\Finder\TaxiPassengerFinder $taxiPassengerFinder
             $propName = lcfirst($name);
-            $phpdoc .= " * @property " . $this->classNameProvider->getFinderClass($name) . " \${$propName}Finder\n";
+            $phpdoc[] = "@property " . $this->classNameProvider->getFinderClass($name) . " \${$propName}Finder";
         }
         return $phpdoc;
     }
@@ -263,7 +262,7 @@ class Generator
         return $filename;
     }
 
-    private function addMethodsToClass($filename, $methods)
+    private function addMethodsToClass($filename, array $methods)
     {
         $contents = file_get_contents($filename);
 
@@ -276,6 +275,18 @@ class Generator
             $contents = preg_replace("/\n*$/", '', $contents);
             $contents .= "\n}\n";
         }
+
+        // we want to sort the generated methods because
+        // 1. this will make it easier to find methods in the file
+        // 2. there will be no extra diff in commits due to random movement of methods
+        uksort($methods, function ($a, $b) {
+            // we want setters to be text to getters
+            // so the order will be: getA() setA() getB() setB()
+            $aName = preg_replace('/^[sg]et/', '', $a);
+            $bName = preg_replace('/^[sg]et/', '', $b);
+            $cmp = strcasecmp($aName, $bName);
+            return ($cmp == 0) ? strcasecmp($a, $b) : $cmp;
+        });
 
         // filtering methods that are already defined
         foreach ($methods as $name => $codeBlock) {
@@ -298,13 +309,37 @@ class Generator
 
     /**
      * @param string $filename
-     * @param string $phpdocBody body of the phpdoc with leading stars, but without start/end boundaries (/**)
+     * @param string[] $phpdocLines lines of the phpdoc without leading stars (like '@property string $blah')
      */
-    private function addPhpdocToClass($filename, $phpdocBody)
+    private function addPhpdocToClass($filename, array $phpdocLines)
     {
         $contents = file_get_contents($filename);
 
         $marker = ' * ' . self::INLINE_GENCODE_MARKER;
+
+        // we want to sort the generated phpdoc because
+        // 1. this will make it easier to find methods/properties in the file
+        // 2. there will be no extra diff in commits due to random movement of phpdoc lines
+        usort($phpdocLines, function ($a, $b) {
+            $re = '/^(@[a-z]+)\s+\S+([gs]et)?(.*)$/';
+            if (preg_match($re, $a, $matchA) && preg_match($re, $b, $matchB)) {
+                // properties go before methods
+                $aProp = ($matchA[1] == '@property') ? 1 : 0;
+                $bProp = ($matchA[1] == '@property') ? 1 : 0;
+                if ($aProp xor $bProp) {
+                    return $aProp - $bProp;
+                }
+
+                // getters are kept next to setters
+                $cmp = strcasecmp($matchA[3], $matchB[3]);
+                if ($cmp != 0) {
+                    return $cmp;
+                }
+                // fallback to default sorting by the whole string
+            }
+            return strcasecmp($a, $b);
+        });
+        $phpdocBody = empty($phpdocLines) ? '' : ' * ' . join("\n * ", $phpdocLines) . "\n";
 
         $fileNamespace = '';
         $importedClasses = array();
