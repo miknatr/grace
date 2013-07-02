@@ -13,7 +13,6 @@ namespace Grace\ORM\Service;
 
 use Grace\ORM\Service\Config\Config;
 use Grace\ORM\Service\ClassNameProvider;
-use Symfony\Component\Yaml\Yaml;
 
 class Generator
 {
@@ -341,35 +340,13 @@ class Generator
         });
         $phpdocBody = empty($phpdocLines) ? '' : ' * ' . join("\n * ", $phpdocLines) . "\n";
 
-        $fileNamespace = '';
-        $importedClasses = array();
-        $namespaceLineIndex = false;
-        $lastUseLineIndex = false;
         $doRemoveLines = false;
 
         $lines = explode("\n", $contents);
         foreach ($lines as $i => $line) {
-            if (preg_match('/^namespace (\S+);/', $line, $match)) {
-                // found namespace declaration
-                $namespaceLineIndex = $i;
-                $fileNamespace = $match[1];
-            }
-
-            if (preg_match('/^use (\S+)(?:\s+as\s+(\S+))?;/i', $line, $match)) {
-                // found use declaration
-                $lastUseLineIndex = $i;
-                if (empty($match[2])) {
-                    list(, $shortName) = $this->splitClassName($match[1]);
-                    $importedClasses[$shortName] = $match[1];
-                } else {
-                    $importedClasses[$match[2]] = $match[1];
-                }
-            }
-
             if (preg_match('/^(\s*[a-z]+)*\s*class\s/', $line)) {
                 // found class declaration
                 // this means there is no phpdoc
-//                $newImports = $this->simplifyClassNames($phpdocBody, $fileNamespace, $importedClasses, $filename);
                 $lines[$i] = "/**\n$marker\n" . $phpdocBody . " */\n" . $line;
                 break;
             }
@@ -385,7 +362,6 @@ class Generator
                 // found the end of phpdoc
                 // we know that there is nothing generated in the file already
                 // so we can safely paste newly generated phpdoc here before the end of the phpdoc block
-//                $newImports = $this->simplifyClassNames($phpdocBody, $fileNamespace, $importedClasses, $filename);
                 $lines[$i] = "$marker\n" . $phpdocBody . $line;
                 if (!$doRemoveLines) {
                     // no lines were removed
@@ -403,89 +379,14 @@ class Generator
             }
         }
 
-        // adding new imports if there were any
-        if (!empty($newImports)) {
-            if ($lastUseLineIndex === false) {
-                $lastUseLineIndex = $namespaceLineIndex;
-                $lines[$lastUseLineIndex] .= "\n";
-            }
-
-            foreach ($newImports as $alias => $fqn) {
-                list(, $shortName) = $this->splitClassName($fqn);
-                $fqn = substr($fqn, 1); // removing leading slash
-                if ($shortName == $alias) {
-                    $lines[$lastUseLineIndex] .= "\nuse {$fqn};";
-                } else {
-                    $lines[$lastUseLineIndex] .= "\nuse {$fqn} as {$alias};";
-                }
-            }
-        }
-
         $contents = join("\n", $lines);
         $this->writeFile($filename, $contents);
-    }
-
-    /**
-     * Converts FQN to short class names and imports
-     *
-     * This is disabled for now because with simplified class names PhpStorm (as of PS 129.757)
-     * cannot properly resolve class members. So we use FQNs and disable the related inspection in the IDE.
-     *
-     * @param string $phpdocBody
-     * @param string $fileNamespace
-     * @param string[] $importedClasses
-     * @param string $filename
-     * @return string[] imports to add
-     */
-    private function simplifyClassNames(&$phpdocBody, $fileNamespace, $importedClasses, $filename)
-    {
-        $newImports = array();
-
-        $phpdocBody = preg_replace_callback(
-            '/\\\\[a-zA-Z0-9_\\\\]+/',
-            function ($match) use ($importedClasses, $fileNamespace, &$newImports, $filename) {
-                $fqn = $match[0];
-                list($ns, $shortName) = $this->splitClassName($fqn);
-
-                if ($ns == $fileNamespace) {
-                    return $shortName;
-                }
-
-                if (!isset($importedClasses[$shortName])) {
-                    $newImports[$shortName] = $fqn;
-                    return $shortName;
-                }
-
-                if ($importedClasses[$shortName] == substr($fqn, 1)) {
-                    return $shortName;
-                }
-
-                // there is an import of other class with the same name
-                throw new \LogicException("Please remove or rename the import of class {$shortName} from {$filename}");
-            },
-            $phpdocBody
-        );
-
-        return $newImports;
     }
 
 
     //
     // MISC
     //
-
-    /**
-     * @param string $className absolute name starting with \
-     * @return array
-     */
-    private function splitClassName($className)
-    {
-        $pos = strrpos($className, '\\');
-        if ($pos === false) {
-            return array('', $className);
-        }
-        return array(substr($className, 1, $pos - 1), substr($className, $pos + 1));
-    }
 
     private function log($message)
     {
