@@ -4,12 +4,8 @@ namespace Grace\Cache;
 
 abstract class AbstractAdapter implements CacheInterface
 {
-    protected function parseTtl($ttl = null)
+    protected function parseTtl($ttl = 0)
     {
-        if ($ttl === null) {
-            return false;
-        }
-
         switch (substr($ttl, -1)) {
             case 'd':
                 return intval($ttl) * 3600 * 24;

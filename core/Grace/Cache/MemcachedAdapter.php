@@ -14,14 +14,20 @@ class MemcachedAdapter extends AbstractAdapter
         $this->namespace = $namespace;
         $this->enabled = $enabled;
     }
-    
-    public function get($key, $ttl = null, callable $cacheSetter = null)
+
+    public function get($key, $ttl = 0, callable $cacheSetter = null)
     {
-        $r = false;
+        $r = null;
 
         if ($this->enabled) {
             $r = $this->adapter->get($this->formatKey($key));
-            if ($r === false && $cacheSetter !== null) {
+            $resultCode = $this->adapter->getResultCode();
+
+            if ($resultCode === \Memcached::RES_NOTFOUND) {
+                if ($cacheSetter === null) {
+                    return null;
+                }
+
                 $r = call_user_func($cacheSetter);
                 $this->set($key, $r, $ttl);
             }
@@ -34,9 +40,17 @@ class MemcachedAdapter extends AbstractAdapter
         return $r;
     }
 
-    public function set($key, $value, $ttl = null)
+    public function set($key, $value, $ttl = 0)
     {
-        $this->adapter->set($this->formatKey($key), $value, time() + $this->parseTtl($ttl));
+        $parsedTtl = $this->parseTtl($ttl);
+        if ($parsedTtl != 0) {
+            $parsedTtl += time();
+        }
+
+        $r = $this->adapter->set($this->formatKey($key), $value, $parsedTtl);
+        if (!$r) {
+            throw new \Exception('Memcached error: ' . $this->adapter->getResultCode() . ' ' . $this->adapter->getResultMessage() );
+        }
     }
     public function remove($key)
     {

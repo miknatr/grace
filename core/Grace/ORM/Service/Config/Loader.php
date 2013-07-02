@@ -25,9 +25,10 @@ class Loader
         if (!$this->cache) {
             return $this->getConfigRaw();
         }
+
         return $this->cache->get(
             'grace_config',
-            null,
+            0,
             function () {
                 return $this->getConfigRaw();
             }

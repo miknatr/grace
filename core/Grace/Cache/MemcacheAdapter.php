@@ -14,14 +14,18 @@ class MemcacheAdapter extends AbstractAdapter
         $this->namespace = $namespace;
         $this->enabled = $enabled;
     }
-    
-    public function get($key, $ttl = null, callable $cacheSetter = null)
+
+    public function get($key, $ttl = 0, callable $cacheSetter = null)
     {
-        $r = false;
+        $r = null;
 
         if ($this->enabled) {
             $r = $this->adapter->get($this->namespace . '__' . $key);
-            if ($r === false && $cacheSetter !== null) {
+            //"false" storing is not supported
+            if ($r === false) {
+                if ($cacheSetter === null) {
+                    return null;
+                }
                 $r = call_user_func($cacheSetter);
                 $this->set($key, $r, $ttl);
             }
@@ -33,9 +37,18 @@ class MemcacheAdapter extends AbstractAdapter
 
         return $r;
     }
-    public function set($key, $value, $ttl = null)
+    public function set($key, $value, $ttl = 0)
     {
-        $this->adapter->set($this->namespace . '__' . $key, $value, 0, $this->parseTtl($ttl));
+        if ($value === false) {
+            throw new \Exception('"false" storing is not supported');
+        }
+
+        $parsedTtl = $this->parseTtl($ttl);
+        if ($parsedTtl != 0) {
+            $parsedTtl += time();
+        }
+
+        $this->adapter->set($this->namespace . '__' . $key, $value, 0, $parsedTtl);
     }
     public function remove($key)
     {
