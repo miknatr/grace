@@ -32,7 +32,7 @@ class FinderAbstractTest extends \PHPUnit_Framework_TestCase
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
             new TypeConverter(),
-            GraceConfigHelper::create(),
+            (new Loader(__DIR__ . '/Resources/models'))->getConfig(),
             $cache
         );
 

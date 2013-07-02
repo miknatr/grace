@@ -5,6 +5,7 @@ namespace Grace\Tests\ORM;
 use Grace\Cache\CacheInterface;
 use Grace\ORM\Grace;
 use Grace\ORM\Service\ClassNameProvider;
+use Grace\ORM\Service\Config\Loader;
 use Grace\ORM\Service\ModelObserver;
 use Grace\DBAL\Mysqli\Connection;
 use Grace\ORM\Service\TypeConverter;
@@ -32,7 +33,7 @@ class GraceTest extends \PHPUnit_Framework_TestCase
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
             new TypeConverter(),
-            GraceConfigHelper::create(),
+            (new Loader(__DIR__ . '/Resources/models'))->getConfig(),
             $cache
         );
 

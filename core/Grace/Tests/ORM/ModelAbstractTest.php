@@ -6,6 +6,7 @@ use Grace\Cache\CacheInterface;
 use Grace\DBAL\ConnectionAbstract\ConnectionInterface;
 use Grace\ORM\Grace;
 use Grace\ORM\Service\ClassNameProvider;
+use Grace\ORM\Service\Config\Loader;
 use Grace\ORM\Service\ModelObserver;
 use Grace\ORM\Service\TypeConverter;
 use Grace\Tests\ORM\Plug\GraceConfigHelper;
@@ -30,7 +31,7 @@ class ModelAbstractTest extends \PHPUnit_Framework_TestCase
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
             new TypeConverter(),
-            GraceConfigHelper::create(),
+            (new Loader(__DIR__ . '/Resources/models'))->getConfig(),
             $cache
         );
 
