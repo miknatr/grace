@@ -1,0 +1,11 @@
+properties:
+  id:
+    mapping: int
+  cityId:
+    mapping: ^City
+  name:
+    mapping: string
+  phone:
+    mapping: string
+  cityName:
+    mapping: cityId:name

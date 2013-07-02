@@ -1,0 +1,17 @@
+properties:
+  id:
+    mapping: int
+  taxiStationId:
+    mapping: ^TaxiStation
+  cityId:
+    mapping: ^City
+  name:
+    mapping: string
+  phone:
+    mapping: string
+  taxiStationPhone:
+    mapping: taxiStationId:phone
+  taxiStationName:
+    mapping: taxiStationId:name
+  cityName:
+    mapping: cityId:name
