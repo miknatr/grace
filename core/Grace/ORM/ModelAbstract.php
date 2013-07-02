@@ -47,22 +47,7 @@ abstract class ModelAbstract
         $this->originalProperties = $this->properties;
     }
 
-    private function setPropertiesFromDbArray(array $dbArray)
-    {
-        $baseClass = $this->getBaseClass();
-
-        $properties = array();
-        foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
-            //TODO вызов метода на каждое поле потенциально медленное место, проверить бы скорость и может оптимизировать
-            $properties[$propertyName] = $this->orm->typeConverter->convertDbToPhp(
-                $propertyConfig->type,
-                $dbArray[$propertyName],
-                $propertyConfig->isNullable
-            );
-        }
-
-        $this->properties = $properties;
-    }
+    abstract protected function setPropertiesFromDbArray(array $dbArray);
 
     /**
      * Делаем значения для пустой модели (только что создали, никаких данных ещё нет и в БД её нет)

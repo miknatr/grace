@@ -24,9 +24,9 @@ class TypeInt implements TypeInterface
     {
         return 'integer';
     }
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        return intval($value);
+        return $returnIntoExpression.' (int) $value;';
     }
     public function convertOnSetter($value)
     {

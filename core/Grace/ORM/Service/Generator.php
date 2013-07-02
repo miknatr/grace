@@ -179,6 +179,34 @@ class Generator
             }
         }
 
+        $propertiesMethodBody = '';
+        foreach ($this->modelsConfig->models[$modelName]->properties as $propName => $propConfig) {
+            $this->lastProcessedElement = $modelName . '.' . $propName;
+
+            $setPropertyCode = $this->typeConverter->getDbToPhpConverterCode($propConfig->type, "\$this->properties['{$propName}'] =");
+
+            $propertiesMethodBody .= "
+                // {$propName}
+                \$value = \$dbArray['{$propName}'];
+                if (\$value === null) {
+                    ".(!$propConfig->isNullable ? "
+                    throw new \\Grace\\ORM\\Type\\ConversionImpossibleException('Null is not allowed in {$modelName}.{$propName}');
+                    ":"
+                    \$this->properties['{$propName}'] = null;
+                    ")."
+                } else {
+                    {$setPropertyCode}
+                }
+            ";
+        }
+
+        $methods['setPropertiesFromDbArray'] = $this->unindent(2, "
+            public function setPropertiesFromDbArray(array \$dbArray)
+            {
+                {$propertiesMethodBody}
+            }
+        ");
+
         return $methods;
     }
 
@@ -265,7 +293,7 @@ class Generator
     {
         $contents = file_get_contents($filename);
 
-        $markerBlock = "    //\n    // ".static::INLINE_GENCODE_MARKER."\n    //\n";
+        $markerBlock = "    //\n    // ".static::INLINE_GENCODE_MARKER."\n    //\n\n    // <editor-fold defaultstate=\"collapsed\" desc=\"Wall of text\">\n";
 
         // removing previously generated methods
         $pos = strpos($contents, $markerBlock);
@@ -297,11 +325,16 @@ class Generator
             }
         }
 
+        $methodsCode = join('', $methods);
+        // removing empty lines inside {}
+        $methodsCode = preg_replace('/\{\n( *\n)+/', "{\n", $methodsCode);
+        $methodsCode = preg_replace('/(\n *)+(\n *\})/', "$2", $methodsCode);
+
         // inserting methods into the file
         $contents = preg_replace('/\}\s*$/', '', $contents);
         $contents .= "\n\n" . $markerBlock;
-        $contents .= join('', $methods);
-        $contents .= "}\n";
+        $contents .= $methodsCode;
+        $contents .= "\n    // </editor-fold>\n}\n";
 
         $this->writeFile($filename, $contents);
     }

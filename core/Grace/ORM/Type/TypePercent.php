@@ -24,9 +24,9 @@ class TypePercent implements TypeInterface
     {
         return 'numeric(3,1)';
     }
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        return strval($value); //it's already formatted because we save as decimal in db
+        return $returnIntoExpression.' (string) $value;'; //it's already formatted because we save as decimal in db
     }
     public function convertOnSetter($value)
     {

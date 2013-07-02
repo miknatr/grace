@@ -24,13 +24,9 @@ class TypeBool implements TypeInterface
     {
         return 'boolean';
     }
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        if ($value === 'f') {
-            return false;
-        }
-
-        return (bool) $value;
+        return $returnIntoExpression.' ($value === "f") ? false : (bool) $value;';
     }
     public function convertOnSetter($value)
     {

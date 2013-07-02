@@ -206,7 +206,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
                 $key    = 'grace_id_gen_' . $table . '_' . strval($this->idCounterByTable[$table]);
 
                 $isBusy = $this->getCache()->get($key);
-                if ($isBusy === false) {
+                if ($isBusy === null) {
                     $this->getCache()->set($key, '1', 60);
                     return $this->idCounterByTable[$table];
                 }

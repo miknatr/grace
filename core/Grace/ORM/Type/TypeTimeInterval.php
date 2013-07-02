@@ -25,12 +25,13 @@ class TypeTimeInterval implements TypeInterface
         // 01:00:00-02:00:00
         return 'char(17)';
     }
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        return $value;
+        return $returnIntoExpression.' $value;';
     }
     public function convertOnSetter($value)
     {
+        // STOPPER TimeInterval как объект аналогично ShortTarif
         if (!is_scalar($value)) {
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as time interval');
         }

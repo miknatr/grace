@@ -12,17 +12,21 @@ namespace Grace\ORM\Type;
 
 class PgsqlPointValue
 {
-    private $latitude = 0;
+    private $latitude  = 0;
     private $longitude = 0;
 
     public function __construct($coords)
     {
-        //STOPPER не массив, а строка, нужно наделать парсинг
-        if (count($coords) != 2 or !isset($coords[0]) or !isset($coords[1])) {
-            throw new \BadMethodCallException('Invalid point type format "' . print_r($coords, true) . '"');
+        if (!is_string($coords)) {
+            throw new \BadMethodCallException('Invalid point value type: ' . gettype($coords));
         }
-        $this->latitude  = $coords[0];
-        $this->longitude = $coords[1];
+
+        if (!preg_match('/^\(?(\d+),(\d+)\)?$/', $coords, $match)) {
+            throw new \BadMethodCallException('Invalid point type format: "' . $coords . '", should be a string like "0,0"');
+        }
+
+        $this->latitude  = $match[1];
+        $this->longitude = $match[2];
     }
 
     public function __toString()

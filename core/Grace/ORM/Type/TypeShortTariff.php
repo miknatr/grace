@@ -25,9 +25,9 @@ class TypeShortTariff implements TypeInterface
     {
         return 'varchar(255)';
     }
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        return new ShortTariffValue($value);
+        return $returnIntoExpression.' new \\Grace\\ORM\\Type\\ShortTariffValue($value);';
     }
     public function convertOnSetter($value)
     {

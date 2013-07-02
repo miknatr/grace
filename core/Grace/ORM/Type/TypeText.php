@@ -24,9 +24,9 @@ class TypeText implements TypeInterface
     {
         return 'text';
     }
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        return $value;
+        return $returnIntoExpression.' $value;';
     }
     public function convertOnSetter($value)
     {

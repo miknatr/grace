@@ -24,9 +24,9 @@ class TypeBigint implements TypeInterface
     {
         return 'bigint';
     }
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        return strval($value);
+        return $returnIntoExpression . ' strval($value);';
     }
     public function convertOnSetter($value)
     {

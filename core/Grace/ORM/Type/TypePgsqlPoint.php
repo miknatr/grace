@@ -29,13 +29,9 @@ class TypePgsqlPoint implements TypeInterface
         return 'point';
     }
 
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        if (preg_match('/^\(([\d]+),([\d]+)\)$/', $value, $match)) {
-            return new PgsqlPointValue(array($match[1], $match[2]));
-        }
-
-        throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as point string');
+        return $returnIntoExpression.' new \\Grace\\ORM\\Type\\PgsqlPointValue($value);';
     }
 
     public function convertOnSetter($value)
@@ -44,8 +40,8 @@ class TypePgsqlPoint implements TypeInterface
             return $value;
         }
 
-        if (is_scalar($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as point string');
+        if (!is_string($value)) {
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a point string like "0,0"');
         }
 
         return new PgsqlPointValue($value);
@@ -59,7 +55,7 @@ class TypePgsqlPoint implements TypeInterface
     }
     public function getPhpDefaultValue()
     {
-        return new PgsqlPointValue(array(0, 0));
+        return new PgsqlPointValue('0,0');
     }
 }
 

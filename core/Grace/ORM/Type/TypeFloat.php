@@ -24,9 +24,9 @@ class TypeFloat implements TypeInterface
     {
         return 'float';
     }
-    public function convertDbToPhp($value)
+    public function getDbToPhpConverterCode($returnIntoExpression)
     {
-        return floatval($value);
+        return $returnIntoExpression.' (float) $value;';
     }
     public function convertOnSetter($value)
     {
