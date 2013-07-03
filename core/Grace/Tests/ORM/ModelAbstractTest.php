@@ -42,6 +42,7 @@ class ModelAbstractTest extends \PHPUnit_Framework_TestCase
                 'name'  => 'Mike',
                 'phone' => '+79991234567',
             ),
+            'TaxiPassenger',
             $this->orm
         );
     }

@@ -21,9 +21,9 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
 {
     private $needsInitCreatedModel = false;
 
-    public function __construct($id = null, array $dbArray = null, Grace $orm)
+    public function __construct($id = null, array $dbArray = null, $baseClass, Grace $orm)
     {
-        parent::__construct($id, $dbArray, $orm);
+        parent::__construct($id, $dbArray, $baseClass, $orm);
         if (is_null($dbArray)) {
             $this->needsInitCreatedModel = true;
         }

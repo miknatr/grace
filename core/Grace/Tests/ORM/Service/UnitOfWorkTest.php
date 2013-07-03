@@ -45,8 +45,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
     public function testNewMarkers()
     {
-        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), $this->orm);
-        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), $this->orm);
+        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), 'TaxiPassenger', $this->orm);
+        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), 'TaxiPassenger', $this->orm);
         $model3 = $model2;
 
         $this->unitOfWork->markAsNew($model1);
@@ -59,8 +59,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
     public function testChangedMarkers()
     {
-        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), $this->orm);
-        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), $this->orm);
+        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), 'TaxiPassenger', $this->orm);
+        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), 'TaxiPassenger', $this->orm);
         $model3 = $model2;
 
         $this->unitOfWork->markAsChanged($model1);
@@ -73,8 +73,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
     public function testDeleteMarkers()
     {
-        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), $this->orm);
-        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), $this->orm);
+        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), 'TaxiPassenger', $this->orm);
+        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), 'TaxiPassenger', $this->orm);
         $model3 = $model2;
 
         $this->unitOfWork->markAsDeleted($model1);
@@ -87,8 +87,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
     public function testRevert()
     {
-        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), $this->orm);
-        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), $this->orm);
+        $model1 = new TaxiPassenger(null, array('id' => 1, 'name' => 'Arnold Schwarzenegger', 'phone' => '555-12-12'), 'TaxiPassenger', $this->orm);
+        $model2 = new TaxiPassenger(null, array('id' => 2, 'name' => 'Sylvester Stallone', 'phone' => '555-12-12'), 'TaxiPassenger', $this->orm);
         $model3 = $model2;
 
         $this->unitOfWork->markAsNew($model1);

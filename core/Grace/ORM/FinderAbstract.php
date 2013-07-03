@@ -130,7 +130,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
             $model = $this->orm->identityMap->getModel($this->baseClass, $dbArray['id']);
         } else {
             $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
-            $model = new $modelClass(null, $dbArray, $this->orm);
+            $model = new $modelClass(null, $dbArray, $this->baseClass, $this->orm);
             $this->orm->identityMap->setModel($this->baseClass, $dbArray['id'], $model);
         }
 
@@ -214,7 +214,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
         $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
         /** @var ModelAbstract $model */
-        $model = new $modelClass($id, null, $this->orm);
+        $model = new $modelClass($id, null, $this->baseClass, $this->orm);
         $this->orm->identityMap->setModel($this->baseClass, $id, $model);
         $model->setProperties($properties);
         $this->orm->unitOfWork->markAsNew($model);

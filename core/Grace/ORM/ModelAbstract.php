@@ -24,8 +24,11 @@ abstract class ModelAbstract
     private $originalProperties = array();
     protected $properties = array();
 
-    public function __construct($id = null, array $dbArray = null, Grace $orm)
+    public $baseClass; //it's public property for optimization reasons
+
+    public function __construct($id = null, array $dbArray = null, $baseClass, Grace $orm)
     {
+        $this->baseClass = $baseClass;
         $this->orm = $orm;
 
         //$dbArray - model creation from database
@@ -38,7 +41,7 @@ abstract class ModelAbstract
         if ($dbArray === null) {
             $this->setDefaultPropertyValues();
 
-            $type = $this->orm->config->models[$this->getBaseClass()]->properties['id']->type;
+            $type = $this->orm->config->models[$this->baseClass]->properties['id']->type;
             $this->properties['id'] = $this->orm->typeConverter->convertOnSetter($type, $id);
         } else {
             $this->setPropertiesFromDbArray($dbArray);
@@ -54,7 +57,7 @@ abstract class ModelAbstract
      */
     private function setDefaultPropertyValues()
     {
-        $baseClass = $this->getBaseClass();
+        $baseClass = $this->baseClass;
 
         $properties = array();
         foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
@@ -77,16 +80,12 @@ abstract class ModelAbstract
     // INTERNALS
     //
 
-    final public function getBaseClass()
-    {
-        return $this->orm->classNameProvider->getBaseClass(get_class($this));
-    }
     public function getOriginalModel()
     {
         // TODO кеширование
         $class = get_class($this);
         /** @var ModelAbstract $model */
-        $model = new $class($this->getId(), null, $this->orm);
+        $model = new $class($this->getId(), null, $this->baseClass, $this->orm);
         $model->setProperties($this->originalProperties);
         return $model;
     }
@@ -120,11 +119,11 @@ abstract class ModelAbstract
             throw new \InvalidArgumentException('Cannot set ID of a model');
         }
 
-        if (!isset($this->orm->config->models[$this->getBaseClass()]->properties[$name])) {
-            throw new \InvalidArgumentException("Cannot set unknown property: {$this->getBaseClass()}.{$name}");
+        if (!isset($this->orm->config->models[$this->baseClass]->properties[$name])) {
+            throw new \InvalidArgumentException("Cannot set unknown property: {$this->baseClass}.{$name}");
         }
 
-        $propConfig = $this->orm->config->models[$this->getBaseClass()]->properties[$name];
+        $propConfig = $this->orm->config->models[$this->baseClass]->properties[$name];
         if (!$propConfig->isSettable) {
             throw new \Exception('FUCK OFF');
         }
@@ -137,7 +136,7 @@ abstract class ModelAbstract
                 $propConfig->isNullable
             );
         } catch (ConversionImpossibleException $e) {
-            throw new ConversionImpossibleException($e->getMessage() . " in {$this->getBaseClass()} when setting {$name}", $e->getCode(), $e);
+            throw new ConversionImpossibleException($e->getMessage() . " in {$this->baseClass} when setting {$name}", $e->getCode(), $e);
         }
 
         // при вызове например setRegionId мы должны помимо поля regionId ещё проставить
@@ -148,7 +147,7 @@ abstract class ModelAbstract
             } else {
                 $foreignModel = $this->orm->getFinder($proxy->foreignTable)->getByIdOrFalse($value);
                 if (!$foreignModel) {
-                    throw new \Exception("Cannot set {$this->getBaseClass()}.{$name}: there is no {$proxy->foreignTable} with ID {$value}");
+                    throw new \Exception("Cannot set {$this->baseClass}.{$name}: there is no {$proxy->foreignTable} with ID {$value}");
                 }
 
                 $this->properties[$propName] = $foreignModel->getProperty($proxy->foreignField);
