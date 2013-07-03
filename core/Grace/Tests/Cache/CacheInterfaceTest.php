@@ -59,4 +59,21 @@ class CacheInterfaceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $value);
         $this->assertFalse($isCalled);
     }
+
+    /**
+     * @dataProvider cacheProvider
+     */
+    public function testObjectEquality(CacheInterface $cache)
+    {
+        $cache->clean();
+
+        $node = new \stdClass();
+        $container = array($node, $node);
+        $cache->set('foo', $container);
+
+        $cachedContainer = $cache->get('foo');
+
+        $this->assertNotEquals(spl_object_hash($container[0]), spl_object_hash($cachedContainer[0]));
+        $this->assertEquals(spl_object_hash($cachedContainer[0]), spl_object_hash($cachedContainer[1]));
+    }
 }
