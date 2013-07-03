@@ -58,58 +58,57 @@ class TypeConverter
 
     public function getPhpType($alias)
     {
-        $this->checkTypeAlias($alias);
+        //If you have error, maybe type named $alias is not defined
         return $this->types[$alias]->getPhpType();
-    }
-
-    private function checkTypeAlias($alias)
-    {
-        if (!isset($this->types[$alias])) {
-            throw new \LogicException('Type named "' . $alias . '" is not defined');
-        }
-    }
-
-    private function checkNull($value, $isNullAllowed)
-    {
-        if (is_null($value) and !$isNullAllowed) {
-            throw new ConversionImpossibleException('Null is not allowed');
-        }
     }
 
     public function getDbType($alias)
     {
-        $this->checkTypeAlias($alias);
+        //If you have error, maybe type named $alias is not defined
         return $this->types[$alias]->getDbType();
     }
 
     public function getDbToPhpConverterCode($alias)
     {
+        //If you have error, maybe type named $alias is not defined
         return $this->types[$alias]->getDbToPhpConverterCode();
     }
 
     public function convertOnSetter($alias, $value, $isNullAllowed = false)
     {
-        $this->checkNull($value, $isNullAllowed);
-        $this->checkTypeAlias($alias);
-        if (is_null($value)) {
+        //copy-paste, but we need speed
+        if (!$isNullAllowed and $value === null) {
+            throw new ConversionImpossibleException('Null is not allowed');
+        }
+
+        //copy-paste, but we need speed
+        if ($value === null) {
             return null;
         }
+
+        //If you have error, maybe type named $alias is not defined
         return $this->types[$alias]->convertOnSetter($value);
     }
 
     public function convertPhpToDb($alias, $value, $isNullAllowed = false)
     {
-        $this->checkNull($value, $isNullAllowed);
-        $this->checkTypeAlias($alias);
-        if (is_null($value)) {
+        //copy-paste, but we need speed
+        if (!$isNullAllowed and $value === null) {
+            throw new ConversionImpossibleException('Null is not allowed');
+        }
+
+        //copy-paste, but we need speed
+        if ($value === null) {
             return null;
         }
+
+        //If you have error, maybe type named $alias is not defined
         return $this->types[$alias]->convertPhpToDb($value);
     }
 
     public function getPhpDefaultValue($alias)
     {
-        $this->checkTypeAlias($alias);
+        //If you have error, maybe type named $alias is not defined
         return $this->types[$alias]->getPhpDefaultValue();
     }
 }
