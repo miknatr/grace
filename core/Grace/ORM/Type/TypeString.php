@@ -24,9 +24,9 @@ class TypeString implements TypeInterface
     {
         return 'varchar(255)';
     }
-    public function getDbToPhpConverterCode($returnIntoExpression)
+    public function getDbToPhpConverterCode()
     {
-        return $returnIntoExpression.' $value;';
+        return '$value';
     }
     public function convertOnSetter($value)
     {

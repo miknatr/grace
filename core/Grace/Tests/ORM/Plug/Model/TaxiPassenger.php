@@ -22,4 +22,28 @@ class TaxiPassenger extends ModelAbstract
     {
         return $this->setProperty('phone', $phone);
     }
+
+    final protected function setPropertiesFromDbArray(array $dbArray)
+    {
+        // id
+        $value = $dbArray['id'];
+        if ($value === null) {
+            throw new \Grace\ORM\Type\ConversionImpossibleException('Null is not allowed in Driver.id');
+        }
+        $this->properties['id'] = (int) $value;
+
+        // name
+        $value = $dbArray['name'];
+        if ($value === null) {
+            throw new \Grace\ORM\Type\ConversionImpossibleException('Null is not allowed in Driver.name');
+        }
+        $this->properties['name'] = $value;
+
+        // phone
+        $value = $dbArray['phone'];
+        if ($value === null) {
+            throw new \Grace\ORM\Type\ConversionImpossibleException('Null is not allowed in Driver.phone');
+        }
+        $this->properties['phone'] = $value;
+    }
 }

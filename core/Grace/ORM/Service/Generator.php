@@ -139,18 +139,18 @@ class Generator
 
             $type = $this->typeConverter->getPhpType($propConfig->type);
 
-            $methods['get' . $name] = $this->unindent(3, "
+            $methods['force']['get' . $name] = $this->unindent(3, "
                 /**
                  * @return {$type}
                  */
-                public function get{$name}()
+                final public function get{$name}()
                 {
-                    return \$this->getProperty('{$propName}');
+                    return \$this->properties['{$propName}'];
                 }
             ");
 
             if ($propConfig->isSettable) {
-                $methods['set' . $name] = $this->unindent(4, "
+                $methods['optional']['set' . $name] = $this->unindent(4, "
                     /**
                      * @param {$type} \${$propName}
                      * @return \$this
@@ -167,11 +167,11 @@ class Generator
                 $foreignClass = $this->classNameProvider->getModelClass($propConfig->resolvesToModelName);
                 $finderProperty = lcfirst($propConfig->resolvesToModelName) . 'Finder';
 
-                $methods[$getterName] = $this->unindent(4, "
+                $methods['force'][$getterName] = $this->unindent(4, "
                     /**
                      * @return {$foreignClass}
                      */
-                    public function {$getterName}()
+                    final public function {$getterName}()
                     {
                         return \$this->orm->{$finderProperty}->getByIdOrFalse(\$this->getProperty('{$propName}'));
                     }
@@ -183,25 +183,28 @@ class Generator
         foreach ($this->modelsConfig->models[$modelName]->properties as $propName => $propConfig) {
             $this->lastProcessedElement = $modelName . '.' . $propName;
 
-            $setPropertyCode = $this->typeConverter->getDbToPhpConverterCode($propConfig->type, "\$this->properties['{$propName}'] =");
+            $propertyCode = $this->typeConverter->getDbToPhpConverterCode($propConfig->type);
 
-            $propertiesMethodBody .= "
-                // {$propName}
-                \$value = \$dbArray['{$propName}'];
-                if (\$value === null) {
-                    ".(!$propConfig->isNullable ? "
-                    throw new \\Grace\\ORM\\Type\\ConversionImpossibleException('Null is not allowed in {$modelName}.{$propName}');
-                    ":"
-                    \$this->properties['{$propName}'] = null;
-                    ")."
-                } else {
-                    {$setPropertyCode}
-                }
-            ";
+            if ($propConfig->isNullable) {
+                $propertiesMethodBody .= $this->unindent(1, "
+                    // {$propName}
+                    \$value = \$dbArray['{$propName}'];
+                    \$this->properties['{$propName}'] = (\$value === null) ? null : ({$propertyCode});
+                ");
+            } else {
+                $propertiesMethodBody .= $this->unindent(1, "
+                    // {$propName}
+                    \$value = \$dbArray['{$propName}'];
+                    if (\$value === null) {
+                        throw new \\Grace\\ORM\\Type\\ConversionImpossibleException('Null is not allowed in {$modelName}.{$propName}');
+                    }
+                    \$this->properties['{$propName}'] = {$propertyCode};
+                ");
+            }
         }
 
-        $methods['setPropertiesFromDbArray'] = $this->unindent(2, "
-            public function setPropertiesFromDbArray(array \$dbArray)
+        $methods['force']['setPropertiesFromDbArray'] = $this->unindent(2, "
+            final protected function setPropertiesFromDbArray(array \$dbArray)
             {
                 {$propertiesMethodBody}
             }
@@ -289,6 +292,16 @@ class Generator
         return $filename;
     }
 
+    /**
+     * $methods = array(
+     *     'optional' => array(...methodName => methodCode...),
+     *     'force'    => array(...methodName => methodCode...),
+     * )
+     *
+     * @param $filename
+     * @param array $methods
+     * @throws \LogicException
+     */
     private function addMethodsToClass($filename, array $methods)
     {
         $contents = file_get_contents($filename);
@@ -303,6 +316,30 @@ class Generator
             $contents .= "\n}\n";
         }
 
+        if (!isset($methods['force'])) {
+            $methods['force'] = array();
+        }
+
+        if (!isset($methods['optional'])) {
+            $methods['optional'] = array();
+        }
+
+        // filtering methods that are already defined
+        foreach ($methods['force'] as $name => $codeBlock) {
+            if (preg_match('/^\s*([a-z]+\s+)*function\s+' . preg_quote($name, '/') . '\s*\(/m', $contents)) {
+                throw new \LogicException('You cannot override getters because fuck you (' . $name . '() in ' . $filename . ')');
+            }
+        }
+
+        // filtering methods that are already defined
+        foreach ($methods['optional'] as $name => $codeBlock) {
+            if (preg_match('/^\s*([a-z]+\s+)*function\s+' . preg_quote($name, '/') . '\s*\(/m', $contents)) {
+                unset($methods['optional'][$name]);
+            }
+        }
+
+        $methods = array_merge($methods['optional'], $methods['force']);
+
         // we want to sort the generated methods because
         // 1. this will make it easier to find methods in the file
         // 2. there will be no extra diff in commits due to random movement of methods
@@ -314,16 +351,6 @@ class Generator
             $cmp = strcasecmp($aName, $bName);
             return ($cmp == 0) ? strcasecmp($a, $b) : $cmp;
         });
-
-        // filtering methods that are already defined
-        foreach ($methods as $name => $codeBlock) {
-            if (preg_match('/^\s*([a-z]+\s+)*function\s+' . preg_quote($name, '/') . '\s*\(/m', $contents)) {
-                if (substr($name, 0, 3) == 'get') {
-                    throw new \LogicException('You cannot override getters because fuck you (' . $name . '() in ' . $filename . ')');
-                }
-                unset($methods[$name]);
-            }
-        }
 
         $methodsCode = join('', $methods);
         // removing empty lines inside {}

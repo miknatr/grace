@@ -24,9 +24,9 @@ class TypeYear implements TypeInterface
     {
         return 'numeric(4,0)';
     }
-    public function getDbToPhpConverterCode($returnIntoExpression)
+    public function getDbToPhpConverterCode()
     {
-        return $returnIntoExpression.' (int) $value;'; //it's already formatted because we save as decimal in db
+        return '(int) $value'; //it's already formatted because we save as decimal in db
     }
     public function convertOnSetter($value)
     {

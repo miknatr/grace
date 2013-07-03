@@ -29,9 +29,9 @@ class TypePgsqlPoint implements TypeInterface
         return 'point';
     }
 
-    public function getDbToPhpConverterCode($returnIntoExpression)
+    public function getDbToPhpConverterCode()
     {
-        return $returnIntoExpression.' new \\Grace\\ORM\\Type\\PgsqlPointValue($value);';
+        return 'new \\Grace\\ORM\\Type\\PgsqlPointValue($value)';
     }
 
     public function convertOnSetter($value)

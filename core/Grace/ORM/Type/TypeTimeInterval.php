@@ -25,9 +25,9 @@ class TypeTimeInterval implements TypeInterface
         // 01:00:00-02:00:00
         return 'char(17)';
     }
-    public function getDbToPhpConverterCode($returnIntoExpression)
+    public function getDbToPhpConverterCode()
     {
-        return $returnIntoExpression.' $value;';
+        return '$value';
     }
     public function convertOnSetter($value)
     {

@@ -24,9 +24,9 @@ class TypeTimestamp implements TypeInterface
     {
         return 'timestamp';
     }
-    public function getDbToPhpConverterCode($returnIntoExpression)
+    public function getDbToPhpConverterCode()
     {
-        return $returnIntoExpression.' $value;'; //already formatted
+        return '$value'; //already formatted
     }
     public function convertOnSetter($value)
     {
