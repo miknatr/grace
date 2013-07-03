@@ -49,19 +49,19 @@ class FinderAbstractTest extends \PHPUnit_Framework_TestCase
         /** @var $r TaxiPassenger */
         $r = $this->finder->create();
         $this->assertTrue($r instanceof TaxiPassenger);
-        $this->assertEquals(4, $r->getId());
+        $this->assertEquals(4, $r->id);
 
         /** @var $r TaxiPassenger */
         $r = $this->finder->create();
         $this->assertTrue($r instanceof TaxiPassenger);
-        $this->assertEquals(5, $r->getId());
+        $this->assertEquals(5, $r->id);
     }
     public function testGetById()
     {
         /** @var $r TaxiPassenger */
         $r = $this->finder->getByIdOrFalse(3);
         $this->assertTrue($r instanceof TaxiPassenger);
-        $this->assertEquals(3, $r->getId());
+        $this->assertEquals(3, $r->id);
         $this->assertEquals('Bill Murray', $r->getName());
 
         //Testing Identity Map work

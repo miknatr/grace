@@ -284,13 +284,13 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
     {
         $changes = $this->convertModelToDbChangesArray($model);
         if (count($changes) > 0) {
-            $this->orm->db->getSQLBuilder()->update($this->baseClass)->values($changes)->eq('id', $model->getId())->execute();
+            $this->orm->db->getSQLBuilder()->update($this->baseClass)->values($changes)->eq('id', $model->id)->execute();
             $model->flushDefaults();
         }
     }
 
     public function deleteModelOnCommit(ModelAbstract $model)
     {
-        $this->orm->db->getSQLBuilder()->delete($this->baseClass)->eq('id', $model->getId())->execute();
+        $this->orm->db->getSQLBuilder()->delete($this->baseClass)->eq('id', $model->id)->execute();
     }
 }

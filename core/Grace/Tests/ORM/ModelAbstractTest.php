@@ -48,7 +48,7 @@ class ModelAbstractTest extends \PHPUnit_Framework_TestCase
     }
     public function testGettingIdAndFields()
     {
-        $this->assertEquals(123, $this->taxiPassenger->getId());
+        $this->assertEquals(123, $this->taxiPassenger->id);
         $this->assertEquals('Mike', $this->taxiPassenger->getName());
         $this->assertEquals('+79991234567', $this->taxiPassenger->getPhone());
     }

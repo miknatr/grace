@@ -24,7 +24,9 @@ abstract class ModelAbstract
     private $originalProperties = array();
     protected $properties = array();
 
-    public $baseClass; //it's public property for optimization reasons
+    //it's public properties for optimization reasons
+    public $baseClass;
+    public $id;
 
     public function __construct($id = null, array $dbArray = null, $baseClass, Grace $orm)
     {
@@ -40,12 +42,12 @@ abstract class ModelAbstract
 
         if ($dbArray === null) {
             $this->setDefaultPropertyValues();
-
             $type = $this->orm->config->models[$this->baseClass]->properties['id']->type;
             $this->properties['id'] = $this->orm->typeConverter->convertOnSetter($type, $id);
         } else {
             $this->setPropertiesFromDbArray($dbArray);
         }
+        $this->id = $this->properties['id'];
 
         $this->originalProperties = $this->properties;
     }
@@ -85,13 +87,9 @@ abstract class ModelAbstract
         // TODO кеширование
         $class = get_class($this);
         /** @var ModelAbstract $model */
-        $model = new $class($this->getId(), null, $this->baseClass, $this->orm);
+        $model = new $class($this->id, null, $this->baseClass, $this->orm);
         $model->setProperties($this->originalProperties);
         return $model;
-    }
-    final public function getId()
-    {
-        return $this->getProperty('id');
     }
     final public function getProperties()
     {

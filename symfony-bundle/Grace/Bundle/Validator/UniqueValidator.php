@@ -35,7 +35,7 @@ class UniqueValidator extends ConstraintValidator
             throw new \LogicException('файндера нет усритесь');
         }
 
-        if ($finder->getSelectBuilder()->eq($property, $value)->notEq('id', $model->getId())->fetchOneOrFalse()) {
+        if ($finder->getSelectBuilder()->eq($property, $value)->notEq('id', $model->id)->fetchOneOrFalse()) {
             $this->context->addViolation($constraint->message);
         }
     }
