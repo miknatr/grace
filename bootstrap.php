@@ -3,8 +3,12 @@
 error_reporting(E_ALL | E_STRICT);
 ini_set("display_errors", 1);
 
+$classLoaderFile = __DIR__ . '/vendor/symfony/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+if (!file_exists($classLoaderFile)) {
+    throw new \LogicException("You need to install vendors for tests to work\nPlease run ./install_vendors.sh\n");
+}
 
-require_once  __DIR__ . '/vendor/symfony/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+require_once $classLoaderFile;
 $loader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
 $loader->registerNamespaces(array(
     'Symfony'                              => __DIR__ . '/vendor/symfony/src/',
