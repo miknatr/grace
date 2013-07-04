@@ -173,7 +173,7 @@ class Connection extends ConnectionAbstract
     private function connect($selectDb = true)
     {
         if (!function_exists("mysqli_connect")) {
-            throw new ConnectionException("Function mysqli_connect doesn't exists");
+            throw new ConnectionException("Function mysqli_connect doesn't exist", ConnectionException::E_NO_DRIVER_IN_PHP);
         }
 
         //Can throw warning, if have incorrect connection params

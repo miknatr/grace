@@ -15,5 +15,6 @@ namespace Grace\DBAL\Exception;
  */
 class ConnectionException extends \Exception
 {
-
+    const E_CONNECTION       = 0; // default
+    const E_NO_DRIVER_IN_PHP = 1;
 }

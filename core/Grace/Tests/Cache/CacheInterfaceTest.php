@@ -10,15 +10,21 @@ class CacheInterfaceTest extends \PHPUnit_Framework_TestCase
 {
     public function cacheProvider()
     {
-        $md = new \Memcached();
-        $md->addServer('localhost', 11211);
-        $m = new \Memcache();
-        $m->addServer('localhost', 11211);
+        $data = array();
 
-        return array(
-            array(new MemcachedAdapter($md, 'cache_test', true)),
-            array(new MemcacheAdapter($m, 'cache_test', true)),
-        );
+        if (class_exists('\\Memcached')) {
+            $memcached = new \Memcached();
+            $memcached->addServer('localhost', 11211);
+            $data[] = array(new MemcachedAdapter($memcached, 'cache_test', true));
+        };
+
+        if (class_exists('\\Memcache')) {
+            $memcache = new \Memcache();
+            $memcache->addServer('localhost');
+            $data[] = array(new MemcacheAdapter($memcache, 'cache_test', true));
+        }
+
+        return $data;
     }
 
     /**

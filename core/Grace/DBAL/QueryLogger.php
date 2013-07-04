@@ -54,7 +54,7 @@ class QueryLogger
     }
     /**
      * Start timer for connection
-     * @param $queryString sql query string
+     * @param string $queryString sql query string
      */
     public function startConnection($queryString)
     {

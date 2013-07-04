@@ -13,7 +13,16 @@ class MysqliConnectionTest extends ConnectionTestAbstract
 
     protected function setUp()
     {
-        $this->connection = new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+        try {
+            $this->connection = new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
+            $this->connection->execute('SELECT 1');
+        } catch (ConnectionException $e) {
+            if ($e->getCode() == ConnectionException::E_NO_DRIVER_IN_PHP) {
+                $this->markTestSkipped('No mysqli support in php');
+            } else {
+                $this->fail('You need to set up MySQL login/password in config.php which is located in grace root');
+            }
+        }
     }
     protected function tearDown()
     {
@@ -43,6 +52,7 @@ class MysqliConnectionTest extends ConnectionTestAbstract
     }
     public function testGettingAffectedRowsBeforeConnectionEsbablished()
     {
+        $this->connection = new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
         $this->assertEquals(false, $this->connection->getAffectedRows());
     }
     public function testGettingAffectedRows()

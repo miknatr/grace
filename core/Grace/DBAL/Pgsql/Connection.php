@@ -10,6 +10,7 @@
 
 namespace Grace\DBAL\Pgsql;
 
+use Doctrine\DBAL\Types\ConversionException;
 use Grace\DBAL\ConnectionAbstract\ConnectionAbstract;
 use Grace\DBAL\Exception\ConnectionException;
 use Grace\DBAL\Exception\QueryException;
@@ -191,8 +192,8 @@ class Connection extends ConnectionAbstract
      */
     private function connect($selectDb = true)
     {
-        if (!function_exists("pg_connect")) {
-            throw new ConnectionException("Function pg_connect doesn't exists");
+        if (!function_exists('pg_connect')) {
+            throw new ConnectionException("Function pg_connect doesn't exist", ConnectionException::E_NO_DRIVER_IN_PHP);
         }
 
         //Can throw warning, if have incorrect connection params
