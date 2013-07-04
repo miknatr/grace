@@ -28,6 +28,7 @@ abstract class ModelAbstract
     public $baseClass;
     public $id;
 
+    // TODO переделать на фабрики вместо безумия с null-аргументами
     public function __construct($id = null, array $dbArray = null, $baseClass, Grace $orm)
     {
         $this->baseClass = $baseClass;
@@ -94,6 +95,15 @@ abstract class ModelAbstract
     final public function getProperties()
     {
         return $this->properties;
+    }
+
+    /**
+     * DO NOT USE THIS
+     * @param array $values
+     */
+    final public function setRawProperties($values)
+    {
+        $this->properties = $values;
     }
     final public function setProperties($values)
     {
