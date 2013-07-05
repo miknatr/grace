@@ -23,7 +23,7 @@ class TaxiPassenger extends ModelAbstract
         return $this->setProperty('phone', $phone);
     }
 
-    final protected function setPropertiesFromDbArray(array $dbArray)
+    protected function setPropertiesFromDbArray(array $dbArray)
     {
         // id
         $value = $dbArray['id'];
@@ -45,5 +45,14 @@ class TaxiPassenger extends ModelAbstract
             throw new \Grace\ORM\Type\ConversionImpossibleException('Null is not allowed in Driver.phone');
         }
         $this->properties['phone'] = $value;
+    }
+
+    protected function setDefaultPropertyValues()
+    {
+        $this->properties = array(
+            'id' => 0,
+            'name' => '',
+            'phone' => '',
+        );
     }
 }
