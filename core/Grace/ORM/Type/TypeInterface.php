@@ -27,7 +27,17 @@ interface TypeInterface
      * @return string
      */
     public function getDbToPhpConverterCode();
+
+    /**
+     * Generates a code expression for an empty value
+     *
+     * Remember to use fully qualified class names (with namespaces)
+     * if you use any classes in the generated code!
+     *
+     * @return string
+     */
+    public function getPhpDefaultValueCode();
+
     public function convertOnSetter($value);
     public function convertPhpToDb($value);
-    public function getPhpDefaultValue();
 }

@@ -179,20 +179,23 @@ class Generator
             }
         }
 
-        $propertiesMethodBody = '';
+
+        // DB TO PHP CONVERSION
+
+        $dbToPhpMethodBody = '';
         foreach ($this->modelsConfig->models[$modelName]->properties as $propName => $propConfig) {
             $this->lastProcessedElement = $modelName . '.' . $propName;
 
             $propertyCode = $this->typeConverter->getDbToPhpConverterCode($propConfig->type);
 
             if ($propConfig->isNullable) {
-                $propertiesMethodBody .= $this->unindent(1, "
+                $dbToPhpMethodBody .= $this->unindent(1, "
                     // {$propName}
                     \$value = \$dbArray['{$propName}'];
                     \$this->properties['{$propName}'] = (\$value === null) ? null : ({$propertyCode});
                 ");
             } else {
-                $propertiesMethodBody .= $this->unindent(1, "
+                $dbToPhpMethodBody .= $this->unindent(1, "
                     // {$propName}
                     \$value = \$dbArray['{$propName}'];
                     if (\$value === null) {
@@ -206,7 +209,41 @@ class Generator
         $methods['force']['setPropertiesFromDbArray'] = $this->unindent(2, "
             final protected function setPropertiesFromDbArray(array \$dbArray)
             {
-                {$propertiesMethodBody}
+                {$dbToPhpMethodBody}
+            }
+        ");
+
+
+        // INITIAL PROPERTY VALUES
+
+        $initPropsMethodBody = '';
+        foreach ($this->modelsConfig->models[$modelName]->properties as $propName => $propConfig) {
+            $type = $propConfig->type;
+
+            if ($propConfig->default) {
+                $valueDef = $propConfig->default->definition;
+                $rawValueCode = ($valueDef == 'now') ? '\\Grace\\ORM\\Type\\TypeTimestamp::format(time())' : var_export($valueDef, true);
+                $isNullAllowed = $propConfig->isNullable;
+                // TODO убрать необходимость в этом вызове
+                $valueCode = '$this->orm->typeConverter->convertOnSetter('
+                    . var_export($type, true) . ', '
+                    . $rawValueCode . ', '
+                    . var_export($isNullAllowed, true)
+                    . ')';
+            } else if ($propConfig->isNullable) {
+                $valueCode = 'null';
+            } else {
+                $valueCode = $this->typeConverter->getPhpDefaultValueCode($type);
+            }
+
+            $initPropsMethodBody .= "\n                    '{$propName}' => {$valueCode},";
+        }
+        $initPropsMethodBody .= "\n                ";
+
+        $methods['force']['setDefaultPropertyValues'] = $this->unindent(2, "
+            final protected function setDefaultPropertyValues()
+            {
+                \$this->properties = array({$initPropsMethodBody});
             }
         ");
 

@@ -39,9 +39,9 @@ class TypeFloat implements TypeInterface
     {
         return strval($value);
     }
-    public function getPhpDefaultValue()
+    public function getPhpDefaultValueCode()
     {
-        return 0;
+        return '0';
     }
 }
 

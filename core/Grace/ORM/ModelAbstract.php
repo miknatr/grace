@@ -58,25 +58,7 @@ abstract class ModelAbstract
     /**
      * Делаем значения для пустой модели (только что создали, никаких данных ещё нет и в БД её нет)
      */
-    private function setDefaultPropertyValues()
-    {
-        $baseClass = $this->baseClass;
-
-        $properties = array();
-        foreach ($this->orm->config->models[$baseClass]->properties as $propertyName => $propertyConfig) {
-            $type = $propertyConfig->type;
-
-            if ($propertyConfig->default) {
-                $properties[$propertyName] = $this->orm->typeConverter->convertOnSetter($type, $propertyConfig->default->getValue(), $propertyConfig->isNullable);
-            } else if ($propertyConfig->isNullable) {
-                $properties[$propertyName] = null;
-            } else {
-                $properties[$propertyName] = $this->orm->typeConverter->getPhpDefaultValue($type);
-            }
-        }
-
-        $this->properties = $properties;
-    }
+    abstract protected function setDefaultPropertyValues();
 
 
     //

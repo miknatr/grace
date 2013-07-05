@@ -106,9 +106,9 @@ class TypeConverter
         return $this->types[$alias]->convertPhpToDb($value);
     }
 
-    public function getPhpDefaultValue($alias)
+    public function getPhpDefaultValueCode($alias)
     {
         //If you have error, maybe type named $alias is not defined
-        return $this->types[$alias]->getPhpDefaultValue();
+        return $this->types[$alias]->getPhpDefaultValueCode();
     }
 }

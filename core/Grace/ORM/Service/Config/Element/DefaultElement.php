@@ -10,19 +10,12 @@
 
 namespace Grace\ORM\Service\Config\Element;
 
-use Grace\ORM\Type\TypeTimestamp;
-
 class DefaultElement
 {
-    private $definition;
+    public $definition;
 
     public function __construct($default)
     {
         $this->definition = $default;
-    }
-
-    public function getValue()
-    {
-        return $this->definition == 'now' ? TypeTimestamp::format(time()) : $this->definition;
     }
 }

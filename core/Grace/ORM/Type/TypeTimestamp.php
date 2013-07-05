@@ -47,9 +47,9 @@ class TypeTimestamp implements TypeInterface
     {
         return date('Y-m-d H:i:s', $unixtime);
     }
-    public function getPhpDefaultValue()
+    public function getPhpDefaultValueCode()
     {
         //STOPPER ???
-        return '1970-01-01 00:00:00';
+        return "'1970-01-01 00:00:00'";
     }
 }

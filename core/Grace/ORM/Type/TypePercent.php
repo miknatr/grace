@@ -48,7 +48,7 @@ class TypePercent implements TypeInterface
     {
         return $value;
     }
-    public function getPhpDefaultValue()
+    public function getPhpDefaultValueCode()
     {
         return '0.0';
     }
