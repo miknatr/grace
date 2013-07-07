@@ -77,15 +77,15 @@ class Grace
 
 
             foreach ($unitOfWork->getNewModels() as $model) {
-                $this->getFinder(get_class($model))->insertModelOnCommit($model);
+                $this->getFinder($model->baseClass)->insertModelOnCommit($model);
             }
 
             foreach ($unitOfWork->getChangedModels() as $model) {
-                $this->getFinder(get_class($model))->updateModelOnCommit($model);
+                $this->getFinder($model->baseClass)->updateModelOnCommit($model);
             }
 
             foreach ($unitOfWork->getDeletedModels() as $model) {
-                $this->getFinder(get_class($model))->deleteModelOnCommit($model);
+                $this->getFinder($model->baseClass)->deleteModelOnCommit($model);
             }
 
 

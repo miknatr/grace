@@ -277,7 +277,6 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
     {
         $values = $this->convertModelToDbArray($model);
         $this->orm->db->getSQLBuilder()->insert($this->baseClass)->values($values)->execute();
-        $model->flushDefaults();
     }
 
     public function updateModelOnCommit(ModelAbstract $model)
@@ -285,7 +284,6 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $changes = $this->convertModelToDbChangesArray($model);
         if (count($changes) > 0) {
             $this->orm->db->getSQLBuilder()->update($this->baseClass)->values($changes)->eq('id', $model->id)->execute();
-            $model->flushDefaults();
         }
     }
 

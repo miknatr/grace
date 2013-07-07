@@ -65,6 +65,7 @@ abstract class ModelAbstract
     // INTERNALS
     //
 
+    //STOPPER можно выпилить вроде как
     public function getOriginalModel()
     {
         // TODO кеширование
