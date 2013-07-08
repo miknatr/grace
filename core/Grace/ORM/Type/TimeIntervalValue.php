@@ -15,12 +15,8 @@ class TimeIntervalValue
             throw new ConversionImpossibleException('TimeInterval needs a string, ' . gettype($value) . ' given');
         }
 
-        if ($value == '') {
-            return;
-        }
-
         if (!preg_match('/^(\d\d:\d\d:\d\d)-(\d\d:\d\d:\d\d)$/', $value, $match)) {
-            throw new ConversionImpossibleException('Invalid time interval "' . $value . '" (should be hh:mm:ss-hh:mm:ss or empty string)');
+            throw new ConversionImpossibleException('Invalid time interval "' . $value . '" (should be hh:mm:ss-hh:mm:ss)');
         }
 
         $this->timeFrom = $match[1];

@@ -18,11 +18,11 @@ class PgsqlPointValue
     public function __construct($coords)
     {
         if (!is_string($coords)) {
-            throw new \BadMethodCallException('Invalid point value type: ' . gettype($coords));
+            throw new ConversionImpossibleException('Invalid point value type: ' . gettype($coords));
         }
 
         if (!preg_match('/^\(?(\d+),(\d+)\)?$/', $coords, $match)) {
-            throw new \BadMethodCallException('Invalid point type format: "' . $coords . '", should be a string like "0,0"');
+            throw new ConversionImpossibleException('Invalid point type format: "' . $coords . '", should be a string like "0,0"');
         }
 
         $this->latitude  = $match[1];

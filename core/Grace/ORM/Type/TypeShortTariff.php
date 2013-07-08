@@ -55,6 +55,6 @@ class TypeShortTariff implements TypeInterface
 
     public function isNullable()
     {
-        return false;
+        return true;
     }
 }

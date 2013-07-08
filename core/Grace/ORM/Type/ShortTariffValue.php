@@ -16,18 +16,16 @@ class ShortTariffValue
             throw new ConversionImpossibleException('Value of type ' . gettype($mixed) . ' can not be presented as tariff string');
         }
 
-        if ($mixed == '') {
-            return;
-        }
+        // TODO валидация поширше
 
         $parts = explode('/', $mixed);
         if (count($parts) != 4) {
-            return;
+            throw new ConversionImpossibleException('Incorrect short tariff: "'.$mixed.'"');
         }
 
         $filteredUnit = $this->filterUnit($parts[3]);
         if (!$filteredUnit) {
-            return;
+            throw new ConversionImpossibleException('Incorrect unit in short tariff: "'.$mixed.'"');
         }
 
         $this->minPrice        = intval($parts[0]);
@@ -38,7 +36,7 @@ class ShortTariffValue
 
     public function __toString()
     {
-        return $this->minPrice == '' ? '' : "$this->minPrice/$this->unitsInMinPrice/$this->unitPrice/$this->unit";
+        return "$this->minPrice/$this->unitsInMinPrice/$this->unitPrice/$this->unit";
     }
 
     private function filterUnit($unit)
