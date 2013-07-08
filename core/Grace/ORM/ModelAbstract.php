@@ -86,6 +86,7 @@ abstract class ModelAbstract
      */
     final public function setRawProperties($values)
     {
+        // STOPPER может это убрать в интертосный ModelAbstract
         $this->properties = $values;
     }
     final public function setProperties($values)
