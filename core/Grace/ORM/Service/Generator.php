@@ -221,7 +221,7 @@ class Generator
             $type = $propConfig->type;
 
             if ($propConfig->default) {
-                $valueDef = $propConfig->default->definition;
+                $valueDef = $propConfig->default;
                 $rawValueCode = ($valueDef == 'now') ? '\\Grace\\ORM\\Type\\TypeTimestamp::format(time())' : var_export($valueDef, true);
                 $isNullAllowed = $propConfig->isNullable;
                 // TODO убрать необходимость в этом вызове

@@ -3,17 +3,15 @@
 namespace Grace\ORM\Service\Config;
 
 use Grace\Cache\CacheInterface;
-use Grace\ORM\Service\Config\Element\DefaultElement;
-use Grace\ORM\Service\Config\Element\MappingElement;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\Config\Element\PropertyElement;
-use Grace\ORM\Service\Config\Element\ProxyElement;
 use Symfony\Component\Yaml\Yaml;
 
 class Loader
 {
     protected $cache;
     protected $resource;
+
     public function __construct($resource, CacheInterface $cache = null)
     {
         $this->resource = $resource;
@@ -37,7 +35,7 @@ class Loader
 
     protected function getConfigRaw()
     {
-        $array = $this->loadResource($this->resource);
+        $array  = $this->loadResource($this->resource);
         $config = new Config;
 
         foreach ($array['models'] as $modelName => $modelConfig) {
@@ -69,7 +67,7 @@ class Loader
             $model->properties = $properties;
 
             if (isset($modelConfig['parents'])) {
-                throw new \LogicException('There is unsupported "parents" config in ' . $modelName . ' model');
+                throw new ConfigLoadException('Unsupported "parents" config in ' . $modelName . ' model');
             }
 
             $config->models[$modelName] = $model;
@@ -95,12 +93,14 @@ class Loader
         $config = array();
 
         $dir = rtrim($resource, '\\/') . '/';
-        $d = dir($dir);
+        $d   = dir($dir);
 
         while (false !== ($filename = $d->read())) {
             if ($filename == '..' || $filename == '.') {
-                ;
-            } elseif (is_dir($dir . $filename)) {
+                continue;
+            }
+
+            if (is_dir($dir . $filename)) {
                 $config = array_merge_recursive($config, $this->loadDir($dir . $filename));
             } else {
                 $config = array_merge_recursive($config, $this->loadFile($dir . $filename));
@@ -112,11 +112,11 @@ class Loader
         return $config;
     }
 
-    private function loadFile($resource, $skipAllowed = true)
+    private function loadFile($resource, $isSkipAllowed = true)
     {
         if (!file_exists($resource)) {
-            if (!$skipAllowed) {
-                throw new \LogicException($resource . ' does not exist');
+            if (!$isSkipAllowed) {
+                throw new ConfigLoadException($resource . ' does not exist');
             }
         }
 
@@ -128,8 +128,8 @@ class Loader
             return $this->loadYml($resource);
         }
 
-        if (!$skipAllowed) {
-            throw new \LogicException($resource . ' cannot be loaded');
+        if (!$isSkipAllowed) {
+            throw new ConfigLoadException($resource . ' cannot be loaded');
         }
         return array();
     }

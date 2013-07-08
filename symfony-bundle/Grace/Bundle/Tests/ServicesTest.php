@@ -13,20 +13,15 @@ use Grace\Cache\CacheInterface;
 use Grace\DBAL\ConnectionAbstract\ConnectionInterface;
 use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\Config\Config;
-use Grace\ORM\Service\Config\Element\MappingElement;
 use Grace\ORM\Service\IdentityMap;
 use Grace\ORM\Service\TypeConverter;
 use Grace\ORM\Service\UnitOfWork;
 use Monolog\Logger;
-use Symfony\Component\DependencyInjection\Compiler\ResolveDefinitionTemplatesPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
-use Symfony\Component\Validator\Tests\ValidatorBuilderTest;
-use Symfony\Component\Validator\Validator;
 use Symfony\Component\Validator\ValidatorBuilder;
 
 class ServicesTest extends \PHPUnit_Framework_TestCase
@@ -61,8 +56,8 @@ class ServicesTest extends \PHPUnit_Framework_TestCase
             'grace' => array(
                 'class_directory'        => './',
                 'grace_class'            => 'Grace\\Bundle\\GracePlusSymfony',
-                'model_config_resources' => __DIR__.'/Resources/models/TaxiPassenger.yml',
-                'model_config_fakes'     => __DIR__.'/Resources/fakes.yml',
+                'model_config_resources' => __DIR__ . '/Resources/models/TaxiPassenger.yml',
+                'model_config_fakes'     => __DIR__ . '/Resources/fakes.yml',
                 'namespace_prefix'       => 'Grace\Bundle\Tests\Plug',
                 'cache_enabled'          => false,
                 'cache_namespace'        => '',

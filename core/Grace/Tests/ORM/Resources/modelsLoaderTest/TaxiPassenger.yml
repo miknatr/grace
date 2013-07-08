@@ -2,9 +2,9 @@ properties:
   id:
     mapping: int
   taxiStationId:
-    mapping: ^TaxiStation
+    mapping: TaxiStation
   cityId:
-    mapping: ^City
+    mapping: City
   name:
     mapping: string
   phone:

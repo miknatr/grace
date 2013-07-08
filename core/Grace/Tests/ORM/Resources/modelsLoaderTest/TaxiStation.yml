@@ -2,7 +2,7 @@ properties:
   id:
     mapping: int
   cityId:
-    mapping: ^City
+    mapping: City
   name:
     mapping: string
   phone:

@@ -11,6 +11,7 @@
 namespace Grace\ORM\Service\Config\Element;
 
 use Grace\ORM\Service\Config\Config;
+use Grace\ORM\Service\Config\ConfigLoadException;
 
 class PropertyElement
 {
@@ -21,7 +22,14 @@ class PropertyElement
      */
     public $validation;
 
-    /** @var DefaultElement */
+    /**
+     * Definition of the default value
+     *
+     * Can be 'now' meaning current time when a model is created,
+     * or any other string to be used in the property setter.
+     *
+     * @var string
+     */
     public $default;
 
     // the property can be set (i.e. there can be a setPropName() in the model)
@@ -78,10 +86,10 @@ class PropertyElement
     private $rawMapping;
     public static function create($modelName, $propertyName, $mapping, $default = null, $validation = null)
     {
-        $mapping = static::parseMapping($mapping);
+        $mapping = static::parseMapping($mapping, $modelName, $propertyName);
 
         if ($propertyName == 'id' && !$mapping->localPropertyType) {
-            throw new \LogicException("Bad mapping: {$modelName}.{$propertyName} must have a local mapping");
+            throw new ConfigLoadException("Property {$modelName}.{$propertyName} must have a local mapping");
         }
 
         $property = new PropertyElement();
@@ -91,10 +99,10 @@ class PropertyElement
             $property->validation = $validation;
         }
         if ($default) {
-            $property->default = new DefaultElement($default);
+            $property->default = $default;
         }
 
-        $property->isSettable = $mapping->localPropertyType || $mapping->foreignKeyTable;
+        $property->isSettable  = $mapping->localPropertyType || $mapping->foreignKeyTable;
         $property->isLocalInDb = $property->isSettable; // in theory isSettable can be different from isLocalInDb
 
         // we only allow NULL in foreign key properties and proxy-properties (which are null when the foreign key is null)
@@ -105,18 +113,22 @@ class PropertyElement
         return $property;
     }
 
-    private static function parseMapping($mapping)
+    private static function parseMapping($mapping, $modelName, $propertyName)
     {
         $me = new MappingElement();
         if (preg_match('/^(\w+):(\w+)$/', $mapping, $match)) {
-            $me->relationLocalProperty = $match[1];
+            // две строки через двоеточие — relationProp:foreignProp, прокси-поле
+            $me->relationLocalProperty   = $match[1];
             $me->relationForeignProperty = $match[2];
-        } elseif ($mapping[0] == '^') {
-            $me->foreignKeyTable = substr($mapping, 1);
+        } elseif (strtoupper($mapping[0]) == $mapping[0]) {
+            // начинается с прописной буквы — модель, т.е. внешний ключ
+            $me->foreignKeyTable = $mapping;
         } elseif ($mapping) {
+            // не начинается с прописной буквы — тип данных, локальное поле
+            // STOPPER можно ли тут проверить существование алиаса?
             $me->localPropertyType = $mapping;
         } else {
-            throw new \Exception('bad config: cannot parse mapping');
+            throw new ConfigLoadException("Cannot parse mapping \"{$mapping}\" for {$modelName}.{$propertyName}");
         }
         return $me;
     }
@@ -147,7 +159,7 @@ class PropertyElement
         $propertyConfig->proxy = static::parseProxy($config, $modelName, $propertyName, $propertyConfig);
 
         if ($propertyConfig->type === null) {
-            throw new \LogicException("Cannot parse type for {$modelName}.{$propertyName}");
+            throw new ConfigLoadException("Cannot parse type for {$modelName}.{$propertyName}");
         }
 
         $propertyConfig->isResolved = true;
@@ -182,7 +194,7 @@ class PropertyElement
             return $foreignProperty->type;
         }
 
-        throw new \Exception("bad config: HZHZHZHHZHZ $modelName, $propName");
+        throw new ConfigLoadException("Cannot parse type for {$modelName}.{$propName}");
     }
 
     private static function parseProxy(Config $config, $modelName, $propName, PropertyElement $propertyConfig)
