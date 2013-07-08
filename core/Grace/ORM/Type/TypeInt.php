@@ -16,18 +16,22 @@ class TypeInt implements TypeInterface
     {
         return 'int';
     }
+
     public function getPhpType()
     {
         return 'int';
     }
+
     public function getDbType()
     {
         return 'integer';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '(int) $value';
     }
+
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
@@ -35,13 +39,19 @@ class TypeInt implements TypeInterface
         }
         return intval($value);
     }
+
     public function convertPhpToDb($value)
     {
         return strval($value);
     }
+
     public function getPhpDefaultValueCode()
     {
         return '0';
     }
-}
 
+    public function isNullable()
+    {
+        return false;
+    }
+}

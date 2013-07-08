@@ -16,18 +16,22 @@ class TypeText implements TypeInterface
     {
         return 'text';
     }
+
     public function getPhpType()
     {
         return 'string';
     }
+
     public function getDbType()
     {
         return 'text';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '$value';
     }
+
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
@@ -36,12 +40,19 @@ class TypeText implements TypeInterface
 
         return strval($value);
     }
+
     public function convertPhpToDb($value)
     {
         return $value;
     }
+
     public function getPhpDefaultValueCode()
     {
         return "''";
+    }
+
+    public function isNullable()
+    {
+        return false;
     }
 }

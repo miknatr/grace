@@ -12,6 +12,7 @@ namespace Grace\ORM\Service\Config\Element;
 
 use Grace\ORM\Service\Config\Config;
 use Grace\ORM\Service\Config\ConfigLoadException;
+use Grace\ORM\Service\TypeConverter;
 
 class PropertyElement
 {
@@ -105,7 +106,8 @@ class PropertyElement
         $property->isSettable  = $mapping->localPropertyType || $mapping->foreignKeyTable;
         $property->isLocalInDb = $property->isSettable; // in theory isSettable can be different from isLocalInDb
 
-        // we only allow NULL in foreign key properties and proxy-properties (which are null when the foreign key is null)
+        // we allow NULL in foreign key properties and proxy-properties (which are null when the foreign key is null)
+        // also NULL is allowed when the type is nullable, which we will know after resolve()
         $property->isNullable = $mapping->foreignKeyTable || $mapping->relationLocalProperty;
 
         $property->resolvesToModelName = $mapping->foreignKeyTable;
@@ -139,33 +141,41 @@ class PropertyElement
     // RESOLVING
     //
 
-    public static function resolveConfig(Config $config)
+    public static function resolveConfig(Config $config, TypeConverter $typeConverter)
     {
         foreach ($config->models as $modelName => $modelConfig) {
             foreach ($modelConfig->properties as $propertyName => $propertyConfig) {
-                static::resolve($config, $modelName, $propertyName, $propertyConfig); //php is love
+                static::resolve($config, $modelName, $propertyName, $propertyConfig, $typeConverter); //php is love
             }
         }
     }
 
     private $isResolved = false;
-    private static function resolve(Config $config, $modelName, $propertyName, PropertyElement $propertyConfig)
+    private static function resolve(Config $config, $modelName, $propertyName, PropertyElement $propertyConfig, TypeConverter $typeConverter)
     {
         if ($propertyConfig->isResolved) {
             return;
         }
 
-        $propertyConfig->type  = static::getPropertyType($config, $modelName, $propertyName, $propertyConfig);
-        $propertyConfig->proxy = static::parseProxy($config, $modelName, $propertyName, $propertyConfig);
+        $propertyConfig->type  = static::getPropertyType($config, $modelName, $propertyName, $propertyConfig, $typeConverter);
+        $propertyConfig->proxy = static::parseProxy($config, $modelName, $propertyName, $propertyConfig, $typeConverter);
 
-        if ($propertyConfig->type === null) {
-            throw new ConfigLoadException("Cannot parse type for {$modelName}.{$propertyName}");
+        if (!$typeConverter->hasType($propertyConfig->type)) {
+            throw new ConfigLoadException("Incorrect type \"{$propertyConfig->type}\" for {$modelName}.{$propertyName}");
+        }
+
+        if ($propertyConfig->resolvesToModelName && !isset($config->models[$propertyConfig->resolvesToModelName])) {
+            throw new ConfigLoadException("Incorrect model name \"{$propertyConfig->resolvesToModelName}\" for {$modelName}.{$propertyName}");
+        }
+
+        if ($typeConverter->isNullable($propertyConfig->type)) {
+            $propertyConfig->isNullable = true;
         }
 
         $propertyConfig->isResolved = true;
     }
 
-    private static function getPropertyType(Config $config, $modelName, $propName, PropertyElement $propertyConfig)
+    private static function getPropertyType(Config $config, $modelName, $propName, PropertyElement $propertyConfig, TypeConverter $typeConverter)
     {
         $mapping = $propertyConfig->rawMapping;
 
@@ -178,7 +188,7 @@ class PropertyElement
         if ($mapping->foreignKeyTable) {
             // we need the type of ID of the foreign table
             $foreignProperty = $config->models[$mapping->foreignKeyTable]->properties['id'];
-            static::resolve($config, $mapping->foreignKeyTable, 'id', $foreignProperty);
+            static::resolve($config, $mapping->foreignKeyTable, 'id', $foreignProperty, $typeConverter);
 
             return $foreignProperty->type;
         }
@@ -186,10 +196,10 @@ class PropertyElement
         // proxy field
         if ($mapping->relationLocalProperty) {
             $localProperty = $config->models[$modelName]->properties[$mapping->relationLocalProperty];
-            static::resolve($config, $modelName, $mapping->relationLocalProperty, $localProperty);
+            static::resolve($config, $modelName, $mapping->relationLocalProperty, $localProperty, $typeConverter);
 
             $foreignProperty = $config->models[$localProperty->resolvesToModelName]->properties[$mapping->relationForeignProperty];
-            static::resolve($config, $localProperty->resolvesToModelName, $mapping->relationForeignProperty, $foreignProperty);
+            static::resolve($config, $localProperty->resolvesToModelName, $mapping->relationForeignProperty, $foreignProperty, $typeConverter);
 
             return $foreignProperty->type;
         }
@@ -197,7 +207,7 @@ class PropertyElement
         throw new ConfigLoadException("Cannot parse type for {$modelName}.{$propName}");
     }
 
-    private static function parseProxy(Config $config, $modelName, $propName, PropertyElement $propertyConfig)
+    private static function parseProxy(Config $config, $modelName, $propName, PropertyElement $propertyConfig, TypeConverter $typeConverter)
     {
         $mapping = $propertyConfig->rawMapping;
 
@@ -206,7 +216,7 @@ class PropertyElement
         }
 
         $localProperty = $config->models[$modelName]->properties[$mapping->relationLocalProperty];
-        static::resolve($config, $modelName, $mapping->relationLocalProperty, $localProperty);
+        static::resolve($config, $modelName, $mapping->relationLocalProperty, $localProperty, $typeConverter);
 
         $proxy = new ProxyElement();
         $proxy->localField   = $mapping->relationLocalProperty;

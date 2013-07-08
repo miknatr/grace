@@ -27,12 +27,13 @@ class FinderAbstractTest extends \PHPUnit_Framework_TestCase
         /** @var $cache CacheInterface */
         $cache = $this->getMock('\\Grace\\Cache\\CacheInterface');
 
+        $typeConverter = new TypeConverter();
         $this->orm = new Grace(
             $db,
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
-            new TypeConverter(),
-            (new Loader(__DIR__ . '/Resources/models'))->getConfig(),
+            $typeConverter,
+            (new Loader(__DIR__ . '/Resources/models', $typeConverter))->getConfig(),
             $cache
         );
 

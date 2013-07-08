@@ -16,18 +16,22 @@ class TypeFloat implements TypeInterface
     {
         return 'float';
     }
+
     public function getPhpType()
     {
         return 'float';
     }
+
     public function getDbType()
     {
         return 'float';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '(float) $value';
     }
+
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
@@ -35,13 +39,19 @@ class TypeFloat implements TypeInterface
         }
         return floatval($value);
     }
+
     public function convertPhpToDb($value)
     {
         return strval($value);
     }
+
     public function getPhpDefaultValueCode()
     {
         return '0';
     }
-}
 
+    public function isNullable()
+    {
+        return false;
+    }
+}

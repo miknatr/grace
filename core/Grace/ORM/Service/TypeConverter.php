@@ -56,6 +56,11 @@ class TypeConverter
         $this->types[$type->getAlias()] = $type;
     }
 
+    public function hasType($alias)
+    {
+        return isset($this->types[$alias]);
+    }
+
     public function getPhpType($alias)
     {
         //If you have error, maybe type named $alias is not defined
@@ -77,7 +82,7 @@ class TypeConverter
     public function convertOnSetter($alias, $value, $isNullAllowed = false)
     {
         //copy-paste, but we need speed
-        if (!$isNullAllowed and $value === null) {
+        if ($value === null && !$isNullAllowed && !$this->isNullable($alias)) {
             throw new ConversionImpossibleException('Null is not allowed');
         }
 
@@ -92,8 +97,10 @@ class TypeConverter
 
     public function convertPhpToDb($alias, $value, $isNullAllowed = false)
     {
+        // TODO переделать этот метод на генерацию кода
+
         //copy-paste, but we need speed
-        if (!$isNullAllowed and $value === null) {
+        if ($value === null && !$isNullAllowed && !$this->isNullable($alias)) {
             throw new ConversionImpossibleException('Null is not allowed');
         }
 
@@ -110,5 +117,10 @@ class TypeConverter
     {
         //If you have error, maybe type named $alias is not defined
         return $this->types[$alias]->getPhpDefaultValueCode();
+    }
+
+    public function isNullable($alias)
+    {
+        return $this->types[$alias]->isNullable();
     }
 }

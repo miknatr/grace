@@ -16,18 +16,22 @@ class TypeString implements TypeInterface
     {
         return 'string';
     }
+
     public function getPhpType()
     {
         return 'string';
     }
+
     public function getDbType()
     {
         return 'varchar(255)';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '$value';
     }
+
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
@@ -36,12 +40,19 @@ class TypeString implements TypeInterface
 
         return substr(strval($value), 0, 255);
     }
+
     public function convertPhpToDb($value)
     {
         return $value;
     }
+
     public function getPhpDefaultValueCode()
     {
         return "''";
+    }
+
+    public function isNullable()
+    {
+        return false;
     }
 }

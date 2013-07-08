@@ -45,7 +45,7 @@ services:
     arguments: [@event_dispatcher]
   grace_models_config_loader:
     class: Grace\ORM\Service\Config\Loader
-    arguments: [%grace.model_config_resources%, @cache]
+    arguments: [%grace.model_config_resources%, @grace_type_converter, @cache]
   grace_models_config:
     class: Grace\ORM\Service\Config\Config
     factory_service: grace_models_config_loader

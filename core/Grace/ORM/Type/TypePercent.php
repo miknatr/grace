@@ -16,18 +16,22 @@ class TypePercent implements TypeInterface
     {
         return 'percent';
     }
+
     public function getPhpType()
     {
         return 'string';
     }
+
     public function getDbType()
     {
         return 'numeric(3,1)';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '(string) $value'; //it's already formatted because we save as decimal in db
     }
+
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
@@ -44,13 +48,19 @@ class TypePercent implements TypeInterface
 
         return $value;
     }
+
     public function convertPhpToDb($value)
     {
         return $value;
     }
+
     public function getPhpDefaultValueCode()
     {
         return '0.0';
     }
-}
 
+    public function isNullable()
+    {
+        return false;
+    }
+}

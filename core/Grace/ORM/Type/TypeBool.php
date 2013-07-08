@@ -16,18 +16,22 @@ class TypeBool implements TypeInterface
     {
         return 'bool';
     }
+
     public function getPhpType()
     {
         return 'bool';
     }
+
     public function getDbType()
     {
         return 'boolean';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '($value === "f") ? false : (bool) $value';
     }
+
     public function convertOnSetter($value)
     {
         if ($value === 'f' or $value === 'off') {
@@ -36,13 +40,19 @@ class TypeBool implements TypeInterface
 
         return (bool) $value;
     }
+
     public function convertPhpToDb($value)
     {
         return $value ? '1' : '0';
     }
+
     public function getPhpDefaultValueCode()
     {
         return 'false';
     }
-}
 
+    public function isNullable()
+    {
+        return false;
+    }
+}

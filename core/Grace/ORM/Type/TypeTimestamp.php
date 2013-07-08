@@ -16,18 +16,22 @@ class TypeTimestamp implements TypeInterface
     {
         return 'timestamp';
     }
+
     public function getPhpType()
     {
         return 'string';
     }
+
     public function getDbType()
     {
         return 'timestamp';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '$value'; //already formatted
     }
+
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
@@ -38,6 +42,7 @@ class TypeTimestamp implements TypeInterface
         $dt = date_parse_from_format('Y-m-d H:i:s', $value);
         return static::format(mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']));
     }
+
     public function convertPhpToDb($value)
     {
         return $value;
@@ -47,9 +52,14 @@ class TypeTimestamp implements TypeInterface
     {
         return date('Y-m-d H:i:s', $unixtime);
     }
+
     public function getPhpDefaultValueCode()
     {
-        //STOPPER ???
-        return "'1970-01-01 00:00:00'";
+        return 'null';
+    }
+
+    public function isNullable()
+    {
+        return true;
     }
 }

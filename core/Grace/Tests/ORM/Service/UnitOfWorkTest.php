@@ -26,12 +26,13 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $cache = $this->getMock('\\Grace\\Cache\\CacheInterface');
         $connection = new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
 
+        $typeConverter = new TypeConverter();
         $this->orm = new Grace(
             $connection,
             new ClassNameProvider('Grace\\Tests\\ORM\\Plug'),
             new ModelObserver(),
-            new TypeConverter(),
-            (new Loader(__DIR__ . '/../Resources/models'))->getConfig(),
+            $typeConverter,
+            (new Loader(__DIR__ . '/../Resources/models', $typeConverter))->getConfig(),
             $cache
         );
 

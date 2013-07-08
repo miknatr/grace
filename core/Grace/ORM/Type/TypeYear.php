@@ -16,18 +16,22 @@ class TypeYear implements TypeInterface
     {
         return 'year';
     }
+
     public function getPhpType()
     {
         return 'string';
     }
+
     public function getDbType()
     {
         return 'numeric(4,0)';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '(int) $value'; //it's already formatted because we save as decimal in db
     }
+
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
@@ -42,13 +46,19 @@ class TypeYear implements TypeInterface
 
         return $value;
     }
+
     public function convertPhpToDb($value)
     {
         return strval($value);
     }
+
     public function getPhpDefaultValueCode()
     {
-        return '0';
+        return 'null';
+    }
+
+    public function isNullable()
+    {
+        return true;
     }
 }
-

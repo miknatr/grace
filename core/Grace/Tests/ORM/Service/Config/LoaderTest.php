@@ -2,31 +2,22 @@
 
 namespace Grace\Tests\ORM\Service\Config;
 
-use Grace\Cache\CacheInterface;
-use Grace\ORM\Grace;
 use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\Config\Element\PropertyElement;
 use Grace\ORM\Service\Config\Element\ProxyElement;
 use Grace\ORM\Service\Config\Loader;
-use Grace\ORM\Service\ModelObserver;
-use Grace\DBAL\Mysqli\Connection;
 use Grace\ORM\Service\TypeConverter;
-use Grace\Tests\ORM\Plug\Finder\TaxiPassengerFinder;
-use Grace\Tests\ORM\Plug\GraceConfigHelper;
-use Grace\Tests\ORM\Plug\Model\TaxiPassenger;
 
 class LoaderTest extends \PHPUnit_Framework_TestCase
 {
     public function testConfig()
     {
-        $config = (new Loader(__DIR__ . '/../../Resources/modelsLoaderTest'))->getConfig();
-
+        $config = (new Loader(__DIR__ . '/../../Resources/modelsLoaderTest', new TypeConverter()))->getConfig();
 
         $modelNames = array_keys($config->models);
         sort($modelNames);
         $this->assertEquals(array('City', 'TaxiPassenger', 'TaxiStation'), $modelNames);
-
 
         $this->checkCity($config->models['City']);
         $this->checkTaxiStation($config->models['TaxiStation']);
@@ -59,7 +50,6 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
         $this->checkProxyProperty($model->properties['taxiStationName'], 'string', 'taxiStationName>taxiStationId>TaxiStation>name');
         $this->checkProxyProperty($model->properties['taxiStationPhone'], 'string', 'taxiStationPhone>taxiStationId>TaxiStation>phone');
     }
-
 
 
     //

@@ -52,5 +52,9 @@ class TypeShortTariff implements TypeInterface
     {
         return "new \\Grace\\ORM\\Type\\ShortTariffValue('')";
     }
-}
 
+    public function isNullable()
+    {
+        return false;
+    }
+}

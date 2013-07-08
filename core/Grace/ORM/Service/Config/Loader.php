@@ -5,17 +5,21 @@ namespace Grace\ORM\Service\Config;
 use Grace\Cache\CacheInterface;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\Config\Element\PropertyElement;
+use Grace\ORM\Service\TypeConverter;
 use Symfony\Component\Yaml\Yaml;
 
 class Loader
 {
     protected $cache;
     protected $resource;
+    /** @var TypeConverter */
+    private $typeConverter;
 
-    public function __construct($resource, CacheInterface $cache = null)
+    public function __construct($resource, TypeConverter $typeConverter, CacheInterface $cache = null)
     {
-        $this->resource = $resource;
-        $this->cache    = $cache;
+        $this->resource      = $resource;
+        $this->typeConverter = $typeConverter;
+        $this->cache         = $cache;
     }
 
     public function getConfig()
@@ -73,7 +77,7 @@ class Loader
             $config->models[$modelName] = $model;
         }
 
-        PropertyElement::resolveConfig($config);
+        PropertyElement::resolveConfig($config, $this->typeConverter);
 
         return $config;
     }

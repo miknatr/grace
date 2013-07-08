@@ -16,18 +16,22 @@ class TypeBigint implements TypeInterface
     {
         return 'bigint';
     }
+
     public function getPhpType()
     {
         return 'string';
     }
+
     public function getDbType()
     {
         return 'bigint';
     }
+
     public function getDbToPhpConverterCode()
     {
         return '(string) $value';
     }
+
     public function convertOnSetter($value)
     {
         if (!is_scalar($value)) {
@@ -35,13 +39,19 @@ class TypeBigint implements TypeInterface
         }
         return strval(preg_replace('/[^\d-]+/', '', $value));
     }
+
     public function convertPhpToDb($value)
     {
         return strval($value);
     }
+
     public function getPhpDefaultValueCode()
     {
         return '0';
     }
-}
 
+    public function isNullable()
+    {
+        return false;
+    }
+}

@@ -40,4 +40,5 @@ interface TypeInterface
 
     public function convertOnSetter($value);
     public function convertPhpToDb($value);
+    public function isNullable();
 }

@@ -51,7 +51,11 @@ class TypeTimeInterval implements TypeInterface
 
     public function getPhpDefaultValueCode()
     {
-        return "new \\Grace\\ORM\\Type\\TimeIntervalValue('')";
+        return 'null';
+    }
+
+    public function isNullable()
+    {
+        return true;
     }
 }
-

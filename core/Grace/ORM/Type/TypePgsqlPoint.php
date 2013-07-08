@@ -53,9 +53,14 @@ class TypePgsqlPoint implements TypeInterface
         /** @var $value PgsqlPointValue */
         return new SqlValue('POINT(?e, ?e)', array($value->getLatitude(), $value->getLongitude()));
     }
+
     public function getPhpDefaultValueCode()
     {
-        return "new \\Grace\\ORM\\Type\\PgsqlPointValue('0,0')";
+        return 'null';
+    }
+
+    public function isNullable()
+    {
+        return true;
     }
 }
-
