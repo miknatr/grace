@@ -16,38 +16,42 @@ class TypeTimeInterval implements TypeInterface
     {
         return 'time_interval';
     }
+
     public function getPhpType()
     {
-        return 'string';
+        // STOPPER setter can be by string too
+        return '\\Grace\\ORM\\Type\\TimeIntervalValue';
     }
+
     public function getDbType()
     {
         // 01:00:00-02:00:00
         return 'char(17)';
     }
+
     public function getDbToPhpConverterCode()
     {
-        return '$value';
+        return 'new \\Grace\\ORM\\Type\\TimeIntervalValue($value)';
     }
+
     public function convertOnSetter($value)
     {
-        // STOPPER TimeInterval как объект аналогично ShortTarif
-        if (!is_scalar($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as time interval');
+        if ($value instanceof TimeIntervalValue) {
+            return $value;
         }
 
-        if ($value != '' && !preg_match('/^\d\d:\d\d:\d\d-\d\d:\d\d:\d\d$/', $value)) {
-            throw new ConversionImpossibleException('Invalid time interval "' . $value . '" (should be hh:mm:ss-hh:mm:ss or empty string)');
-        }
-        return $value;
+        return new TimeIntervalValue($value);
     }
+
     public function convertPhpToDb($value)
     {
-        return $value;
+        /** @var TimeIntervalValue $value */
+        return (string) $value;
     }
+
     public function getPhpDefaultValueCode()
     {
-        return "''";
+        return "new \\Grace\\ORM\\Type\\TimeIntervalValue('')";
     }
 }
 

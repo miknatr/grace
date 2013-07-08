@@ -12,6 +12,10 @@ class ShortTariffValue
 
     public function __construct($mixed)
     {
+        if (!is_scalar($mixed)) {
+            throw new ConversionImpossibleException('Value of type ' . gettype($mixed) . ' can not be presented as tariff string');
+        }
+
         if ($mixed == '') {
             return;
         }
