@@ -27,7 +27,7 @@ services:
   grace_query_logger:
     class: Grace\DBAL\QueryLogger
   grace_db:
-    class: Grace\DBAL\ConnectionAbstract\ConnectionInterface
+    class: Grace\DBAL\ConnectionAbstract\ConnectionAbstract
     factory_class: Grace\DBAL\ConnectionFactory
     factory_method: getConnection
     arguments: [%grace_db%]
