@@ -41,9 +41,12 @@ class SelectBuilder extends WhereBuilderAbstract
         $this->fieldsArguments[] = 'counter';
         return $this;
     }
+
     /**
      * Sets fields statement
+     *
      * @param $fields array('id', array('AsText(?f) AS ?f', array('coords', 'coords')))
+     * @throws \BadMethodCallException
      * @return $this
      */
     public function fields(array $fields)

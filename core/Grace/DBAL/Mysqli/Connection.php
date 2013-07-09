@@ -71,13 +71,15 @@ class Connection extends ConnectionAbstract
             if ($this->transactionProcess) {
                 $this->rollback();
             }
-            throw new QueryException(
-               'Query error ' . $this->dbh->errno . ' - ' . $this->dbh->error . ". \nSQL:\n" . $query);
-        } elseif (is_object($result)) {
-            return new Result($result);
-        } else {
-            return true;
+            throw new QueryException('Query error ' . $this->dbh->errno . ' - ' . $this->dbh->error . ". \nSQL:\n" . $query);
         }
+
+        if (is_object($result)) {
+            /** @var \mysqli_result $result */
+            return new Result($result);
+        }
+
+        return true;
     }
     /**
      * @inheritdoc

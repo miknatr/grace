@@ -11,7 +11,6 @@
 namespace Grace\SQLBuilder;
 
 use Grace\DBAL\ConnectionAbstract\ExecutableInterface;
-use SelectBuilderProvider;
 
 /**
  * Factory for sql-builders

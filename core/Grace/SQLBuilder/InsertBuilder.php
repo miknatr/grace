@@ -35,12 +35,12 @@ class InsertBuilder extends BuilderAbstract
 
         $this->valuesSql   = array();
 
-        foreach ($values as $k => $v) {
+        foreach ($values as $v) {
             if (is_object($v) and $v instanceof SqlValueInterface) {
                 $this->valuesSql[] = $v->getSql();
                 $this->fieldValues = array_merge($this->fieldValues, $v->getValues());
             } else {
-                $this->valuesSql[] = '?q';
+                $this->valuesSql[]   = '?q';
                 $this->fieldValues[] = $v;
             }
         }

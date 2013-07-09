@@ -28,12 +28,6 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $this->orm       = $orm;
     }
 
-    /** @return Grace */
-    public function getOrm()
-    {
-        return $this->orm;
-    }
-
 
     //IMPLEMENTATIONS OF InterfaceExecutable, InterfaceResult
 
@@ -147,7 +141,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
      */
     public function getSelectBuilder()
     {
-        $selectBuilderClass = $this->getOrm()->classNameProvider->getSelectBuilderClass($this->baseClass);
+        $selectBuilderClass = $this->orm->classNameProvider->getSelectBuilderClass($this->baseClass);
         /** @var SelectBuilder $selectBuilder */
         $selectBuilder = new $selectBuilderClass($this->baseClass, $this);
 

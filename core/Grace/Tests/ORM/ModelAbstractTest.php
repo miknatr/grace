@@ -9,7 +9,6 @@ use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\Config\Loader;
 use Grace\ORM\Service\ModelObserver;
 use Grace\ORM\Service\TypeConverter;
-use Grace\Tests\ORM\Plug\GraceConfigHelper;
 use Grace\Tests\ORM\Plug\Model\TaxiPassenger;
 
 class ModelAbstractTest extends \PHPUnit_Framework_TestCase

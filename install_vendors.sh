@@ -1,3 +1,5 @@
+#!/bin/bash
+
 rm -fR ./vendor
 
 git clone git://github.com/symfony/symfony.git ./vendor/symfony

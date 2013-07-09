@@ -31,6 +31,7 @@ class Result extends ResultAbstract
 
     /**
      * @param $result
+     * @throws ConnectionException
      */
     public function __construct($result)
     {

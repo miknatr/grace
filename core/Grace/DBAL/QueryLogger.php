@@ -23,7 +23,7 @@ class QueryLogger
     private $connections = array();
     /**
      * Start timer for query
-     * @param $queryString sql query string
+     * @param string $queryString sql query string
      */
     public function startQuery($queryString)
     {

@@ -32,7 +32,7 @@ class CheckDbCommand extends ContainerAwareCommand
 
         $configFull = $this
             ->getContainer()
-            ->get('grace_generator')
+            ->get('grace_models_config_loader')
             ->getConfig();
 
 

@@ -11,7 +11,6 @@ use Grace\ORM\Service\ModelObserver;
 use Grace\ORM\Service\TypeConverter;
 use Grace\ORM\Service\UnitOfWork;
 use Grace\Tests\ORM\Plug\Model\TaxiPassenger;
-use Grace\Tests\ORM\Plug\GraceConfigHelper;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 {
