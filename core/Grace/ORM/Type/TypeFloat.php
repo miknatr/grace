@@ -22,6 +22,11 @@ class TypeFloat implements TypeInterface
         return 'float';
     }
 
+    public function getSetterPhpdocType()
+    {
+        return 'number|string';
+    }
+
     public function getDbType()
     {
         return 'float';
@@ -37,7 +42,7 @@ class TypeFloat implements TypeInterface
         if (!is_scalar($value)) {
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as float');
         }
-        return floatval($value);
+        return (float) $value;
     }
 
     public function convertPhpToDb($value)

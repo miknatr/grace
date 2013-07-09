@@ -21,7 +21,12 @@ class TypePgsqlPoint implements TypeInterface
 
     public function getPhpType()
     {
-        return '\Grace\ORM\Type\PgsqlPointValue';
+        return '\\Grace\\ORM\\Type\\PgsqlPointValue';
+    }
+
+    public function getSetterPhpdocType()
+    {
+        return '\\Grace\\ORM\\Type\\PgsqlPointValue|string';
     }
 
     public function getDbType()

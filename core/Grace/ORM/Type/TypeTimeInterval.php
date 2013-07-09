@@ -19,8 +19,12 @@ class TypeTimeInterval implements TypeInterface
 
     public function getPhpType()
     {
-        // STOPPER setter can be by string too
         return '\\Grace\\ORM\\Type\\TimeIntervalValue';
+    }
+
+    public function getSetterPhpdocType()
+    {
+        return '\\Grace\\ORM\\Type\\TimeIntervalValue|string';
     }
 
     public function getDbType()

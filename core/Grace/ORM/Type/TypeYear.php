@@ -22,6 +22,11 @@ class TypeYear implements TypeInterface
         return 'string';
     }
 
+    public function getSetterPhpdocType()
+    {
+        return 'number|string';
+    }
+
     public function getDbType()
     {
         return 'numeric(4,0)';

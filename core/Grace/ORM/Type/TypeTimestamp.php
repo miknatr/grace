@@ -22,6 +22,11 @@ class TypeTimestamp implements TypeInterface
         return 'string';
     }
 
+    public function getSetterPhpdocType()
+    {
+        return 'string';
+    }
+
     public function getDbType()
     {
         return 'timestamp';

@@ -22,6 +22,11 @@ class TypeInt implements TypeInterface
         return 'int';
     }
 
+    public function getSetterPhpdocType()
+    {
+        return 'int';
+    }
+
     public function getDbType()
     {
         return 'integer';
@@ -37,7 +42,7 @@ class TypeInt implements TypeInterface
         if (!is_scalar($value)) {
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as integer');
         }
-        return intval($value);
+        return (int) $value;
     }
 
     public function convertPhpToDb($value)

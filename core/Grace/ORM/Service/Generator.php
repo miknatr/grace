@@ -137,7 +137,8 @@ class Generator
                 continue;
             }
 
-            $type = $this->typeConverter->getPhpType($propConfig->type);
+            $type       = $this->typeConverter->getPhpType($propConfig->type);
+            $setterType = $this->typeConverter->getSetterPhpdocType($propConfig->type);
 
             $methods['force']['get' . $name] = $this->unindent(3, "
                 /**
@@ -152,7 +153,7 @@ class Generator
             if ($propConfig->isSettable) {
                 $methods['optional']['set' . $name] = $this->unindent(4, "
                     /**
-                     * @param {$type} \${$propName}
+                     * @param {$setterType} \${$propName}
                      * @return \$this
                      */
                     public function set{$name}(\${$propName})

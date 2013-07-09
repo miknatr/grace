@@ -22,6 +22,11 @@ class TypeBigint implements TypeInterface
         return 'string';
     }
 
+    public function getSetterPhpdocType()
+    {
+        return 'string';
+    }
+
     public function getDbType()
     {
         return 'bigint';
@@ -37,7 +42,7 @@ class TypeBigint implements TypeInterface
         if (!is_scalar($value)) {
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as integer');
         }
-        return strval(preg_replace('/[^\d-]+/', '', $value));
+        return preg_replace('/[^\d-]+/', '', $value);
     }
 
     public function convertPhpToDb($value)

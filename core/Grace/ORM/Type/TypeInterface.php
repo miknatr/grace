@@ -14,6 +14,7 @@ interface TypeInterface
 {
     public function getAlias();
     public function getPhpType();
+    public function getSetterPhpdocType();
     public function getDbType();
 
     /**

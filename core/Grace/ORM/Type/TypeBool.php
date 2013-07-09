@@ -22,6 +22,11 @@ class TypeBool implements TypeInterface
         return 'bool';
     }
 
+    public function getSetterPhpdocType()
+    {
+        return 'bool|string';
+    }
+
     public function getDbType()
     {
         return 'boolean';

@@ -22,6 +22,11 @@ class TypePercent implements TypeInterface
         return 'string';
     }
 
+    public function getSetterPhpdocType()
+    {
+        return 'number|string';
+    }
+
     public function getDbType()
     {
         return 'numeric(3,1)';
@@ -38,7 +43,8 @@ class TypePercent implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as float');
         }
 
-        $value = floatval($value);
+        $value = (float) $value;
+        // STOPPER wtf?
         $value = str_replace(',', '.', $value);
         $value = number_format($value, 1, '.', '');
 

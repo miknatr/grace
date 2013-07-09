@@ -67,6 +67,12 @@ class TypeConverter
         return $this->types[$alias]->getPhpType();
     }
 
+    public function getSetterPhpdocType($alias)
+    {
+        //If you have error, maybe type named $alias is not defined
+        return $this->types[$alias]->getSetterPhpdocType();
+    }
+
     public function getDbType($alias)
     {
         //If you have error, maybe type named $alias is not defined
