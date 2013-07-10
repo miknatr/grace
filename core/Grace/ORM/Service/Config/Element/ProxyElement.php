@@ -12,7 +12,7 @@ namespace Grace\ORM\Service\Config\Element;
 
 class ProxyElement
 {
-    public $localField;
-    public $foreignTable;
-    public $foreignField;
+    public $localProperty;
+    public $foreignModel;
+    public $foreignProperty;
 }

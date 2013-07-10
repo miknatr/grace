@@ -21,7 +21,7 @@ class UnitOfWork
 
     public function markAsNew(ModelAbstract $model)
     {
-        //STOPPER на эти вещи (когди одновременно удаляется/добавляется/изменяется) нужен тест, модель должна попадать только в один раздел, причем нью всегда перекрывает ченжед и тд
+        //TODO на эти вещи (когди одновременно удаляется/добавляется/изменяется) нужен тест, модель должна попадать только в один раздел, причем нью всегда перекрывает ченжед и тд
         if (isset($this->changedModels[spl_object_hash($model)])) {
             unset($this->changedModels[spl_object_hash($model)]);
         }

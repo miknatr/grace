@@ -85,9 +85,9 @@ class PropertyElement
 
     /** @var MappingElement  */
     private $rawMapping;
-    public static function create($modelName, $propertyName, $mapping, $default = null, $validation = null)
+    public static function create(TypeConverter $typeConverter, $modelName, $propertyName, $mapping, $default = null, $validation = null)
     {
-        $mapping = static::parseMapping($mapping, $modelName, $propertyName);
+        $mapping = static::parseMapping($mapping, $modelName, $propertyName, $typeConverter);
 
         if ($propertyName == 'id' && !$mapping->localPropertyType) {
             throw new ConfigLoadException("Property {$modelName}.{$propertyName} must have a local mapping");
@@ -115,7 +115,7 @@ class PropertyElement
         return $property;
     }
 
-    private static function parseMapping($mapping, $modelName, $propertyName)
+    private static function parseMapping($mapping, $modelName, $propertyName, TypeConverter $typeConverter)
     {
         $me = new MappingElement();
         if (preg_match('/^(\w+):(\w+)$/', $mapping, $match)) {
@@ -127,7 +127,9 @@ class PropertyElement
             $me->foreignKeyTable = $mapping;
         } elseif ($mapping) {
             // не начинается с прописной буквы — тип данных, локальное поле
-            // STOPPER можно ли тут проверить существование алиаса?
+            if (!$typeConverter->hasType($mapping)) {
+                throw new ConfigLoadException("Incorrect type \"{$mapping}\" for {$modelName}.{$propertyName}");
+            }
             $me->localPropertyType = $mapping;
         } else {
             throw new ConfigLoadException("Cannot parse mapping \"{$mapping}\" for {$modelName}.{$propertyName}");
@@ -179,7 +181,7 @@ class PropertyElement
     {
         $mapping = $propertyConfig->rawMapping;
 
-        // local field
+        // local property
         if ($mapping->localPropertyType) {
             return $mapping->localPropertyType;
         }
@@ -193,7 +195,7 @@ class PropertyElement
             return $foreignProperty->type;
         }
 
-        // proxy field
+        // proxy property
         if ($mapping->relationLocalProperty) {
             $localProperty = $config->models[$modelName]->properties[$mapping->relationLocalProperty];
             static::resolve($config, $modelName, $mapping->relationLocalProperty, $localProperty, $typeConverter);
@@ -219,9 +221,9 @@ class PropertyElement
         static::resolve($config, $modelName, $mapping->relationLocalProperty, $localProperty, $typeConverter);
 
         $proxy = new ProxyElement();
-        $proxy->localField   = $mapping->relationLocalProperty;
-        $proxy->foreignTable = $localProperty->resolvesToModelName;
-        $proxy->foreignField = $mapping->relationForeignProperty;
+        $proxy->localProperty   = $mapping->relationLocalProperty;
+        $proxy->foreignModel = $localProperty->resolvesToModelName;
+        $proxy->foreignProperty = $mapping->relationForeignProperty;
 
         $localProperty->dependentProxies[$propName] = $proxy;
 

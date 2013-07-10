@@ -65,7 +65,6 @@ abstract class ModelAbstract
     // INTERNALS
     //
 
-    //STOPPER можно выпилить вроде как
     public function getOriginalModel()
     {
         // TODO кеширование
@@ -135,14 +134,14 @@ abstract class ModelAbstract
         // в модели поля, которые подтягиваются по связи через это поле (например regionName)
         foreach ($propConfig->dependentProxies as $propName =>$proxy) {
             if ($value === null) {
-                $this->properties[$proxy->localField] = null;
+                $this->properties[$proxy->localProperty] = null;
             } else {
-                $foreignModel = $this->orm->getFinder($proxy->foreignTable)->getByIdOrFalse($value);
+                $foreignModel = $this->orm->getFinder($proxy->foreignModel)->getByIdOrFalse($value);
                 if (!$foreignModel) {
-                    throw new \Exception("Cannot set {$this->baseClass}.{$name}: there is no {$proxy->foreignTable} with ID {$value}");
+                    throw new \Exception("Cannot set {$this->baseClass}.{$name}: there is no {$proxy->foreignModel} with ID {$value}");
                 }
 
-                $this->properties[$propName] = $foreignModel->getProperty($proxy->foreignField);
+                $this->properties[$propName] = $foreignModel->getProperty($proxy->foreignProperty);
             }
         }
 

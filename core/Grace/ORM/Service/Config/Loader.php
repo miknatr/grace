@@ -50,6 +50,7 @@ class Loader
                 }
 
                 $property = PropertyElement::create(
+                    $this->typeConverter,
                     $modelName,
                     $propertyName,
                     $propertyConfig['mapping'],

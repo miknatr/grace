@@ -189,7 +189,7 @@ class Generator
 
             $propertyCode = $this->typeConverter->getDbToPhpConverterCode($propConfig->type);
 
-            // STOPPER лишние пробелы на пустых строках в выводе
+            // STOPPER лишние пробелы на пустых строках в выводе //тут миша пас
             if ($propConfig->isNullable) {
                 $dbToPhpMethodBody .= $this->unindent(1, "
                     // {$propName}

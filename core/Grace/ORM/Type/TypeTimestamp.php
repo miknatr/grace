@@ -43,7 +43,7 @@ class TypeTimestamp implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as timestamp');
         }
 
-        // STOPPER нормальная валидация времени
+        // STOPPER нормальная валидация времени //регекспы миша пас
         $dt = date_parse_from_format('Y-m-d H:i:s', $value);
         return static::format(mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']));
     }

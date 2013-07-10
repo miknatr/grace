@@ -107,13 +107,12 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
 
     protected function resolveProxy($proxyString)
     {
-        list($localProxyProperty, $localForeignKeyProperty, $foreignTable, $foreignField) = explode('>', $proxyString);
+        list($localProxyProperty, $localForeignKeyProperty, $foreignModel, $foreignProperty) = explode('>', $proxyString);
 
         $proxy = new ProxyElement();
-        //STOPPER переименовать field в property, table в model
-        $proxy->foreignField = $foreignField;
-        $proxy->foreignTable = $foreignTable;
-        $proxy->localField   = $localForeignKeyProperty;
+        $proxy->foreignProperty = $foreignProperty;
+        $proxy->foreignModel    = $foreignModel;
+        $proxy->localProperty   = $localForeignKeyProperty;
 
         return array($localProxyProperty, $proxy);
     }

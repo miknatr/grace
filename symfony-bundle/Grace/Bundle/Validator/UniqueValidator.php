@@ -29,10 +29,10 @@ class UniqueValidator extends ConstraintValidator
         $model    = ($root instanceof Form) ? $root->getData() : $root;
         $property = $this->context->getCurrentProperty();
 
-        $finder = $this->orm->getFinder(get_class($model));
+        $class  = get_class($model);
+        $finder = $this->orm->getFinder($class);
         if (!$finder) {
-            // STOPPER хня
-            throw new \LogicException('файндера нет усритесь');
+            throw new \LogicException("Grace finder is not found for $class. Is it orm model?");
         }
 
         if ($finder->getSelectBuilder()->eq($property, $value)->notEq('id', $model->id)->fetchOneOrFalse()) {

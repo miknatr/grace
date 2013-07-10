@@ -155,14 +155,14 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
 
             $proxy = $propertyConfig->proxy;
             if ($proxy) {
-                if (!isset($aliases[$proxy->foreignTable])) {
+                if (!isset($aliases[$proxy->foreignModel])) {
                     $alias = ucfirst(substr($propName, 0, -2)); // ownerId => Owner
                     $selectBuilder
-                        ->join($proxy->foreignTable, $alias)
-                        ->onEq($proxy->localField, 'id');
-                    $aliases[$proxy->foreignTable] = $alias;
+                        ->join($proxy->foreignModel, $alias)
+                        ->onEq($proxy->localProperty, 'id');
+                    $aliases[$proxy->foreignModel] = $alias;
                 }
-                $fields[] = array('?f as ?f', array("{$aliases[$proxy->foreignTable]}.{$proxy->foreignField}", $propName));
+                $fields[] = array('?f as ?f', array("{$aliases[$proxy->foreignModel]}.{$proxy->foreignProperty}", $propName));
                 continue;
             }
 

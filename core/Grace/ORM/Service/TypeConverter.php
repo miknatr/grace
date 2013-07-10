@@ -32,7 +32,7 @@ class TypeConverter
 
     public function __construct()
     {
-        //STOPPER это нужно в конфигурацию
+        //TODO это нужно в конфигурацию, некоторые чисто интертосные типы
         $this->addType(new TypeBool);
         $this->addType(new TypeFloat);
         $this->addType(new TypeInt);

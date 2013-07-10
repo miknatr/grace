@@ -2,7 +2,6 @@
 
 namespace Grace\ORM\Type;
 
-//STOPPER унести из грейса интертосные типы
 class ShortTariffValue
 {
     private $minPrice;

@@ -46,13 +46,13 @@ class ModelAbstractTest extends \PHPUnit_Framework_TestCase
             $this->orm
         );
     }
-    public function testGettingIdAndFields()
+    public function testGettingIdAndProperties()
     {
         $this->assertEquals(123, $this->taxiPassenger->id);
         $this->assertEquals('Mike', $this->taxiPassenger->getName());
         $this->assertEquals('+79991234567', $this->taxiPassenger->getPhone());
     }
-    public function testSettingField()
+    public function testSettingProperty()
     {
         $this->taxiPassenger->setName('John')->setPhone('+1234546890');
 
@@ -65,7 +65,7 @@ class ModelAbstractTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('John', $modelArray['name']);
         $this->assertEquals('+1234546890', $modelArray['phone']);
     }
-    public function testSettingFieldWithReverting()
+    public function testSettingPropertyWithReverting()
     {
         $this->taxiPassenger->setName('John')->setPhone('+1234546890');
         $this->taxiPassenger->revert();
