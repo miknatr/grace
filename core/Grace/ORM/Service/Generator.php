@@ -150,6 +150,8 @@ class Generator
                 }
             ");
 
+            // TODO берём из конфига валидацию и по ней накидываем тут преобразования а-ля Phone::normalizePhone()
+            // можно однако напороться на переопределённый сеттер, который это не делает
             if ($propConfig->isSettable) {
                 $methods['optional']['set' . $name] = $this->unindent(4, "
                     /**
@@ -395,6 +397,8 @@ class Generator
         // removing empty lines inside {}
         $methodsCode = preg_replace('/\{\n( *\n)+/', "{\n", $methodsCode);
         $methodsCode = preg_replace('/(\n *)+(\n *\})/', "$2", $methodsCode);
+        // removing trailing spaces
+        $methodsCode = preg_replace('/ +\n/', "\n", $methodsCode);
 
         // inserting methods into the file
         $contents = preg_replace('/\}\s*$/', '', $contents);
