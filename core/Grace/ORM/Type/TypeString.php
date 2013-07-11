@@ -43,7 +43,7 @@ class TypeString implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as string');
         }
 
-        return substr(strval($value), 0, 255);
+        return mb_substr($value, 0, 255, 'UTF-8');
     }
 
     public function convertPhpToDb($value)
