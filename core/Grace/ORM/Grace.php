@@ -110,6 +110,11 @@ class Grace
                 $model->flushDefaults();
             }
 
+
+            foreach ($unitOfWork->getDeletedModels() as $model) {
+                $this->identityMap->unsetModel($model->baseClass, $model->id);
+            }
+
         } catch (\Exception $e) {
             $db->rollback();
             throw $e;
@@ -122,7 +127,7 @@ class Grace
     public function clean()
     {
         $this->unitOfWork->clean();
-        $this->identityMap->clean();
+        //$this->identityMap->clean();
     }
 
 

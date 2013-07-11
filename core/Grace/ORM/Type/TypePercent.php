@@ -43,9 +43,8 @@ class TypePercent implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as float');
         }
 
-        $value = (float) $value;
-        // STOPPER wtf?
         $value = str_replace(',', '.', $value);
+        $value = (float) $value;
         $value = number_format($value, 1, '.', '');
 
         if (strlen($value) > 5) {
