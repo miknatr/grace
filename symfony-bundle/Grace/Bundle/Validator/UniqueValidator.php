@@ -32,7 +32,11 @@ class UniqueValidator extends ConstraintValidator
         $class  = get_class($model);
         $finder = $this->orm->getFinder($class);
         if (!$finder) {
-            throw new \LogicException("Grace finder is not found for $class. Is it orm model?");
+            if ($model instanceof ModelAbstract) {
+                throw new \LogicException("Grace finder is not found for $class");
+            }
+
+            throw new \LogicException("Unique validator only works with Grace models, not $class");
         }
 
         if ($finder->getSelectBuilder()->eq($property, $value)->notEq('id', $model->id)->fetchOneOrFalse()) {

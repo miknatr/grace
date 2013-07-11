@@ -222,7 +222,7 @@ class PropertyElement
 
         $proxy = new ProxyElement();
         $proxy->localProperty   = $mapping->relationLocalProperty;
-        $proxy->foreignModel = $localProperty->resolvesToModelName;
+        $proxy->foreignModel    = $localProperty->resolvesToModelName;
         $proxy->foreignProperty = $mapping->relationForeignProperty;
 
         $localProperty->dependentProxies[$propName] = $proxy;
