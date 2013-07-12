@@ -142,9 +142,10 @@ class Generator
 
             $methods['force']['get' . $name] = $this->unindent(3, "
                 /**
+                 * Do not override
                  * @return {$type}
                  */
-                final public function get{$name}()
+                public function get{$name}()
                 {
                     return \$this->properties['{$propName}'];
                 }
@@ -172,9 +173,10 @@ class Generator
 
                 $methods['force'][$getterName] = $this->unindent(4, "
                     /**
+                     * Do not override
                      * @return {$foreignClass}
                      */
-                    final public function {$getterName}()
+                    public function {$getterName}()
                     {
                         return \$this->orm->{$finderProperty}->getByIdOrFalse(\$this->getProperty('{$propName}'));
                     }
@@ -210,7 +212,8 @@ class Generator
         }
 
         $methods['force']['setPropertiesFromDbArray'] = $this->unindent(2, "
-            final protected function setPropertiesFromDbArray(array \$dbArray)
+            /** Do not override */
+            protected function setPropertiesFromDbArray(array \$dbArray)
             {
                 {$dbToPhpMethodBody}
             }
@@ -244,7 +247,8 @@ class Generator
         $initPropsMethodBody .= "\n                ";
 
         $methods['force']['setDefaultPropertyValues'] = $this->unindent(2, "
-            final protected function setDefaultPropertyValues()
+            /** Do not override */
+            protected function setDefaultPropertyValues()
             {
                 \$this->properties = array({$initPropsMethodBody});
             }
