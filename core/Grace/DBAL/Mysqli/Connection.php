@@ -174,8 +174,8 @@ class Connection extends ConnectionAbstract
      */
     private function connect($selectDb = true)
     {
-        if (!function_exists("mysqli_connect")) {
-            throw new ConnectionException("Function mysqli_connect doesn't exist", ConnectionException::E_NO_DRIVER_IN_PHP);
+        if (!$this->isPhpEnvironmentSupported()) {
+            throw new ConnectionException("Function mysqli_connect doesn't exist");
         }
 
         //Can throw warning, if have incorrect connection params
@@ -205,5 +205,10 @@ class Connection extends ConnectionAbstract
         $this->connect(false);
         $this->execute('CREATE DATABASE IF NOT EXISTS ?f', array($this->database));
         $this->dbh->select_db($this->database);
+    }
+
+    public function isPhpEnvironmentSupported()
+    {
+        return function_exists('pg_connect');
     }
 }

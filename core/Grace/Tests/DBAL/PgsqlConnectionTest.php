@@ -13,15 +13,15 @@ class PgsqlConnectionTest extends ConnectionTestAbstract
 
     protected function setUp()
     {
+        $this->connection = new Connection(TEST_PGSQL_HOST, TEST_PGSQL_PORT, TEST_PGSQL_NAME, TEST_PGSQL_PASSWORD, TEST_PGSQL_DATABASE);
+        if (!$this->connection->isPhpEnvironmentSupported()) {
+            $this->markTestSkipped('No pgSQL support in php');
+        }
+
         try {
-            $this->connection = new Connection(TEST_PGSQL_HOST, TEST_PGSQL_PORT, TEST_PGSQL_NAME, TEST_PGSQL_PASSWORD, TEST_PGSQL_DATABASE);
             $this->connection->execute('SELECT 1');
         } catch (ConnectionException $e) {
-            if ($e->getCode() == ConnectionException::E_NO_DRIVER_IN_PHP) {
-                $this->markTestSkipped('No pgSQL support in php');
-            } else {
-                $this->fail('You need to set up pgSQL login/password in config.php which is located in grace root');
-            }
+            $this->fail('You need to set up pgSQL login/password in config.php which is located in grace root');
         }
     }
     protected function tearDown()

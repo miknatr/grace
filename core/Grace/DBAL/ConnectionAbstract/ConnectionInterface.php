@@ -123,4 +123,9 @@ interface ConnectionInterface extends ExecutableInterface
      * @return mixed
      */
     public function createDatabaseIfNotExist();
+    /**
+     * Is php environment supported
+     * @return bool
+     */
+    public function isPhpEnvironmentSupported();
 }

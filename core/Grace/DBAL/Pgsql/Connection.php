@@ -192,7 +192,7 @@ class Connection extends ConnectionAbstract
      */
     private function connect($selectDb = true)
     {
-        if (!function_exists('pg_connect')) {
+        if (!$this->isPhpEnvironmentSupported()) {
             throw new ConnectionException("Function pg_connect doesn't exist", ConnectionException::E_NO_DRIVER_IN_PHP);
         }
 
@@ -231,5 +231,10 @@ class Connection extends ConnectionAbstract
         }
         $this->close();
         $this->connect();
+    }
+
+    public function isPhpEnvironmentSupported()
+    {
+        return function_exists('pg_connect');
     }
 }
