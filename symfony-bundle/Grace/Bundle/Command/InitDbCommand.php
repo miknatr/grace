@@ -33,6 +33,8 @@ class InitDbCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->getContainer()->get('cache')->clean();
+
         $fakesFile = $this->getContainer()->getParameter('grace.model_config_fakes');
 
         /** @var $orm GracePlusSymfony */
