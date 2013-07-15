@@ -2,6 +2,8 @@
 
 namespace Grace\Bundle\Validator;
 
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 class ValidationException extends \Exception
@@ -17,5 +19,16 @@ class ValidationException extends \Exception
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    public function getFormattedErrors(Translator $translator)
+    {
+        $formattedErrors = array();
+        foreach ($this->errors as $error) {
+            /** @var $error ConstraintViolation */
+            $formattedErrors[$error->getPropertyPath()][] = $translator->trans($error->getMessage(), array(), 'validators');
+        }
+
+        return $formattedErrors;
     }
 }

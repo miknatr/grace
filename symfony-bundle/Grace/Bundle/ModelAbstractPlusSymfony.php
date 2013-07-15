@@ -15,6 +15,14 @@ use Grace\Bundle\Validator\ValidationException;
 use Grace\ORM\Grace;
 use Grace\ORM\ModelAbstract;
 use Intertos\CoreBundle\Security\Core\User\UserAbstract;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\True;
+use Symfony\Component\Validator\Constraints\Valid;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Mapping\GetterMetadata;
 
 /** @property GracePlusSymfony $orm */
 abstract class ModelAbstractPlusSymfony extends ModelAbstract
@@ -51,5 +59,59 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
         }
 
         return $this;
+    }
+
+    public function ensurePropertiesValid(array $properties)
+    {
+        if (empty($properties)) {
+            return;
+        }
+
+        $list = $this->validateProperties($properties);
+        if ($list->count() != 0) {
+            throw new ValidationException($list);
+        }
+    }
+
+    public function validateProperties(array $properties)
+    {
+        $validator = $this->orm->validator;
+
+        /** @var ClassMetadata $classMetadata */
+        $classMetadata = $validator->getMetadataFactory()->getClassMetadata(get_class($this));
+
+        $fieldConstraints = array();
+
+        foreach (array_keys($properties) as $fieldName) {
+            if (!isset($classMetadata->members[$fieldName])) {
+                // no constraints for this property
+                $fieldConstraints[$fieldName] = array();
+                continue;
+            }
+            $fieldConstraints[$fieldName] = array();
+            foreach ($classMetadata->members[$fieldName] as $fieldMetadata) {
+                /** @var GetterMetadata $fieldMetadata */
+                $fieldConstraints[$fieldName] = array_merge($fieldConstraints[$fieldName], array_values($fieldMetadata->constraints));
+            }
+        }
+
+        $constraint = new Collection(array('fields' => $fieldConstraints));
+
+        $listWithWrongNames = $validator->validateValue($properties, $constraint);
+        $properList = new ConstraintViolationList();
+
+        foreach ($listWithWrongNames as $k => $v) {
+            /** @var ConstraintViolation $v */
+            $properList[$k] = new ConstraintViolation(
+                $v->getMessageTemplate(),
+                $v->getMessageParameters(),
+                $v->getRoot(),
+                substr($v->getPropertyPath(), 1, -1), // [fieldName] => fieldName
+                $v->getInvalidValue(),
+                $v->getMessagePluralization(),
+                $v->getCode()
+            );
+        }
+        return $properList;
     }
 }
