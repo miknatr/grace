@@ -45,8 +45,8 @@ class TypeYear implements TypeInterface
 
         $value = intval($value);
 
-        if (strlen($value) > 9999) {
-            throw new \OutOfRangeException('Value is out of range of year type "' . $value . '"');
+        if (strlen($value) > 4) {
+            throw new ConversionImpossibleException('Value is out of range of year type "' . $value . '"');
         }
 
         return $value;
