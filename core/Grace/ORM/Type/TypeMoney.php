@@ -39,19 +39,7 @@ class TypeMoney implements TypeInterface
 
     public function convertOnSetter($value)
     {
-        if (!is_scalar($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as float');
-        }
-
-        $value = floatval($value);
-        $value = str_replace(',', '.', $value);
-        $value = number_format($value, 2, '.', '');
-
-        if (strlen($value) > 18) {
-            throw new \OutOfRangeException('Value is out of range of money type "' . $value . '"');
-        }
-
-        return $value;
+        return static::format($value);
     }
 
     public function convertPhpToDb($value)
@@ -62,6 +50,22 @@ class TypeMoney implements TypeInterface
     public function getPhpDefaultValueCode()
     {
         return '0.00';
+    }
+
+    public static function format($amount)
+    {
+        if (!is_scalar($amount)) {
+            throw new ConversionImpossibleException('Value of type ' . gettype($amount) . ' can not be presented as float');
+        }
+
+        $amount = (float) str_replace(',', '.', $amount);
+        $amount = number_format($amount, 2, '.', '');
+
+        if (strlen($amount) > 18) {
+            throw new \OutOfRangeException('Value is out of range of money type "' . $amount . '"');
+        }
+
+        return $amount;
     }
 
     public function isNullable()
