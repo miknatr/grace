@@ -142,7 +142,7 @@ class Generator
 
             $methods['force']['get' . $name] = $this->unindent(3, "
                 /**
-                 * Do not override
+                 * Do not override! Grace internals rely on these methods only containing the array access.
                  * @return {$type}
                  */
                 public function get{$name}()
