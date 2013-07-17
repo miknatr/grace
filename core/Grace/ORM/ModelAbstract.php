@@ -67,6 +67,8 @@ abstract class ModelAbstract
 
     public function getOriginalModel()
     {
+        // STOPPER вызов этого метода приводит к созданию заказа с оригинальными свойствами
+        // STOPPER при коммите он закономерно сохраняется с оригинальными свойствами и перетирает все изменения
         // TODO кеширование
         $class = get_class($this);
         /** @var ModelAbstract $model */
