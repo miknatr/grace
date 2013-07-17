@@ -10,21 +10,21 @@
 
 namespace Grace\ORM\Type;
 
-class TypeShortTariff implements TypeInterface
+class TypeTariffOverride implements TypeInterface
 {
     public function getAlias()
     {
-        return 'short_tariff';
+        return 'tariff_override';
     }
 
     public function getPhpType()
     {
-        return '\\Grace\\ORM\\Type\\ShortTariffValue';
+        return '\\Grace\\ORM\\Type\\TariffOverrideValue';
     }
 
     public function getSetterPhpdocType()
     {
-        return '\\Grace\\ORM\\Type\\ShortTariffValue|string';
+        return '\\Grace\\ORM\\Type\\TariffOverrideValue|string';
     }
 
     public function getDbType()
@@ -34,27 +34,27 @@ class TypeShortTariff implements TypeInterface
 
     public function getDbToPhpConverterCode()
     {
-        return 'new \\Grace\\ORM\\Type\\ShortTariffValue($value)';
+        return 'new \\Grace\\ORM\\Type\\TariffOverrideValue($value)';
     }
 
     public function convertOnSetter($value)
     {
-        if ($value instanceof ShortTariffValue) {
+        if ($value instanceof TariffOverrideValue) {
             return $value;
         }
 
-        return new ShortTariffValue($value);
+        return new TariffOverrideValue($value);
     }
 
     public function convertPhpToDb($value)
     {
-        /** @var ShortTariffValue $value */
+        /** @var TariffOverrideValue $value */
         return (string) $value;
     }
 
     public function getPhpDefaultValueCode()
     {
-        return "new \\Grace\\ORM\\Type\\ShortTariffValue('')";
+        return "new \\Grace\\ORM\\Type\\TariffOverrideValue('')";
     }
 
     public function isNullable()
