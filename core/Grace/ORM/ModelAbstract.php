@@ -156,7 +156,7 @@ abstract class ModelAbstract
      * Array of original model properties (i.e. before editing)
      * @return array
      */
-    final public function getOriginalProperties()
+    public function getOriginalProperties()
     {
         return $this->originalProperties;
     }
