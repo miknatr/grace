@@ -120,7 +120,6 @@ class Generator
 
         return array(
             "@property {$this->graceClass} \$orm",
-            "@method $modelClass getOriginalModel()",
         );
     }
 
