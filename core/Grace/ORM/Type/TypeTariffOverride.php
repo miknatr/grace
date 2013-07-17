@@ -54,12 +54,12 @@ class TypeTariffOverride implements TypeInterface
 
     public function getPhpDefaultValueCode()
     {
-        return "new \\Grace\\ORM\\Type\\TariffOverrideValue('')";
+        return "new \\Grace\\ORM\\Type\\TariffOverrideValue('0/0/0/km')";
     }
 
     public function isNullable()
     {
-        return true;
+        return false;
     }
 
     public function getSqlField()
