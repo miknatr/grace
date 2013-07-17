@@ -43,15 +43,14 @@ class TypeTimestamp implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' can not be presented as timestamp');
         }
 
-        $dt = date_parse_from_format('Y-m-d H:i:s', $value);
-        $formatted = static::format(mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']));
-
-        // luckily, we're requiring the same format we're providing
-        if ($formatted !== $value) {
-            throw new ConversionImpossibleException('Invalid timestamp: ' . $value);
+        // on setters we just support any valid date
+        try {
+            $dt = new \DateTime($value);
+        } catch (\Exception $e) {
+            throw new ConversionImpossibleException('Invalid timestamp: ' . $value, $e->getCode(), $e);
         }
 
-        return $formatted;
+        return static::format($dt->getTimestamp());
     }
 
     public function convertPhpToDb($value)
