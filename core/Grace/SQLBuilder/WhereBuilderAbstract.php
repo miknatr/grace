@@ -27,9 +27,22 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
     public function sql($sql, array $values = array())
     {
         $this->whereSqlConditions[] = $sql;
-        $this->arguments            = array_merge($this->arguments, $values);
+        $this->arguments = array_merge($this->arguments, $values);
         return $this;
     }
+
+    /**
+     * @param $field
+     * @param $operator
+     * @return $this
+     */
+    protected function setOneArgOperator($field, $operator)
+    {
+        $this->whereSqlConditions[] = '?f:alias:.?f ' . $operator;
+        $this->arguments[] = $field;
+        return $this;
+    }
+
     /**
      * @param $field
      * @param $value
@@ -38,9 +51,9 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     protected function setTwoArgsOperator($field, $value, $operator)
     {
-        $this->whereSqlConditions[] = '?f' . $operator . '?q';
-        $this->arguments[]          = $field;
-        $this->arguments[]          = $value;
+        $this->whereSqlConditions[] = '?f:alias:.?f' . $operator . '?q';
+        $this->arguments[] = $field;
+        $this->arguments[] = $value;
         return $this;
     }
 
@@ -51,8 +64,7 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     public function isNull($field)
     {
-        $this->whereSqlConditions[] = '?f IS NULL';
-        $this->arguments[]          = $field;
+        $this->setOneArgOperator($field, 'IS NULL');
         return $this;
     }
     /**
@@ -62,8 +74,7 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     public function notNull($field)
     {
-        $this->whereSqlConditions[] = '?f IS NOT NULL';
-        $this->arguments[]          = $field;
+        $this->setOneArgOperator($field, 'IS NOT NULL');
         return $this;
     }
     /**
@@ -181,9 +192,10 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
         if (empty($values)) {
             $this->whereSqlConditions[] = 'FALSE';
         } else {
-            $whereCondition =  '?f ' . $operator . ' (' . substr(str_repeat('?q,', count($values)), 0, -1) . ')';
+            $whereCondition =  '?f:alias:.?f ' . $operator . ' (' . substr(str_repeat('?q,', count($values)), 0, -1) . ')';
+
             $this->whereSqlConditions[] = $whereCondition;
-            $this->arguments            = array_merge($this->arguments, array($field), $values);
+            $this->arguments = array_merge($this->arguments, array($field), $values);
         }
 
         return $this;
@@ -217,10 +229,10 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     protected function setBetweenOperator($field, $value1, $value2, $operator)
     {
-        $this->whereSqlConditions[] = '?f ' . $operator . ' ?q AND ?q';
-        $this->arguments[]          = $field;
-        $this->arguments[]          = $value1;
-        $this->arguments[]          = $value2;
+        $this->whereSqlConditions[] = '?f:alias:.?f ' . $operator . ' ?q AND ?q';
+        $this->arguments[] = $field;
+        $this->arguments[] = $value1;
+        $this->arguments[] = $value2;
         return $this;
     }
     /**

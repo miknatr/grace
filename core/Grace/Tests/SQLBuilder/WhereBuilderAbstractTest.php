@@ -29,7 +29,7 @@ class WhereBuilderAbstractTest extends \PHPUnit_Framework_TestCase
     public function testOneCondition()
     {
         $this->builder->eq('id', 123);
-        $this->assertEquals(' WHERE ?f=?q', $this->builder->getWhereSql());
+        $this->assertEquals(' WHERE ?f:alias:.?f=?q', $this->builder->getWhereSql());
         $this->assertEquals(array('id', 123), $this->builder->getQueryArguments());
     }
     public function testAllConditions()
@@ -50,12 +50,17 @@ class WhereBuilderAbstractTest extends \PHPUnit_Framework_TestCase
             ->between('id', 7, 8)
             ->notBetween('id', 9, 10)
             ->sql('(?f > ?q OR ?f < ?q)', array('id', 100, 'id', 200));
-        $this->assertEquals(' WHERE ?f=?q AND ?f!=?q' . ' AND ?f>?q AND ?f>=?q AND ?f<?q AND ?f<=?q' .
-                                ' AND ?f LIKE ?q AND ?f NOT LIKE ?q' .
-                                ' AND ?f LIKE ?q AND ?f NOT LIKE ?q' . ' AND ?f IN (?q,?q,?q,?q,?q)' .
-                                ' AND ?f NOT IN (?q,?q,?q,?q,?q)' .
-                                ' AND ?f BETWEEN ?q AND ?q AND ?f NOT BETWEEN ?q AND ?q' . ' AND (?f > ?q OR ?f < ?q)',
-                            $this->builder->getWhereSql());
+        $this->assertEquals(
+            ' WHERE ?f:alias:.?f=?q AND ?f:alias:.?f!=?q'
+            . ' AND ?f:alias:.?f>?q AND ?f:alias:.?f>=?q AND ?f:alias:.?f<?q AND ?f:alias:.?f<=?q'
+            . ' AND ?f:alias:.?f LIKE ?q AND ?f:alias:.?f NOT LIKE ?q'
+            . ' AND ?f:alias:.?f LIKE ?q AND ?f:alias:.?f NOT LIKE ?q'
+            . ' AND ?f:alias:.?f IN (?q,?q,?q,?q,?q)'
+            . ' AND ?f:alias:.?f NOT IN (?q,?q,?q,?q,?q)'
+            . ' AND ?f:alias:.?f BETWEEN ?q AND ?q AND ?f:alias:.?f NOT BETWEEN ?q AND ?q'
+            . ' AND (?f > ?q OR ?f < ?q)',
+            $this->builder->getWhereSql()
+        );
         $this->assertEquals(
             array(
                 'id',
@@ -100,7 +105,7 @@ class WhereBuilderAbstractTest extends \PHPUnit_Framework_TestCase
                 100,
                 'id',
                 200
-                ),
+            ),
             $this->builder->getQueryArguments()
         );
     }

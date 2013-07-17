@@ -34,10 +34,10 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     public function count()
     {
-        $this->fields = 'COUNT(?f) AS ?f';
+        $this->fields = 'COUNT(?f:alias:.?f) AS ?f';
         //TODO id - magic field
         $this->fieldsArguments = array();
-        $this->fieldsArguments[] = "{$this->alias}.id";
+        $this->fieldsArguments[] = 'id';
         $this->fieldsArguments[] = 'counter';
         return $this;
     }
@@ -57,8 +57,8 @@ class SelectBuilder extends WhereBuilderAbstract
 
         foreach ($fields as $field) {
             if (is_scalar($field)) {
-                $newFields[] = '?f';
-                $this->fieldsArguments[] = $this->alias . '.' . $field;
+                $newFields[] = '?f:alias:.?f';
+                $this->fieldsArguments[] = $field;
             } else {
                 if (!isset($field[0]) or !isset($field[1]) or !is_array($field[1])) {
                     throw new \BadMethodCallException('Must be exist 0 and 1 index in array and second one must be an array');
@@ -124,8 +124,8 @@ class SelectBuilder extends WhereBuilderAbstract
             $this->joins[$lastJoinIndex] .= ' AND';
         }
 
-        $this->joins[$lastJoinIndex] .= ' ?f = ?f';
-        $this->joinArguments[] = "{$this->alias}.{$localField}";
+        $this->joins[$lastJoinIndex] .= ' ?f:alias:.?f = ?f';
+        $this->joinArguments[] = $localField;
         $this->joinArguments[] = "{$this->lastJoinAlias}.{$foreignField}";
 
         return $this;
@@ -151,11 +151,11 @@ class SelectBuilder extends WhereBuilderAbstract
     public function group($field)
     {
         if ($this->groupSql == '') {
-            $this->groupSql = ' GROUP BY ?f';
+            $this->groupSql = ' GROUP BY ?f:alias:.?f';
         } else {
-            $this->groupSql .= ', ?f';
+            $this->groupSql .= ', ?f:alias:.?f';
         }
-        $this->groupArguments[] = $this->alias . '.' . $field;
+        $this->groupArguments[] = $field;
         return $this;
     }
     /**
@@ -165,7 +165,7 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     public function orderAsc($field)
     {
-        $this->orderByDirection($this->alias . '.' . $field, 'ASC');
+        $this->orderByDirection($field, 'ASC');
         return $this;
     }
     /**
@@ -175,7 +175,7 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     public function orderDesc($field)
     {
-        $this->orderByDirection($this->alias . '.' . $field, 'DESC');
+        $this->orderByDirection($field, 'DESC');
         return $this;
     }
     /**
@@ -187,9 +187,9 @@ class SelectBuilder extends WhereBuilderAbstract
     protected function orderByDirection($field, $direction)
     {
         if ($this->orderSql == '') {
-            $this->orderSql = ' ORDER BY ?f ' . $direction;
+            $this->orderSql = ' ORDER BY ?f:alias:.?f ' . $direction;
         } else {
-            $this->orderSql .= ', ?f ' . $direction;
+            $this->orderSql .= ', ?f:alias:.?f ' . $direction;
         }
         $this->orderArguments[] = $field;
     }
@@ -219,190 +219,5 @@ class SelectBuilder extends WhereBuilderAbstract
     {
         $arguments = parent::getQueryArguments();
         return array_merge($this->fieldsArguments, array($this->from, $this->alias), $this->joinArguments, $arguments, $this->groupArguments, $this->havingArguments, $this->orderArguments);
-    }
-
-
-    //
-    // OVERRIDE WHERE BUILDER METHODS FOR ADDING ALIAS
-    //
-
-    /**
-     * Adds IS NULL statement into where statement
-     * @param $field
-     * @return $this
-     */
-    public function isNull($field)
-    {
-        return parent::isNull($this->alias . '.' . $field);
-    }
-
-    /**
-     * Adds IS NOT NULL statement into where statement
-     * @param $field
-     * @return $this
-     */
-    public function notNull($field)
-    {
-        return parent::notNull($this->alias . '.' . $field);
-    }
-
-    /**
-     * Adds '=' statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function eq($field, $value)
-    {
-        // TODO нормальные алиасы блджад
-        if (!strpos($field, '.')) {
-            $field = $this->alias . '.' . $field;
-        }
-        return parent::eq($field, $value);
-    }
-
-    /**
-     * Adds '!=' statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function notEq($field, $value)
-    {
-        return parent::notEq($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds '>' statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function gt($field, $value)
-    {
-        return parent::gt($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds '>=' statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function gtEq($field, $value)
-    {
-        return parent::gtEq($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds '<' statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function lt($field, $value)
-    {
-        return parent::lt($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds '<=' statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function ltEq($field, $value)
-    {
-        return parent::ltEq($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds LIKE statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function like($field, $value)
-    {
-        return parent::like($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds NOT LIKE statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function notLike($field, $value)
-    {
-        return parent::notLike($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds LIKE '%value%' statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function likeInPart($field, $value)
-    {
-        return parent::likeInPart($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds NOT LIKE '%value%' statement into where statement
-     * @param $field
-     * @param $value
-     * @return $this
-     */
-    public function notLikeInPart($field, $value)
-    {
-        return parent::notLikeInPart($this->alias . '.' . $field, $value);
-    }
-
-    /**
-     * Adds IN statement into where statement
-     * @param       $field
-     * @param array $values
-     * @return $this
-     */
-    public function in($field, array $values)
-    {
-        return parent::in($this->alias . '.' . $field, $values);
-    }
-
-    /**
-     * Adds NOT IN statement into where statement
-     * @param       $field
-     * @param array $values
-     * @return $this
-     */
-    public function notIn($field, array $values)
-    {
-        return parent::notIn($this->alias . '.' . $field, $values);
-    }
-
-    /**
-     * Adds BETWEEN statement into where statement
-     * @param $field
-     * @param $value1
-     * @param $value2
-     * @return $this
-     */
-    public function between($field, $value1, $value2)
-    {
-        return parent::between($this->alias . '.' . $field, $value1, $value2);
-    }
-
-    /**
-     * Adds NOT BETWEEN statement into where statement
-     * @param $field
-     * @param $value1
-     * @param $value2
-     * @return $this
-     */
-    public function notBetween($field, $value1, $value2)
-    {
-        return parent::notBetween($this->alias . '.' . $field, $value1, $value2);
     }
 }

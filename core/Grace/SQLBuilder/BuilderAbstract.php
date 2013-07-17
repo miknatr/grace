@@ -68,7 +68,10 @@ abstract class BuilderAbstract implements ResultInterface
     public function execute()
     {
         if (!$this->result) {
-            $this->result = $this->executable->execute($this->getQueryString(), $this->getQueryArguments());
+            $this->result = $this->executable->execute(
+                $this->getQueryString(),
+                array_merge(array('alias' => $this->alias), $this->getQueryArguments())
+            );
         }
 
         return $this->result;

@@ -64,42 +64,46 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
             ->_close()
             ->execute();
         $this->assertEquals(
-            'SELECT ?f, ?f FROM ?f AS ?f' .
-                ' WHERE ?f=?q AND ?f BETWEEN ?q AND ?q OR ?f BETWEEN ?q AND ?q' .
-                ' AND ( ?f=?q AND ?f=?q OR ?f=?q )' .
-                ' AND NOT ( NOT ?f=?q AND NOT ?f=?q OR NOT ?f=?q )' .
-                ' GROUP BY ?f' .
-                ' ORDER BY ?f DESC' .
-                ' LIMIT 15 OFFSET 5', $this->plug->query);
+            'SELECT ?f:alias:.?f, ?f:alias:.?f'.
+            ' FROM ?f AS ?f' .
+            ' WHERE ?f:alias:.?f=?q AND ?f:alias:.?f BETWEEN ?q AND ?q OR ?f:alias:.?f BETWEEN ?q AND ?q' .
+            ' AND ( ?f:alias:.?f=?q AND ?f:alias:.?f=?q OR ?f:alias:.?f=?q )' .
+            ' AND NOT ( NOT ?f:alias:.?f=?q AND NOT ?f:alias:.?f=?q OR NOT ?f:alias:.?f=?q )' .
+            ' GROUP BY ?f:alias:.?f' .
+            ' ORDER BY ?f:alias:.?f DESC' .
+            ' LIMIT 15 OFFSET 5',
+            $this->plug->query
+        );
 
         $this->assertEquals(
             array(
-                'TestTable.id',
-                'TestTable.name',
+                'id',
+                'name',
                 'TestTable',
                 'TestTable',
-                'TestTable.isPublished',
+                'isPublished',
                 1,
-                'TestTable.category',
+                'category',
                 10,
                 20,
-                'TestTable.category',
+                'category',
                 40,
                 50,
-                'TestTable.isPublished',
+                'isPublished',
                 1,
-                'TestTable.isPublished',
+                'isPublished',
                 1,
-                'TestTable.isPublished',
+                'isPublished',
                 1,
-                'TestTable.isPublished',
+                'isPublished',
                 1,
-                'TestTable.isPublished',
+                'isPublished',
                 1,
-                'TestTable.isPublished',
+                'isPublished',
                 1,
-                'TestTable.region',
-                'TestTable.id',
+                'region',
+                'id',
+                'alias' => 'TestTable'
             ),
             $this->plug->arguments
         );

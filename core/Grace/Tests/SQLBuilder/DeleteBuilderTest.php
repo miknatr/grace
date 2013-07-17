@@ -25,7 +25,7 @@ class DeleteBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->builder->execute();
         $this->assertEquals('DELETE FROM ?f', $this->plug->query);
-        $this->assertEquals(array('TestTable'), $this->plug->arguments);
+        $this->assertEquals(array('TestTable', 'alias' => 'TestTable'), $this->plug->arguments);
     }
     public function testSelectAllParams()
     {
@@ -34,8 +34,7 @@ class DeleteBuilderTest extends \PHPUnit_Framework_TestCase
             ->between('category', 10, 20) //test with AbstractWhereBuilder
             ->execute();
 
-        $this->assertEquals(
-            'DELETE FROM ?f WHERE ?f=?q AND ?f BETWEEN ?q AND ?q', $this->plug->query);
-        $this->assertEquals(array('TestTable', 'isPublished', 1, 'category', 10, 20), $this->plug->arguments);
+        $this->assertEquals('DELETE FROM ?f WHERE ?f:alias:.?f=?q AND ?f:alias:.?f BETWEEN ?q AND ?q', $this->plug->query);
+        $this->assertEquals(array('TestTable', 'isPublished', 1, 'category', 10, 20, 'alias' => 'TestTable'), $this->plug->arguments);
     }
 }
