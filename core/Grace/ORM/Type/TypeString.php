@@ -60,4 +60,9 @@ class TypeString implements TypeInterface
     {
         return false;
     }
+
+    public function getSqlField()
+    {
+        return '?f';
+    }
 }

@@ -16,6 +16,7 @@ interface TypeInterface
     public function getPhpType();
     public function getSetterPhpdocType();
     public function getDbType();
+    public function getSqlField();
 
     /**
      * Generates a code expression for db-to-php data/type conversion

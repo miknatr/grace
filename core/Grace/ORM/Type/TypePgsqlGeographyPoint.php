@@ -12,36 +12,38 @@ namespace Grace\ORM\Type;
 
 use Grace\SQLBuilder\SqlValue\SqlValue;
 
-class TypePgsqlPoint implements TypeInterface
+class TypePgsqlGeographyPoint implements TypeInterface
 {
+    const SRID_WGS84 = 4326;
+
     public function getAlias()
     {
-        return 'pgsql_point';
+        return 'pgsql_geography_point';
     }
 
     public function getPhpType()
     {
-        return '\\Grace\\ORM\\Type\\PgsqlPointValue';
+        return '\\Grace\\ORM\\Type\\PgsqlGeographyPointValue';
     }
 
     public function getSetterPhpdocType()
     {
-        return '\\Grace\\ORM\\Type\\PgsqlPointValue|string';
+        return '\\Grace\\ORM\\Type\\PgsqlGeographyPointValue|string';
     }
 
     public function getDbType()
     {
-        return 'point';
+        return 'geography(point,'.static::SRID_WGS84.')';
     }
 
     public function getDbToPhpConverterCode()
     {
-        return 'new \\Grace\\ORM\\Type\\PgsqlPointValue($value)';
+        return 'new \\Grace\\ORM\\Type\\PgsqlGeographyPointValue($value)';
     }
 
     public function convertOnSetter($value)
     {
-        if ($value instanceof PgsqlPointValue) {
+        if ($value instanceof PgsqlGeographyPointValue) {
             return $value;
         }
 
@@ -49,14 +51,14 @@ class TypePgsqlPoint implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a point string like "0,0"');
         }
 
-        return new PgsqlPointValue($value);
+        return new PgsqlGeographyPointValue($value);
     }
 
     public function convertPhpToDb($value)
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql
         /** @var $value PgsqlPointValue */
-        return new SqlValue('POINT(?e, ?e)', array($value->getLatitude(), $value->getLongitude()));
+        return new SqlValue('ST_GeographyFromText("SRID=?e;POINT(?e ?e)")', array(static::SRID_WGS84, $value->getLatitude(), $value->getLongitude()));
     }
 
     public function getPhpDefaultValueCode()
@@ -71,6 +73,6 @@ class TypePgsqlPoint implements TypeInterface
 
     public function getSqlField()
     {
-        return '?f';
+        return 'ST_AsEWKT(?f)';
     }
 }

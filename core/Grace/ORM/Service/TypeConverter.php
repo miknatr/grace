@@ -18,6 +18,7 @@ use Grace\ORM\Type\TypeInterface;
 use Grace\ORM\Type\TypeMoney;
 use Grace\ORM\Type\TypePercent;
 use Grace\ORM\Type\TypePgsqlPoint;
+use Grace\ORM\Type\TypePgsqlGeographyPoint;
 use Grace\ORM\Type\TypeShortTariff;
 use Grace\ORM\Type\TypeString;
 use Grace\ORM\Type\TypeText;
@@ -39,6 +40,7 @@ class TypeConverter
         $this->addType(new TypeMoney);
         $this->addType(new TypePercent);
         $this->addType(new TypePgsqlPoint);
+        $this->addType(new TypePgsqlGeographyPoint);
         $this->addType(new TypeString);
         $this->addType(new TypeText);
         $this->addType(new TypeTimeInterval);
@@ -128,5 +130,10 @@ class TypeConverter
     public function isNullable($alias)
     {
         return $this->types[$alias]->isNullable();
+    }
+
+    public function getSqlField($alias)
+    {
+        return $this->types[$alias]->getSqlField();
     }
 }

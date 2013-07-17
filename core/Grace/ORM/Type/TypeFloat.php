@@ -59,4 +59,9 @@ class TypeFloat implements TypeInterface
     {
         return false;
     }
+
+    public function getSqlField()
+    {
+        return '?f';
+    }
 }

@@ -60,4 +60,9 @@ class TypeBool implements TypeInterface
     {
         return false;
     }
+
+    public function getSqlField()
+    {
+        return '?f';
+    }
 }

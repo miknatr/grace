@@ -62,4 +62,9 @@ class TypeTimeInterval implements TypeInterface
     {
         return true;
     }
+
+    public function getSqlField()
+    {
+        return '?f';
+    }
 }

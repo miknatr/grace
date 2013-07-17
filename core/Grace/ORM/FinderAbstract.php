@@ -149,7 +149,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $aliases = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propName => $propertyConfig) {
             if ($propertyConfig->isLocalInDb) {
-                $fields[] = $propName;
+                $fields[] = array($this->orm->typeConverter->getSqlField($propertyConfig->type), array($this->baseClass . '.' . $propName));
                 continue;
             }
 
@@ -162,7 +162,10 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
                         ->onEq($proxy->localProperty, 'id');
                     $aliases[$proxy->foreignModel] = $alias;
                 }
-                $fields[] = array('?f as ?f', array("{$aliases[$proxy->foreignModel]}.{$proxy->foreignProperty}", $propName));
+                $fields[] = array(
+                    $this->orm->typeConverter->getSqlField($propertyConfig->type) . ' as ?f',
+                    array("{$aliases[$proxy->foreignModel]}.{$proxy->foreignProperty}", $propName)
+                );
                 continue;
             }
 

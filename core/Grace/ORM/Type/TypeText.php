@@ -60,4 +60,9 @@ class TypeText implements TypeInterface
     {
         return false;
     }
+
+    public function getSqlField()
+    {
+        return '?f';
+    }
 }

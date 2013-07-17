@@ -68,4 +68,9 @@ class TypePercent implements TypeInterface
     {
         return false;
     }
+
+    public function getSqlField()
+    {
+        return '?f';
+    }
 }
