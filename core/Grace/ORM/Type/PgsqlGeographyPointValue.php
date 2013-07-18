@@ -21,8 +21,8 @@ class PgsqlGeographyPointValue
             throw new ConversionImpossibleException('Invalid point value type: ' . gettype($coords));
         }
 
-        if (!preg_match('/^\(?(\d+),(\d+)\)?$/', $coords, $match)) {
-            throw new ConversionImpossibleException('Invalid point type format: "' . $coords . '", should be a string like "0,0"');
+        if (!preg_match('/^SRID=\d+;POINT\(?(\d+) (\d+)\)?$/', $coords, $match)) {
+            throw new ConversionImpossibleException('Invalid point type format: "' . $coords . '", should be a string like "SRID=4326;POINT(0 0)"');
         }
 
         $this->latitude  = $match[1];
@@ -31,7 +31,7 @@ class PgsqlGeographyPointValue
 
     public function __toString()
     {
-        return strval($this->latitude) . ',' . strval($this->longitude);
+        return "SRID=" . TypePgsqlGeographyPoint::SRID_WGS84 . ";POINT(" . strval($this->latitude) . ' ' . strval($this->longitude) . ")";
     }
 
     public function getLatitude()

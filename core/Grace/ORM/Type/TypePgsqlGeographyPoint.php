@@ -48,7 +48,7 @@ class TypePgsqlGeographyPoint implements TypeInterface
         }
 
         if (!is_string($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a point string like "0,0"');
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a point string like "SRID=4326;POINT(0 0)"');
         }
 
         return new PgsqlGeographyPointValue($value);
@@ -58,7 +58,7 @@ class TypePgsqlGeographyPoint implements TypeInterface
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql
         /** @var $value PgsqlGeographyPointValue */
-        return new SqlValue('ST_GeographyFromText("SRID=?e;POINT(?e ?e)")', array(static::SRID_WGS84, $value->getLatitude(), $value->getLongitude()));
+        return new SqlValue("ST_GeographyFromText('SRID=?e;POINT(?e ?e)')", array(static::SRID_WGS84, $value->getLatitude(), $value->getLongitude()));
     }
 
     public function getPhpDefaultValueCode()
