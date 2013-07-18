@@ -38,7 +38,7 @@ class TypePgsqlGeographyPoint implements TypeInterface
 
     public function getDbToPhpConverterCode()
     {
-        return 'new \\Grace\\ORM\\Type\\PgsqlGeographyPointValue($value)';
+        return '\\Grace\\ORM\\Type\\PgsqlGeographyPointValue::createFromEWKT($value)';
     }
 
     public function convertOnSetter($value)
@@ -51,14 +51,14 @@ class TypePgsqlGeographyPoint implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a point string like "SRID=4326;POINT(0 0)"');
         }
 
-        return new PgsqlGeographyPointValue($value);
+        return PgsqlGeographyPointValue::createFromEWKT($value);
     }
 
     public function convertPhpToDb($value)
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql
         /** @var $value PgsqlGeographyPointValue */
-        return new SqlValue("ST_GeographyFromText('SRID=?e;POINT(?e ?e)')", array(static::SRID_WGS84, $value->getLatitude(), $value->getLongitude()));
+        return new SqlValue("ST_GeographyFromText('SRID=?e;POINT(?e ?e)')", array($value->getSrid(), $value->getLatitude(), $value->getLongitude()));
     }
 
     public function getPhpDefaultValueCode()
