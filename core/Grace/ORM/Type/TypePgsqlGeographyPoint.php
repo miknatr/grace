@@ -57,7 +57,7 @@ class TypePgsqlGeographyPoint implements TypeInterface
     public function convertPhpToDb($value)
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql
-        /** @var $value PgsqlPointValue */
+        /** @var $value PgsqlGeographyPointValue */
         return new SqlValue('ST_GeographyFromText("SRID=?e;POINT(?e ?e)")', array(static::SRID_WGS84, $value->getLatitude(), $value->getLongitude()));
     }
 
