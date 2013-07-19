@@ -39,7 +39,7 @@ class TypeBool implements TypeInterface
 
     public function convertOnSetter($value)
     {
-        if ($value === 'f' or $value === 'off') {
+        if ($value === 'f' or $value === 'false' or $value === 'off') {
             return false;
         }
 
