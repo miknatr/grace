@@ -8,7 +8,7 @@ services:
       - [ addServer, [ localhost, 11211 ] ]
   cache:
     class: Grace\Cache\MemcachedAdapter
-    arguments: [@memcache, %grace.cache_namespace%, %grace.cache_enabled%]
+    arguments: [ @memcache, %grace.cache_namespace%, %grace.cache_enabled% ]
 
   #Generator
   grace_generator:
@@ -30,7 +30,7 @@ services:
     class: Grace\DBAL\ConnectionAbstract\ConnectionAbstract
     factory_class: Grace\DBAL\ConnectionFactory
     factory_method: getConnection
-    arguments: [%grace_db%]
+    arguments: [ %grace_db% ]
     calls:
       - [ setLogger, [ @grace_query_logger ] ]
       - [ setCache, [ @cache ] ]
@@ -39,18 +39,18 @@ services:
   #ORM services
   grace_classname_provider:
     class: Grace\ORM\Service\ClassNameProvider
-    arguments: [%grace.namespace_prefix%]
+    arguments: [ %grace.namespace_prefix% ]
   grace_model_observer:
     class: Grace\Bundle\DispatchedModelObserver
-    arguments: [@event_dispatcher]
+    arguments: [ @event_dispatcher ]
   grace_models_config_loader:
     class: Grace\ORM\Service\Config\Loader
-    arguments: [%grace.model_config_resources%, @grace_type_converter, @cache]
+    arguments: [ %grace.model_config_resources%, @grace_type_converter, @cache ]
   grace_models_config:
     class: Grace\ORM\Service\Config\Config
     factory_service: grace_models_config_loader
     factory_method: getConfig
-    arguments: [@event_dispatcher]
+    arguments: [ @event_dispatcher ]
   grace_type_converter:
     class: Grace\ORM\Service\TypeConverter
   grace_orm:
@@ -71,19 +71,19 @@ services:
   #Symfony integration services
   grace_model_validation_loader:
     class: Grace\Bundle\Validator\Mapping\Loader\GraceModelValidationLoader
-    arguments: [@grace_classname_provider, @grace_models_config, [Symfony\Component\Validator\Constraints\, Grace\Bundle\Validator\Constraint\, %grace.namespace_prefix%\Validator\Constraints\]]
+    arguments: [ @grace_classname_provider, @grace_models_config, [ Symfony\Component\Validator\Constraints\, Grace\Bundle\Validator\Constraint\, %grace.namespace_prefix%\Validator\Constraints\ ] ]
   grace_param_converter:
     class: Grace\Bundle\Request\ParamConverter\GraceParamConverter
-    arguments: [@grace_orm]
+    arguments: [ @grace_orm ]
     tags:
       -  { name: request.param_converter }
   grace_validator_unique:
      class: Grace\Bundle\Validator\UniqueValidator
-     arguments: [@grace_orm]
+     arguments: [ @grace_orm ]
      tags:
           - { name: validator.constraint_validator, alias: validator.grace_validator_unique }
   grace_query_collector:
     class: Grace\Bundle\DataCollector\QueryCollector
-    arguments: [@grace_query_logger]
+    arguments: [ @grace_query_logger ]
     tags:
       - { name: data_collector, template: GraceBundle:Collector:grace, id: grace }
