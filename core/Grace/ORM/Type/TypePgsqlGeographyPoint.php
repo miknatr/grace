@@ -14,7 +14,7 @@ use Grace\SQLBuilder\SqlValue\SqlValue;
 
 class TypePgsqlGeographyPoint implements TypeInterface
 {
-    const SRID_WGS84 = 4326;
+    const SRID_WGS84 = 4326; // Default SRID. Others are not yet supported by PostGIS in certain operations.
 
     public function getAlias()
     {
@@ -48,10 +48,14 @@ class TypePgsqlGeographyPoint implements TypeInterface
         }
 
         if (!is_string($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a point string like "SRID=4326;POINT(0 0)"');
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a EWKT string like "SRID=4326;POINT(0 0)" or a comma-separated string like "0,0"');
         }
 
-        return PgsqlGeographyPointValue::createFromEWKT($value);
+        try {
+            return PgsqlGeographyPointValue::createFromEWKT($value);
+        } catch (ConversionImpossibleException $e) {
+            return PgsqlGeographyPointValue::createFromCommaSeparated($value);
+        }
     }
 
     public function convertPhpToDb($value)

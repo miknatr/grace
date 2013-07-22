@@ -39,7 +39,29 @@ class PgsqlGeographyPointValue
         return new self($srid, $latitude, $longitude);
     }
 
+    public static function createFromCommaSeparated($commaSeparatedCoords)
+    {
+        if (!is_string($commaSeparatedCoords)) {
+            throw new ConversionImpossibleException('Invalid point value type: ' . gettype($commaSeparatedCoords));
+        }
+
+        if (!preg_match('/^\(?(\d+),(\d+)\)?$/', $commaSeparatedCoords, $match)) {
+            throw new ConversionImpossibleException('Invalid point type format: "' . $commaSeparatedCoords . '", should be a string like "0,0"');
+        }
+
+        $srid      = TypePgsqlGeographyPoint::SRID_WGS84;
+        $latitude  = $match[1];
+        $longitude = $match[2];
+
+        return new self($srid, $latitude, $longitude);
+    }
+
     public function __toString()
+    {
+        return strval($this->latitude) . ',' . strval($this->longitude);
+    }
+
+    public function toEWKT()
     {
         return "SRID=" . strval($this->srid) . ";POINT(" . strval($this->latitude) . ' ' . strval($this->longitude) . ")";
     }
