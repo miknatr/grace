@@ -16,6 +16,7 @@ use Grace\ORM\Type\TypeFloat;
 use Grace\ORM\Type\TypeInt;
 use Grace\ORM\Type\TypeInterface;
 use Grace\ORM\Type\TypeMoney;
+use Grace\ORM\Type\TypeNullableBool;
 use Grace\ORM\Type\TypePercent;
 use Grace\ORM\Type\TypePgsqlPoint;
 use Grace\ORM\Type\TypePgsqlGeographyPoint;
@@ -35,6 +36,7 @@ class TypeConverter
     {
         //TODO это нужно в конфигурацию, некоторые чисто интертосные типы
         $this->addType(new TypeBool);
+        $this->addType(new TypeNullableBool);
         $this->addType(new TypeFloat);
         $this->addType(new TypeInt);
         $this->addType(new TypeMoney);
