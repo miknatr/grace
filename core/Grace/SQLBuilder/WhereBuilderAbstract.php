@@ -138,6 +138,28 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
         return $this->setTwoArgsOperator($field, $value, '<=');
     }
     /**
+     * Checks if the field is TRUE
+     * @param $field
+     * @return $this
+     */
+    public function true($field)
+    {
+        $this->whereSqlConditions[] = '?f:alias:.?f';
+        $this->arguments[] = $field;
+        return $this;
+    }
+    /**
+     * Checks if the field is FALSE
+     * @param $field
+     * @return $this
+     */
+    public function false($field)
+    {
+        $this->whereSqlConditions[] = 'NOT ?f:alias:.?f';
+        $this->arguments[] = $field;
+        return $this;
+    }
+    /**
      * Adds LIKE statement into where statement
      * @param $field
      * @param $value
