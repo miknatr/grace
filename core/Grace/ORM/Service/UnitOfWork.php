@@ -74,4 +74,8 @@ class UnitOfWork
         $this->changedModels = array();
         $this->deletedModels = array();
     }
+    public function needCommit()
+    {
+        return (count($this->newModels) > 0 or count($this->changedModels) > 0 or count($this->deletedModels) > 0);
+    }
 }

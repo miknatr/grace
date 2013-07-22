@@ -65,56 +65,62 @@ class Grace
         $db->start();
 
         try {
-            foreach ($unitOfWork->getNewModels() as $model) {
-                $modelObserver->onBeforeInsert($model);
-            }
-            foreach ($unitOfWork->getChangedModels() as $model) {
-                $modelObserver->onBeforeChange($model);
-            }
-            foreach ($unitOfWork->getDeletedModels() as $model) {
-                $modelObserver->onBeforeDelete($model);
-            }
+            while ($unitOfWork->needCommit()) {
+                $this->unitOfWork = new UnitOfWork();
+
+                foreach ($unitOfWork->getNewModels() as $model) {
+                    $modelObserver->onBeforeInsert($model);
+                }
+                foreach ($unitOfWork->getChangedModels() as $model) {
+                    $modelObserver->onBeforeChange($model);
+                }
+                foreach ($unitOfWork->getDeletedModels() as $model) {
+                    $modelObserver->onBeforeDelete($model);
+                }
 
 
-            foreach ($unitOfWork->getNewModels() as $model) {
-                $this->getFinder($model->baseClass)->insertModelOnCommit($model);
-            }
+                foreach ($unitOfWork->getNewModels() as $model) {
+                    $this->getFinder($model->baseClass)->insertModelOnCommit($model);
+                }
 
-            foreach ($unitOfWork->getChangedModels() as $model) {
-                $this->getFinder($model->baseClass)->updateModelOnCommit($model);
-            }
+                foreach ($unitOfWork->getChangedModels() as $model) {
+                    $this->getFinder($model->baseClass)->updateModelOnCommit($model);
+                }
 
-            foreach ($unitOfWork->getDeletedModels() as $model) {
-                $this->getFinder($model->baseClass)->deleteModelOnCommit($model);
-            }
-
-
-            foreach ($unitOfWork->getNewModels() as $model) {
-                $modelObserver->onAfterInsert($model);
-            }
-            foreach ($unitOfWork->getChangedModels() as $model) {
-                $modelObserver->onAfterChange($model);
-            }
-            foreach ($unitOfWork->getDeletedModels() as $model) {
-                $modelObserver->onAfterDelete($model);
-            }
+                foreach ($unitOfWork->getDeletedModels() as $model) {
+                    $this->getFinder($model->baseClass)->deleteModelOnCommit($model);
+                }
 
 
-            foreach ($unitOfWork->getNewModels() as $model) {
-                $model->flushDefaults();
-            }
-            foreach ($unitOfWork->getChangedModels() as $model) {
-                $model->flushDefaults();
-            }
-            foreach ($unitOfWork->getDeletedModels() as $model) {
-                $model->flushDefaults();
-            }
+                foreach ($unitOfWork->getNewModels() as $model) {
+                    $modelObserver->onAfterInsert($model);
+                }
+                foreach ($unitOfWork->getChangedModels() as $model) {
+                    $modelObserver->onAfterChange($model);
+                }
+                foreach ($unitOfWork->getDeletedModels() as $model) {
+                    $modelObserver->onAfterDelete($model);
+                }
 
 
-            foreach ($unitOfWork->getDeletedModels() as $model) {
-                $this->identityMap->unsetModel($model->baseClass, $model->id);
-            }
+                foreach ($unitOfWork->getNewModels() as $model) {
+                    $model->flushDefaults();
+                }
+                foreach ($unitOfWork->getChangedModels() as $model) {
+                    $model->flushDefaults();
+                }
+                foreach ($unitOfWork->getDeletedModels() as $model) {
+                    $model->flushDefaults();
+                }
 
+
+                foreach ($unitOfWork->getDeletedModels() as $model) {
+                    $this->identityMap->unsetModel($model->baseClass, $model->id);
+                }
+
+                $unitOfWork->clean();
+                $unitOfWork = $this->unitOfWork;
+            }
         } catch (\Exception $e) {
             $db->rollback();
             throw $e;
