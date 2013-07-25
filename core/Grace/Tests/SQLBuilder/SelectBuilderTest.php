@@ -42,33 +42,33 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
             ->group('region')
             ->orderDesc('id')
             ->limit(5, 15)
-            ->eq('isPublished', 1) //test with AbstractWhereBuilder
+            ->true('isPublished') //test with AbstractWhereBuilder
             ->between('category', 10, 20) //test with AbstractWhereBuilder
             ->_or()
             ->between('category', 40, 50) //test with AbstractWhereBuilder
             ->_open()
-                ->eq('isPublished', 1)
-                ->eq('isPublished', 1)
+                ->true('isPublished')
+                ->true('isPublished')
                 ->_or()
-                ->eq('isPublished', 1)
+                ->true('isPublished')
             ->_close()
             ->_not()
             ->_open()
                 ->_not()
-                ->eq('isPublished', 1)
+                ->true('isPublished')
                 ->_not()
-                ->eq('isPublished', 1)
+                ->true('isPublished')
                 ->_or()
                 ->_not()
-                ->eq('isPublished', 1)
+                ->true('isPublished')
             ->_close()
             ->execute();
         $this->assertEquals(
             'SELECT ?f:alias:.?f, ?f:alias:.?f'.
             ' FROM ?f AS ?f' .
-            ' WHERE ?f:alias:.?f=?q AND ?f:alias:.?f BETWEEN ?q AND ?q OR ?f:alias:.?f BETWEEN ?q AND ?q' .
-            ' AND ( ?f:alias:.?f=?q AND ?f:alias:.?f=?q OR ?f:alias:.?f=?q )' .
-            ' AND NOT ( NOT ?f:alias:.?f=?q AND NOT ?f:alias:.?f=?q OR NOT ?f:alias:.?f=?q )' .
+            ' WHERE ?f:alias:.?f AND ?f:alias:.?f BETWEEN ?q AND ?q OR ?f:alias:.?f BETWEEN ?q AND ?q' .
+            ' AND ( ?f:alias:.?f AND ?f:alias:.?f OR ?f:alias:.?f )' .
+            ' AND NOT ( NOT ?f:alias:.?f AND NOT ?f:alias:.?f OR NOT ?f:alias:.?f )' .
             ' GROUP BY ?f:alias:.?f' .
             ' ORDER BY ?f:alias:.?f DESC' .
             ' LIMIT 15 OFFSET 5',
@@ -82,7 +82,6 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
                 'TestTable',
                 'TestTable',
                 'isPublished',
-                1,
                 'category',
                 10,
                 20,
@@ -90,17 +89,11 @@ class SelectBuilderTest extends \PHPUnit_Framework_TestCase
                 40,
                 50,
                 'isPublished',
-                1,
                 'isPublished',
-                1,
                 'isPublished',
-                1,
                 'isPublished',
-                1,
                 'isPublished',
-                1,
                 'isPublished',
-                1,
                 'region',
                 'id',
                 'alias' => 'TestTable'
