@@ -19,7 +19,7 @@ class TypeMoney implements TypeInterface
 
     public function getPhpType()
     {
-        return 'string';
+        return 'number';
     }
 
     public function getSetterPhpdocType()
