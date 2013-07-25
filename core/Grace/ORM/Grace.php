@@ -16,7 +16,6 @@ use Grace\ORM\Service\ClassNameProvider;
 use Grace\ORM\Service\IdentityMap;
 use Grace\ORM\Service\ModelObserver;
 use Grace\ORM\Service\UnitOfWork;
-use Grace\SQLBuilder\Factory;
 use Grace\ORM\Service\TypeConverter;
 use Grace\ORM\Service\Config\Config;
 

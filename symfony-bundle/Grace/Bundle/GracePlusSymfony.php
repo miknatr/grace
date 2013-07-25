@@ -10,7 +10,6 @@ use Grace\ORM\Service\Config\Config;
 use Grace\ORM\Service\ModelObserver;
 use Grace\ORM\Service\TypeConverter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Security\Core\Role\RoleHierarchy;
 use Monolog\Logger;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 use Symfony\Component\Validator\Validator;

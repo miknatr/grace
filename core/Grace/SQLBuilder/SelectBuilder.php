@@ -97,9 +97,9 @@ class SelectBuilder extends WhereBuilderAbstract
 
     /**
      * Sets one field in fields statement
-     * @param $tableName
-     * @param $onSql
-     * @param array $arguments
+     *
+     * @param string $tableName
+     * @param string $alias
      * @return $this
      */
     public function join($tableName, $alias = null)

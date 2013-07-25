@@ -79,15 +79,6 @@ class Connection extends ConnectionAbstract
         }
     }
 
-    private function getNumRows()
-    {
-        if (!is_resource($this->lastResult)) {
-            return false;
-        }
-
-        return pg_num_rows($this->lastResult);
-    }
-
     /**
      * @inheritdoc
      */
@@ -193,7 +184,7 @@ class Connection extends ConnectionAbstract
     private function connect($selectDb = true)
     {
         if (!$this->isPhpEnvironmentSupported()) {
-            throw new ConnectionException("Function pg_connect doesn't exist", ConnectionException::E_NO_DRIVER_IN_PHP);
+            throw new ConnectionException("Function pg_connect doesn't exist");
         }
 
         //Can throw warning, if have incorrect connection params

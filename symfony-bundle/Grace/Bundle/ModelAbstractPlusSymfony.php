@@ -15,10 +15,7 @@ use Grace\Bundle\Validator\ValidationException;
 use Grace\ORM\Grace;
 use Grace\ORM\ModelAbstract;
 use Intertos\CoreBundle\Security\Core\User\UserAbstract;
-use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Collection;
-use Symfony\Component\Validator\Constraints\True;
-use Symfony\Component\Validator\Constraints\Valid;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
@@ -98,6 +95,7 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
         $constraint = new Collection(array('fields' => $fieldConstraints));
 
         $listWithWrongNames = $validator->validateValue($properties, $constraint);
+
         $properList = new ConstraintViolationList();
 
         foreach ($listWithWrongNames as $k => $v) {

@@ -116,8 +116,6 @@ class Generator
     {
         $this->lastProcessedElement = $modelName;
 
-        $modelClass = $this->classNameProvider->getModelClass($modelName);
-
         return array(
             "@property {$this->graceClass} \$orm",
         );

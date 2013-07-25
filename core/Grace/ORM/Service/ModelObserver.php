@@ -10,7 +10,6 @@
 
 namespace Grace\ORM\Service;
 
-use Grace\ORM\Grace;
 use Grace\ORM\ModelAbstract;
 
 class ModelObserver

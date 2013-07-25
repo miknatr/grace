@@ -5,7 +5,6 @@ namespace Grace\Bundle\Command;
 use Doctrine\Tests\DBAL\Functional\TypeConversionTest;
 use Grace\Bundle\GracePlusSymfony;
 use Grace\DBAL\Exception\QueryException;
-use Grace\ORM\Service\Config\Config;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\TypeConverter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
