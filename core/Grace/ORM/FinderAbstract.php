@@ -156,7 +156,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
             $proxy = $propertyConfig->proxy;
             if ($proxy) {
                 if (!isset($aliases[$proxy->foreignModel])) {
-                    $alias = ucfirst(substr($propName, 0, -2)); // ownerId => Owner
+                    $alias = ucfirst(substr($proxy->localProperty, 0, -2)); // ownerId => Owner
                     $selectBuilder
                         ->join($proxy->foreignModel, $alias)
                         ->onEq($proxy->localProperty, 'id');
