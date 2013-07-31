@@ -206,7 +206,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         }
 
         if ($this->orm->identityMap->issetModel($this->baseClass, $id)) {
-            throw new \LogicException('Model with id ' . $id . ' already exists in identity map');
+            throw new \LogicException('Model ' . $this->baseClass . ' with id ' . $id . ' already exists in identity map');
         }
 
         $modelClass = $this->orm->classNameProvider->getModelClass($this->baseClass);
