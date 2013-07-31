@@ -17,23 +17,23 @@ use Grace\ORM\Service\ClassNameProvider;
 class Generator
 {
     /** @var Config */
-    private $modelsConfig;
+    protected $modelsConfig;
     /** @var ClassNameProvider */
-    private $classNameProvider;
+    protected $classNameProvider;
     /** @var TypeConverter */
-    private $typeConverter;
+    protected $typeConverter;
 
-    private $baseDir;
-    private $graceClass;
-    private $baseGraceClass;
-    private $baseModelClass;
+    protected $baseDir;
+    protected $graceClass;
+    protected $baseGraceClass;
+    protected $baseModelClass;
 
-    private $isDryRun = false;
+    protected $isDryRun = false;
     /** @var callable */
-    private $logger;
+    protected $logger;
 
     // we use this to make error messages more detailed
-    private $lastProcessedElement = '';
+    protected $lastProcessedElement = '';
 
     const INLINE_GENCODE_MARKER = 'BEGIN GRACE GENERATED CODE';
 
@@ -100,7 +100,7 @@ class Generator
     // PHPDOC GENERATION
     //
 
-    private function generateSelectBuilderClassPhpdoc($modelName)
+    protected function generateSelectBuilderClassPhpdoc($modelName)
     {
         $this->lastProcessedElement = $modelName;
 
@@ -112,7 +112,7 @@ class Generator
         );
     }
 
-    private function generateModelClassPhpdoc($modelName)
+    protected function generateModelClassPhpdoc($modelName)
     {
         $this->lastProcessedElement = $modelName;
 
@@ -121,7 +121,7 @@ class Generator
         );
     }
 
-    private function generateModelClassMethods($modelName)
+    protected function generateModelClassMethods($modelName)
     {
         $methods = array();
 
@@ -254,13 +254,13 @@ class Generator
         return $methods;
     }
 
-    private function unindent($indentLevel, $codeBlock)
+    protected function unindent($indentLevel, $codeBlock)
     {
         $prefix = str_repeat('    ', $indentLevel);
         return preg_replace('/^' . preg_quote($prefix) . '/m', '', $codeBlock);
     }
 
-    private function generateFinderClassPhpdoc($modelName)
+    protected function generateFinderClassPhpdoc($modelName)
     {
         $this->lastProcessedElement = $modelName;
 
@@ -277,7 +277,7 @@ class Generator
         );
     }
 
-    private function generateGraceClassPhpdoc()
+    protected function generateGraceClassPhpdoc()
     {
         $phpdoc = array();
         foreach ($this->modelsConfig->models as $name => $config) {
@@ -296,7 +296,7 @@ class Generator
     // FILE CONTENT MANIPULATION
     //
 
-    private function writeFile($filename, $contents)
+    protected function writeFile($filename, $contents)
     {
         $oldContents = file_exists($filename) ? file_get_contents($filename) : null;
 
@@ -313,7 +313,7 @@ class Generator
         }
     }
 
-    private function getClassFilename($class, $parentClass)
+    protected function getClassFilename($class, $parentClass)
     {
         $filename = $this->baseDir . '/' . str_replace('\\', '/', ltrim($class, '\\')) . '.php';
 
@@ -343,7 +343,7 @@ class Generator
      * @param array $methods
      * @throws \LogicException
      */
-    private function addMethodsToClass($filename, array $methods)
+    protected function addMethodsToClass($filename, array $methods)
     {
         $contents = file_get_contents($filename);
 
@@ -413,7 +413,7 @@ class Generator
      * @param string $filename
      * @param string[] $phpdocLines lines of the phpdoc without leading stars (like '@property string $blah')
      */
-    private function addPhpdocToClass($filename, array $phpdocLines)
+    protected function addPhpdocToClass($filename, array $phpdocLines)
     {
         $contents = file_get_contents($filename);
 
@@ -491,7 +491,7 @@ class Generator
     // MISC
     //
 
-    private function log($message)
+    protected function log($message)
     {
         if ($this->logger) {
             call_user_func($this->logger, $message);
