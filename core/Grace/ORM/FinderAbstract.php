@@ -169,7 +169,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
                 continue;
             }
 
-            throw new \LogicException("Bad mapping in $this->baseClass:$propName");
+            throw new \LogicException("Bad mapping in $this->baseClass.$propName");
         }
 
         $selectBuilder->fields($fields);

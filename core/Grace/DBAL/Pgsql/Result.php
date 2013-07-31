@@ -36,7 +36,7 @@ class Result extends ResultAbstract
     public function __construct($result)
     {
         if (!is_resource($result)) {
-            throw new ConnectionException('Result should be a valid resource.');
+            throw new ConnectionException('Result should be a valid resource');
         }
 
         $this->result = $result;

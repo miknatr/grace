@@ -38,7 +38,7 @@ abstract class ModelAbstract
         //$id - new model creation
         //both can't be filled
         if (!($dbArray !== null xor $id !== null)) {
-            throw new \Exception('Invalid model initialization');
+            throw new \LogicException('Invalid model initialization');
         }
 
         if ($dbArray === null) {
@@ -107,7 +107,7 @@ abstract class ModelAbstract
 
         $propConfig = $this->orm->config->models[$this->baseClass]->properties[$name];
         if (!$propConfig->isSettable) {
-            throw new \Exception('FUCK OFF');
+            throw new \LogicException("Cannot set a readonly property: {$this->baseClass}.{$name}");
         }
 
         $type = $propConfig->type;

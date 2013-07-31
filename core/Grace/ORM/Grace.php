@@ -175,6 +175,6 @@ class Grace
             }
         }
 
-        throw new PropertyNotFoundException();
+        throw new PropertyNotFoundException("No such property: {$name}");
     }
 }

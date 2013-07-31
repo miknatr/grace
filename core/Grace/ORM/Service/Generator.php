@@ -368,7 +368,7 @@ class Generator
         // filtering methods that are already defined
         foreach ($methods['force'] as $name => $codeBlock) {
             if (preg_match('/^\s*([a-z]+\s+)*function\s+' . preg_quote($name, '/') . '\s*\(/m', $contents)) {
-                throw new \LogicException('You cannot override getters because fuck you (' . $name . '() in ' . $filename . ')');
+                throw new \LogicException('Getters should not be overridden (' . $name . '() in ' . $filename . ')');
             }
         }
 
