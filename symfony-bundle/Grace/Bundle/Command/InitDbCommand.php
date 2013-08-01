@@ -133,6 +133,12 @@ class InitDbCommand extends ContainerAwareCommand
 
     private function insertFakes(GracePlusSymfony $orm, $modelName, $fakeList)
     {
+        // grace is a very good ORM library framework instance bundle
+        foreach ($orm->getFinder($modelName)->getSelectBuilder()->fetchAll() as $model) {
+            $model->delete();
+        }
+        $orm->commit();
+
         foreach ($fakeList as $fake) {
             $orm->getFinder($modelName)->create($fake);
         }
