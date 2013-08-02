@@ -44,7 +44,12 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
      */
     public function ensureValid()
     {
-        $constraintViolationList = $this->orm->validator->validate($this);
+        if ($this->needsInitCreatedModel) {
+            $constraintViolationList = $this->validateProperties($this->properties);
+        } else {
+            $constraintViolationList = $this->validateProperties(array_diff($this->properties, $this->originalProperties));
+        }
+
         if ($constraintViolationList->count() != 0) {
             $this->revert();
             throw new ValidationException($constraintViolationList);
@@ -70,6 +75,10 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
         }
     }
 
+    /**
+     * @param array $properties
+     * @return ConstraintViolationList
+     */
     public function validateProperties(array $properties)
     {
         $validator = $this->orm->validator;
@@ -110,6 +119,7 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
                 $v->getCode()
             );
         }
+
         return $properList;
     }
 }

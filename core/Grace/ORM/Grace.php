@@ -63,8 +63,13 @@ class Grace
 
         $db->start();
 
+        $i = 0;
         try {
             while ($unitOfWork->needCommit()) {
+                if ($i++ > 50) {
+                    throw new \OutOfRangeException('Max reached');
+                }
+
                 $this->unitOfWork = new UnitOfWork();
 
                 foreach ($unitOfWork->getNewModels() as $model) {

@@ -21,7 +21,7 @@ abstract class ModelAbstract
     //TODO выпилить бы это автодополнение в плагин
     /** @var Grace|GracePlusSymfony */
     protected $orm;
-    private $originalProperties = array();
+    protected $originalProperties = array();
     protected $properties = array();
 
     //it's public properties for optimization reasons
