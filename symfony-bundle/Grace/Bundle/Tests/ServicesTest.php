@@ -54,6 +54,7 @@ class ServicesTest extends \PHPUnit_Framework_TestCase
 
         $loader->load(array(
             'grace' => array(
+                'init_db_sql_file'       => '',
                 'class_directory'        => './',
                 'grace_class'            => 'Grace\\Bundle\\GracePlusSymfony',
                 'model_config_resources' => __DIR__ . '/Resources/models/TaxiPassenger.yml',

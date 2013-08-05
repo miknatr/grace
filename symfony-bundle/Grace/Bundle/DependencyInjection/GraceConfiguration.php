@@ -17,6 +17,7 @@ class GraceConfiguration implements ConfigurationInterface
         return (new TreeBuilder())
             ->root('grace')
                 ->children()
+                    ->scalarNode('init_db_sql_file')->isRequired()->end()
                     ->scalarNode('grace_class')->isRequired()->cannotBeEmpty()->end()
                     ->scalarNode('namespace_prefix')->isRequired()->cannotBeEmpty()->end()
                     ->scalarNode('cache_enabled')->isRequired()->end()
