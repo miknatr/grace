@@ -7,7 +7,6 @@ use Grace\Bundle\DataCollector\QueryCollector;
 use Grace\Bundle\DependencyInjection\GraceExtension;
 use Grace\Bundle\DispatchedModelObserver;
 use Grace\Bundle\GracePlusSymfony;
-use Grace\Bundle\Request\ParamConverter\GraceParamConverter;
 use Grace\Bundle\Validator\UniqueValidator;
 use Grace\Cache\CacheInterface;
 use Grace\DBAL\ConnectionAbstract\ConnectionInterface;
@@ -93,7 +92,6 @@ class ServicesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($container->get('grace_db') instanceof ConnectionInterface);
         $this->assertTrue($container->get('cache') instanceof CacheInterface);
-        $this->assertTrue($container->get('grace_param_converter') instanceof GraceParamConverter);
         $this->assertTrue($container->get('grace_validator_unique') instanceof UniqueValidator);
         $this->assertTrue($container->get('grace_query_collector') instanceof QueryCollector);
     }
