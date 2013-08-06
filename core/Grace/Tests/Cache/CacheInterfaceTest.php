@@ -79,7 +79,7 @@ class CacheInterfaceTest extends \PHPUnit_Framework_TestCase
 
         $cachedContainer = $cache->get('foo');
 
-        $this->assertNotEquals(spl_object_hash($container[0]), spl_object_hash($cachedContainer[0]));
-        $this->assertEquals(spl_object_hash($cachedContainer[0]), spl_object_hash($cachedContainer[1]));
+        $this->assertNotSame($container[0], $cachedContainer[0]);
+        $this->assertSame($cachedContainer[0], $cachedContainer[1]);
     }
 }
