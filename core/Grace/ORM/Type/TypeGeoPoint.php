@@ -12,21 +12,21 @@ namespace Grace\ORM\Type;
 
 use Grace\SQLBuilder\SqlValue\SqlValue;
 
-class TypePgsqlPoint implements TypeInterface
+class TypeGeoPoint implements TypeInterface
 {
     public function getAlias()
     {
-        return 'pgsql_point';
+        return 'geo_point';
     }
 
     public function getPhpType()
     {
-        return '\\Grace\\ORM\\Type\\PgsqlPointValue';
+        return '\\Grace\\ORM\\Type\\GeoPointValue';
     }
 
     public function getSetterPhpdocType()
     {
-        return '\\Grace\\ORM\\Type\\PgsqlPointValue|string';
+        return '\\Grace\\ORM\\Type\\GeoPointValue|string';
     }
 
     public function getDbType()
@@ -36,12 +36,12 @@ class TypePgsqlPoint implements TypeInterface
 
     public function getDbToPhpConverterCode()
     {
-        return 'new \\Grace\\ORM\\Type\\PgsqlPointValue($value)';
+        return 'new \\Grace\\ORM\\Type\\GeoPointValue($value)';
     }
 
     public function convertOnSetter($value)
     {
-        if ($value instanceof PgsqlPointValue) {
+        if ($value instanceof GeoPointValue) {
             return $value;
         }
 
@@ -49,13 +49,13 @@ class TypePgsqlPoint implements TypeInterface
             throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a point string like "0,0"');
         }
 
-        return new PgsqlPointValue($value);
+        return new GeoPointValue($value);
     }
 
     public function convertPhpToDb($value)
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql
-        /** @var $value PgsqlPointValue */
+        /** @var $value GeoPointValue */
         return new SqlValue('POINT(?e, ?e)', array($value->getLatitude(), $value->getLongitude()));
     }
 

@@ -18,7 +18,7 @@ use Grace\ORM\Type\TypeInterface;
 use Grace\ORM\Type\TypeMoney;
 use Grace\ORM\Type\TypeNullableBool;
 use Grace\ORM\Type\TypePercent;
-use Grace\ORM\Type\TypePgsqlPoint;
+use Grace\ORM\Type\TypeGeoPoint;
 use Grace\ORM\Type\TypePgsqlGeographyPoint;
 use Grace\ORM\Type\TypeTariffOverride;
 use Grace\ORM\Type\TypeString;
@@ -41,7 +41,7 @@ class TypeConverter
         $this->addType(new TypeInt);
         $this->addType(new TypeMoney);
         $this->addType(new TypePercent);
-        $this->addType(new TypePgsqlPoint);
+        $this->addType(new TypeGeoPoint);
         $this->addType(new TypePgsqlGeographyPoint);
         $this->addType(new TypeString);
         $this->addType(new TypeText);

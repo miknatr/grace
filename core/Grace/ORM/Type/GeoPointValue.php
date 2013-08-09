@@ -10,7 +10,7 @@
 
 namespace Grace\ORM\Type;
 
-class PgsqlPointValue
+class GeoPointValue
 {
     private $latitude  = 0;
     private $longitude = 0;
