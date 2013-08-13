@@ -143,53 +143,66 @@ class SelectBuilder extends WhereBuilderAbstract
         $this->havingArguments = $arguments;
         return $this;
     }
+
     /**
      * Sets group by statement
-     * @param $field
+     *
+     * @param string $field
+     * @param bool $prefixWithTableAlias
      * @return $this
      */
-    public function group($field)
+    public function group($field, $prefixWithTableAlias = true)
     {
+        $aliasInsert = $prefixWithTableAlias ? '?f:alias:.' : '';
+
         if ($this->groupSql == '') {
-            $this->groupSql = ' GROUP BY ?f:alias:.?f';
+            $this->groupSql = " GROUP BY {$aliasInsert}?f";
         } else {
-            $this->groupSql .= ', ?f:alias:.?f';
+            $this->groupSql .= ", {$aliasInsert}?f";
         }
         $this->groupArguments[] = $field;
         return $this;
     }
+
     /**
      * Sets asc order by statement
-     * @param $field
+     * @param string $field
+     * @param bool $prefixWithTableAlias
      * @return $this
      */
-    public function orderAsc($field)
+    public function orderAsc($field, $prefixWithTableAlias = true)
     {
-        $this->orderByDirection($field, 'ASC');
+        $this->orderByDirection($field, 'ASC', $prefixWithTableAlias);
         return $this;
     }
     /**
      * Sets desc order by statement
-     * @param $field
+     * @param string $field
+     * @param bool $prefixWithTableAlias
      * @return $this
      */
-    public function orderDesc($field)
+    public function orderDesc($field, $prefixWithTableAlias = true)
     {
-        $this->orderByDirection($field, 'DESC');
+        $this->orderByDirection($field, 'DESC', $prefixWithTableAlias);
         return $this;
     }
+
     /**
      * Sets order by statement
-     * @param $field
-     * @param $direction
+     *
+     * @param string $field
+     * @param string $direction
+     * @param bool $prefixWithTableAlias
      * @return $this
      */
-    protected function orderByDirection($field, $direction)
+    protected function orderByDirection($field, $direction, $prefixWithTableAlias = true)
     {
+        $aliasInsert = $prefixWithTableAlias ? '?f:alias:.' : '';
+
         if ($this->orderSql == '') {
-            $this->orderSql = ' ORDER BY ?f:alias:.?f ' . $direction;
+            $this->orderSql = " ORDER BY {$aliasInsert}?f {$direction}";
         } else {
-            $this->orderSql .= ', ?f:alias:.?f ' . $direction;
+            $this->orderSql .= ", {$aliasInsert}?f {$direction}";
         }
         $this->orderArguments[] = $field;
     }
