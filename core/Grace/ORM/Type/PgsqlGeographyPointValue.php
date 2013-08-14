@@ -68,7 +68,7 @@ class PgsqlGeographyPointValue
 
     public function getSrid()
     {
-        return $this->latitude;
+        return $this->srid;
     }
 
     public function getLatitude()
