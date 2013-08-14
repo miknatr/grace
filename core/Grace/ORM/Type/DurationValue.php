@@ -10,7 +10,7 @@
 
 namespace Grace\ORM\Type;
 
-class IntervalValue
+class DurationValue
 {
     private $hours   = 0;
     private $minutes = 0;
@@ -36,7 +36,7 @@ class IntervalValue
         $minutes = $match[2];
         $seconds = $match[3];
 
-        return new self($seconds, $minutes, $hours);
+        return new static($seconds, $minutes, $hours);
     }
 
     public function __toString()

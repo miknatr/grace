@@ -12,21 +12,21 @@ namespace Grace\ORM\Type;
 
 use Grace\SQLBuilder\SqlValue\SqlValue;
 
-class TypeInterval implements TypeInterface
+class TypeDuration implements TypeInterface
 {
     public function getAlias()
     {
-        return 'interval';
+        return 'duration';
     }
 
     public function getPhpType()
     {
-        return '\\Grace\\ORM\\Type\\IntervalValue';
+        return '\\Grace\\ORM\\Type\\DurationValue';
     }
 
     public function getSetterPhpdocType()
     {
-        return '\\Grace\\ORM\\Type\\IntervalValue|string';
+        return '\\Grace\\ORM\\Type\\DurationValue|string';
     }
 
     public function getDbType()
@@ -36,24 +36,24 @@ class TypeInterval implements TypeInterface
 
     public function getDbToPhpConverterCode()
     {
-        return '\\Grace\\ORM\\Type\\IntervalValue::createFromFormattedString($value)';
+        return '\\Grace\\ORM\\Type\\DurationValue::createFromFormattedString($value)';
     }
 
     public function convertOnSetter($value)
     {
-        if ($value instanceof IntervalValue) {
+        if ($value instanceof DurationValue) {
             return $value;
         }
 
         if (!is_string($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a Interval string like "00:05:10"');
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a Duration string like "00:05:10"');
         }
 
-        return IntervalValue::createFromFormattedString($value);
+        return DurationValue::createFromFormattedString($value);
     }
 
     /**
-     * @param IntervalValue $value
+     * @param DurationValue $value
      * @return SqlValue
      */
     public function convertPhpToDb($value)

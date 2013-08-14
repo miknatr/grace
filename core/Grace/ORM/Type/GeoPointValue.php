@@ -36,7 +36,7 @@ class GeoPointValue
         $latitude  = $match[2];
         $longitude = $match[3];
 
-        return new self($srid, $latitude, $longitude);
+        return new static($srid, $latitude, $longitude);
     }
 
     public static function createFromCommaSeparated($commaSeparatedCoords)
@@ -53,7 +53,7 @@ class GeoPointValue
         $latitude  = $match[1];
         $longitude = $match[2];
 
-        return new self($srid, $latitude, $longitude);
+        return new static($srid, $latitude, $longitude);
     }
 
     public function __toString()
