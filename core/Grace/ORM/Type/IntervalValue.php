@@ -10,7 +10,7 @@
 
 namespace Grace\ORM\Type;
 
-class PgsqlIntervalValue
+class IntervalValue
 {
     private $hours   = 0;
     private $minutes = 0;

@@ -14,6 +14,8 @@ use Grace\SQLBuilder\SqlValue\SqlValue;
 
 class TypeGeoPoint implements TypeInterface
 {
+    const SRID_WGS84 = 4326; // Default SRID. Others are not yet supported by PostGIS in certain operations.
+
     public function getAlias()
     {
         return 'geo_point';
@@ -31,12 +33,12 @@ class TypeGeoPoint implements TypeInterface
 
     public function getDbType()
     {
-        return 'point';
+        return 'geography(point,'.static::SRID_WGS84.')';
     }
 
     public function getDbToPhpConverterCode()
     {
-        return 'new \\Grace\\ORM\\Type\\GeoPointValue($value)';
+        return '\\Grace\\ORM\\Type\\GeoPointValue::createFromEWKT($value)';
     }
 
     public function convertOnSetter($value)
@@ -46,17 +48,21 @@ class TypeGeoPoint implements TypeInterface
         }
 
         if (!is_string($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a point string like "0,0"');
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a EWKT string like "SRID=4326;POINT(0 0)" or a comma-separated string like "0,0"');
         }
 
-        return new GeoPointValue($value);
+        try {
+            return GeoPointValue::createFromEWKT($value);
+        } catch (ConversionImpossibleException $e) {
+            return GeoPointValue::createFromCommaSeparated($value);
+        }
     }
 
     public function convertPhpToDb($value)
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql
         /** @var $value GeoPointValue */
-        return new SqlValue('POINT(?e, ?e)', array($value->getLatitude(), $value->getLongitude()));
+        return new SqlValue("ST_GeographyFromText('SRID=?e;POINT(?e ?e)')", array($value->getSrid(), $value->getLatitude(), $value->getLongitude()));
     }
 
     public function getPhpDefaultValueCode()
@@ -71,6 +77,6 @@ class TypeGeoPoint implements TypeInterface
 
     public function getSqlField()
     {
-        return '?f';
+        return 'ST_AsEWKT(?f)';
     }
 }
