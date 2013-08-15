@@ -85,14 +85,17 @@ class Grace
 
                 foreach ($unitOfWork->getNewModels() as $model) {
                     $this->getFinder($model->baseClass)->insertModelOnCommit($model);
+                    $unitOfWork->saveCommittedProps($model);
                 }
 
                 foreach ($unitOfWork->getChangedModels() as $model) {
                     $this->getFinder($model->baseClass)->updateModelOnCommit($model);
+                    $unitOfWork->saveCommittedProps($model);
                 }
 
                 foreach ($unitOfWork->getDeletedModels() as $model) {
                     $this->getFinder($model->baseClass)->deleteModelOnCommit($model);
+                    $unitOfWork->saveCommittedProps($model);
                 }
 
 
@@ -107,15 +110,7 @@ class Grace
                 }
 
 
-                foreach ($unitOfWork->getNewModels() as $model) {
-                    $model->flushDefaults();
-                }
-                foreach ($unitOfWork->getChangedModels() as $model) {
-                    $model->flushDefaults();
-                }
-                foreach ($unitOfWork->getDeletedModels() as $model) {
-                    $model->flushDefaults();
-                }
+                $unitOfWork->flushCommittedPropsInModels();
 
 
                 foreach ($unitOfWork->getDeletedModels() as $model) {

@@ -78,4 +78,22 @@ class UnitOfWork
     {
         return (count($this->newModels) > 0 or count($this->changedModels) > 0 or count($this->deletedModels) > 0);
     }
+
+    protected $committedProps = array();
+    public function saveCommittedProps(ModelAbstract $model)
+    {
+        $this->committedProps[] = array(
+            'model' => $model,
+            'props' => $model->getProperties(),
+        );
+    }
+
+    public function flushCommittedPropsInModels()
+    {
+        foreach ($this->committedProps as $row) {
+            /** @var ModelAbstract $model */
+            $model = $row['model'];
+            $model->setOriginalProperties($row['props']);
+        }
+    }
 }

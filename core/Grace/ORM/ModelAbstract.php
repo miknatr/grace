@@ -149,9 +149,9 @@ abstract class ModelAbstract
     {
         return $this->originalProperties;
     }
-    final public function flushDefaults()
+    final public function setOriginalProperties(array $properties)
     {
-        $this->originalProperties = $this->properties;
+        $this->originalProperties = $properties;
     }
     final public function revert()
     {
