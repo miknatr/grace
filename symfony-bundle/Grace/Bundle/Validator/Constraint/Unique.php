@@ -7,7 +7,9 @@ use Symfony\Component\Validator\Constraint;
 class Unique extends Constraint
 {
     public $message = 'This value is already used';
-    public $entity;
+    // TODO IS-644 хак, пока не можем валидровать целиком, хочется передавать контекст
+    public $id;
+    public $baseClass;
     public $property;
 
     public function validatedBy()

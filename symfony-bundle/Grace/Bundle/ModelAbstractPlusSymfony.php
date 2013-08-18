@@ -11,6 +11,7 @@
 namespace Grace\Bundle;
 
 use Grace\Bundle\GracePlusSymfony;
+use Grace\Bundle\Validator\Constraint\Unique;
 use Grace\Bundle\Validator\ValidationException;
 use Grace\ORM\Grace;
 use Grace\ORM\ModelAbstract;
@@ -97,7 +98,15 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
             $fieldConstraints[$fieldName] = array();
             foreach ($classMetadata->members[$fieldName] as $fieldMetadata) {
                 /** @var GetterMetadata $fieldMetadata */
-                $fieldConstraints[$fieldName] = array_merge($fieldConstraints[$fieldName], array_values($fieldMetadata->constraints));
+                $fieldConstraints[$fieldName] = array_values($fieldMetadata->constraints);
+                // TODO IS-644 хак для уникального валидатора, надо завязывать с этой валидацией отдельных пропертей и валидировать весь объект с контекстом
+                foreach ($fieldConstraints[$fieldName] as $constraint) {
+                    if ($constraint instanceof Unique) {
+                        $constraint->id        = $this->id;
+                        $constraint->baseClass = $this->baseClass;
+                        $constraint->property  = $fieldName;
+                    }
+                }
             }
         }
 

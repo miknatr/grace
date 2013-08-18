@@ -22,27 +22,26 @@ class UniqueValidator extends ConstraintValidator
     {
         /** @var $constraint Unique */
 
-        /** @var $root Form|ModelAbstract */
-        $root = $this->context->getRoot();
+        if (!$constraint->id || !$constraint->baseClass) {
+            /** @var $root Form|ModelAbstract */
+            $root = $this->context->getRoot();
+            /** @var $model ModelAbstract */
+            $model = ($root instanceof Form) ? $root->getData() : $root;
 
-        /** @var $model ModelAbstract */
-        $model    = ($root instanceof Form) ? $root->getData() : $root;
-        $property = $this->context->getCurrentProperty();
-
-        if (is_object($model)) {
-            $class  = get_class($model);
-            $finder = $this->orm->getFinder($class);
-            if (!$finder) {
-                if ($model instanceof ModelAbstract) {
-                    throw new \LogicException("Grace finder is not found for $class");
-                }
-
-                throw new \LogicException("Unique validator only works with Grace models, not $class");
+            if (is_object($model)) {
+                $constraint->id        = $model->id;
+                $constraint->baseClass = $model->baseClass;
+                $constraint->property  = $this->context->getCurrentProperty();
             }
+        }
 
-            if ($finder->getSelectBuilder()->eq($property, $value)->notEq('id', $model->id)->fetchOneOrFalse()) {
-                $this->context->addViolation($constraint->message);
-            }
+        $finder = $this->orm->getFinder($constraint->baseClass);
+        if (!$finder) {
+            throw new \LogicException("Unique validator only works with Grace models, not {$constraint->baseClass}");
+        }
+
+        if ($finder->getSelectBuilder()->eq($constraint->property, $value)->notEq('id', $constraint->id)->fetchOneOrFalse()) {
+            $this->context->addViolation($constraint->message);
         }
     }
 }
