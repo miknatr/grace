@@ -149,7 +149,7 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         $aliases = array();
         foreach ($this->orm->config->models[$this->baseClass]->properties as $propName => $propertyConfig) {
             if ($propertyConfig->isLocalInDb) {
-                $fields[] = array($this->orm->typeConverter->getSqlField($propertyConfig->type), array($this->baseClass . '.' . $propName));
+                $fields[] = array($this->orm->typeConverter->getSqlField($propertyConfig->type) . ' as ?f', array($this->baseClass . '.' . $propName, $propName));
                 continue;
             }
 
