@@ -12,26 +12,63 @@ namespace Grace\ORM\Type;
 
 class GeoPointValue
 {
+    private $srid      = 0;
     private $latitude  = 0;
     private $longitude = 0;
 
-    public function __construct($coords)
+    public function __construct($srid, $latitude, $longitude)
     {
-        if (!is_string($coords)) {
-            throw new ConversionImpossibleException('Invalid point value type: ' . gettype($coords));
+        $this->srid      = $srid;
+        $this->latitude  = $latitude;
+        $this->longitude = $longitude;
+    }
+
+    public static function createFromEWKT($ewktString) {
+        if (!is_string($ewktString)) {
+            throw new ConversionImpossibleException('Invalid point value type: ' . gettype($ewktString));
         }
 
-        if (!preg_match('/^\(?(\d+),(\d+)\)?$/', $coords, $match)) {
-            throw new ConversionImpossibleException('Invalid point type format: "' . $coords . '", should be a string like "0,0"');
+        if (!preg_match('/^SRID=(\d+);POINT\(?(\d+) (\d+)\)?$/', $ewktString, $match)) {
+            throw new ConversionImpossibleException('Invalid point type format: "' . $ewktString . '", should be a string like "SRID=4326;POINT(0 0)"');
         }
 
-        $this->latitude  = $match[1];
-        $this->longitude = $match[2];
+        $srid      = $match[1];
+        $latitude  = $match[2];
+        $longitude = $match[3];
+
+        return new static($srid, $latitude, $longitude);
+    }
+
+    public static function createFromCommaSeparated($commaSeparatedCoords)
+    {
+        if (!is_string($commaSeparatedCoords)) {
+            throw new ConversionImpossibleException('Invalid point value type: ' . gettype($commaSeparatedCoords));
+        }
+
+        if (!preg_match('/^\(?(\d+),(\d+)\)?$/', $commaSeparatedCoords, $match)) {
+            throw new ConversionImpossibleException('Invalid point type format: "' . $commaSeparatedCoords . '", should be a string like "0,0"');
+        }
+
+        $srid      = TypeGeoPoint::SRID_WGS84;
+        $latitude  = $match[1];
+        $longitude = $match[2];
+
+        return new static($srid, $latitude, $longitude);
     }
 
     public function __toString()
     {
         return strval($this->latitude) . ',' . strval($this->longitude);
+    }
+
+    public function toEWKT()
+    {
+        return "SRID=" . strval($this->srid) . ";POINT(" . strval($this->latitude) . ' ' . strval($this->longitude) . ")";
+    }
+
+    public function getSrid()
+    {
+        return $this->srid;
     }
 
     public function getLatitude()
