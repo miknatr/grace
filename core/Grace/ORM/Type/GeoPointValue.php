@@ -28,7 +28,7 @@ class GeoPointValue
             throw new ConversionImpossibleException('Invalid point value type: ' . gettype($ewktString));
         }
 
-        if (!preg_match('/^SRID=(\d+);POINT\(?(\d+) (\d+)\)?$/', $ewktString, $match)) {
+        if (!preg_match('/^SRID=(\d+);POINT\(?([\d.]+) ([\d.]+)\)?$/', $ewktString, $match)) {
             throw new ConversionImpossibleException('Invalid point type format: "' . $ewktString . '", should be a string like "SRID=4326;POINT(0 0)"');
         }
 
@@ -45,7 +45,7 @@ class GeoPointValue
             throw new ConversionImpossibleException('Invalid point value type: ' . gettype($commaSeparatedCoords));
         }
 
-        if (!preg_match('/^\(?(\d+),(\d+)\)?$/', $commaSeparatedCoords, $match)) {
+        if (!preg_match('/^\(?([\d.]+),([\d.]+)\)?$/', $commaSeparatedCoords, $match)) {
             throw new ConversionImpossibleException('Invalid point type format: "' . $commaSeparatedCoords . '", should be a string like "0,0"');
         }
 
@@ -79,5 +79,19 @@ class GeoPointValue
     public function getLongitude()
     {
         return $this->longitude;
+    }
+
+    const EARTH_RADIUS = 6371; // km
+    public function getDistanceTo(GeoPointValue $point)
+    {
+        $dLat = deg2rad($point->getLatitude() - $this->getLatitude());
+        $dLon = deg2rad($point->getLongitude() - $this->getLongitude());
+        $lat1 = deg2rad($this->getLatitude());
+        $lat2 = deg2rad($point->getLatitude());
+
+        $a = sin($dLat / 2) * sin($dLat / 2) + sin($dLon / 2) * sin($dLon / 2) * cos($lat1) * cos($lat2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $c * static::EARTH_RADIUS;
     }
 }
