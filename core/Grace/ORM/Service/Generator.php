@@ -225,7 +225,7 @@ class Generator
 
             if ($propConfig->default) {
                 $valueDef = $propConfig->default;
-                $rawValueCode = ($valueDef == 'now') ? '\\Grace\\ORM\\Type\\TypeTimestamp::format(time())' : var_export($valueDef, true);
+                $rawValueCode = ($valueDef === 'now') ? '\\Grace\\ORM\\Type\\TypeTimestamp::format(time())' : var_export($valueDef, true);
                 $isNullAllowed = $propConfig->isNullable;
                 // TODO убрать необходимость в этом вызове
                 $valueCode = '$this->orm->typeConverter->convertOnSetter('
