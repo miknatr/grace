@@ -317,6 +317,8 @@ class Generator
     {
         $filename = $this->baseDir . '/' . str_replace('\\', '/', ltrim($class, '\\')) . '.php';
 
+        $parentClass = '\\' . ltrim($parentClass, '\\');
+
         if (!file_exists($filename)) {
             preg_match('#^\\\\(.*)\\\\([^\\\\]+)$#', $class, $match);
             $classNs   = $match[1];
