@@ -20,7 +20,6 @@ use Grace\ORM\Type\TypeNullableBool;
 use Grace\ORM\Type\TypePercent;
 use Grace\ORM\Type\TypeGeoPoint;
 use Grace\ORM\Type\TypeDuration;
-use Grace\ORM\Type\TypeTariffOverride;
 use Grace\ORM\Type\TypeString;
 use Grace\ORM\Type\TypeText;
 use Grace\ORM\Type\TypeTimeInterval;
@@ -48,7 +47,6 @@ class TypeConverter
         $this->addType(new TypeTimeInterval);
         $this->addType(new TypeTimestamp);
         $this->addType(new TypeYear);
-        $this->addType(new TypeTariffOverride);
     }
 
     public function addType(TypeInterface $type)
