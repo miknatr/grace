@@ -46,7 +46,7 @@ class TypeDuration implements TypeInterface
         }
 
         if (!is_string($value)) {
-            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a Duration string like "00:05:10"');
+            throw new ConversionImpossibleException('Value of type ' . gettype($value) . ' should be presented as a Duration string like "00:05"');
         }
 
         return DurationValue::createFromFormattedString($value);
@@ -58,7 +58,7 @@ class TypeDuration implements TypeInterface
      */
     public function convertPhpToDb($value)
     {
-        return new SqlValue("'?e hours ?e minutes ?e seconds'", array($value->getHours(), $value->getMinutes(), $value->getSeconds()));
+        return new SqlValue("'?e hours ?e minutes'", array($value->getHours(), $value->getMinutes()));
     }
 
     public function getPhpDefaultValueCode()
@@ -71,7 +71,7 @@ class TypeDuration implements TypeInterface
         return true;
     }
 
-    const OUTPUT_FORMAT = 'HH24:MI:SS'; // 00:05:10
+    const OUTPUT_FORMAT = 'HH24:MI'; // 00:05
     public function getSqlField()
     {
         return "to_char(?f, '".static::OUTPUT_FORMAT."')";

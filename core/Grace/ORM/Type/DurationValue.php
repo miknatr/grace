@@ -14,13 +14,11 @@ class DurationValue
 {
     private $hours   = 0;
     private $minutes = 0;
-    private $seconds = 0;
 
-    public function __construct($seconds = 0, $minutes = 0, $hours = 0)
+    public function __construct($hours = 0, $minutes = 0)
     {
         $this->hours   = $hours;
         $this->minutes = $minutes;
-        $this->seconds = $seconds;
     }
 
     public static function createFromFormattedString($formattedString) {
@@ -28,20 +26,18 @@ class DurationValue
             throw new ConversionImpossibleException('Invalid interval value type: ' . gettype($formattedString));
         }
 
-        if (!preg_match('/^(\d{2}):(\d{2}):(\d{2})$/', $formattedString, $match)) {
-            throw new ConversionImpossibleException('Invalid interval value format: "' . $formattedString . '", should be a string like "00:05:10"');
+        if (preg_match('/^(\d{2}):(\d{2})$/', $formattedString, $match)) { // HH:ii
+            return new static($match[1], $match[2]);
+        } elseif (preg_match('/^(\d{2})$/', $formattedString, $match)) { // ii
+            return new static(0, $match[2]);
         }
 
-        $hours   = $match[1];
-        $minutes = $match[2];
-        $seconds = $match[3];
-
-        return new static($seconds, $minutes, $hours);
+        throw new ConversionImpossibleException('Invalid interval value format: "' . $formattedString . '", should be a string like "00:05"');
     }
 
     public function __toString()
     {
-        return sprintf('%02d:%02d:%02d', $this->hours, $this->minutes, $this->seconds);
+        return sprintf('%02d:%02d', $this->hours, $this->minutes);
     }
 
     public function getHours()
@@ -51,9 +47,5 @@ class DurationValue
     public function getMinutes()
     {
         return $this->minutes;
-    }
-    public function getSeconds()
-    {
-        return $this->seconds;
     }
 }
