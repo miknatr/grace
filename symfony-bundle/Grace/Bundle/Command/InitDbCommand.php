@@ -7,6 +7,7 @@ use Grace\Bundle\GracePlusSymfony;
 use Grace\DBAL\Exception\QueryException;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\TypeConverter;
+use Grace\ORM\Type\TypeGeoPoint;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,6 +52,9 @@ class InitDbCommand extends ContainerAwareCommand
         if ($createDb) {
             $output->writeln("Creating database '{$dbName}'");
             $db->createDatabaseIfNotExist();
+
+            // TODO IS-723 создавать более нормально
+            TypeGeoPoint::initPostgis($orm->db);
         }
 
         $config = $orm->config->models;
