@@ -64,18 +64,6 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
         return $this;
     }
 
-    public function ensurePropertiesValid(array $properties)
-    {
-        if (empty($properties)) {
-            return;
-        }
-
-        $list = $this->validateProperties($properties);
-        if ($list->count() != 0) {
-            throw new ValidationException($list);
-        }
-    }
-
     /**
      * @param array $properties
      * @return ConstraintViolationList
