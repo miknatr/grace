@@ -45,11 +45,7 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
      */
     public function ensureValid()
     {
-        if ($this->needsInitCreatedModel) {
-            $constraintViolationList = $this->validateProperties($this->properties);
-        } else {
-            $constraintViolationList = $this->validateProperties(array_diff($this->properties, $this->originalProperties));
-        }
+        $constraintViolationList = $this->orm->validator->validate($this);
 
         if ($constraintViolationList->count() != 0) {
             $this->revert();

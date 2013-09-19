@@ -20,27 +20,32 @@ class UniqueValidator extends ConstraintValidator
 
     public function validate($value, Constraint $constraint)
     {
-        /** @var $constraint Unique */
-
-        if (!$constraint->id || !$constraint->baseClass) {
-            /** @var $root Form|ModelAbstract */
-            $root = $this->context->getRoot();
-            /** @var $model ModelAbstract */
-            $model = ($root instanceof Form) ? $root->getData() : $root;
-
-            if (is_object($model)) {
-                $constraint->id        = $model->id;
-                $constraint->baseClass = $model->baseClass;
-                $constraint->property  = $this->context->getCurrentProperty();
-            }
+        if (!($constraint instanceof Unique)) {
+            throw new \LogicException("Unique validator only works with Unique constraint");
         }
 
-        $finder = $this->orm->getFinder($constraint->baseClass);
+        /** @var $root Form|ModelAbstract */
+        $root = $this->context->getRoot();
+        /** @var $model ModelAbstract */
+        $model = ($root instanceof Form) ? $root->getData() : $root;
+
+        if (!($model instanceof ModelAbstract)) {
+            $class = get_class($model);
+            throw new \LogicException("Unique validator only works with Grace models, not $class");
+        }
+
+        $finder = $this->orm->getFinder($model->baseClass);
         if (!$finder) {
-            throw new \LogicException("Unique validator only works with Grace models, not {$constraint->baseClass}");
+            throw new \LogicException("Unique validator only works with Grace models, not {$model->baseClass}");
         }
 
-        if ($finder->getSelectBuilder()->eq($constraint->property, $value)->notEq('id', $constraint->id)->fetchOneOrFalse()) {
+        $secondModel = $finder->getSelectBuilder()
+            ->eq($this->context->getCurrentProperty(), $value)
+            ->notEq('id', $model->id)
+            ->fetchOneOrFalse()
+        ;
+
+        if ($secondModel) {
             $this->context->addViolation($constraint->message);
         }
     }
