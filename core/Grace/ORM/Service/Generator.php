@@ -225,7 +225,7 @@ class Generator
 
             if ($propConfig->default) {
                 $valueDef = $propConfig->default;
-                $rawValueCode = ($valueDef == 'now') ? '\\Grace\\ORM\\Type\\TypeTimestamp::format(time())' : var_export($valueDef, true);
+                $rawValueCode = ($valueDef === 'now') ? '\\Grace\\ORM\\Type\\TypeTimestamp::format(time())' : var_export($valueDef, true);
                 $isNullAllowed = $propConfig->isNullable;
                 // TODO убрать необходимость в этом вызове
                 $valueCode = '$this->orm->typeConverter->convertOnSetter('
@@ -316,6 +316,8 @@ class Generator
     protected function getClassFilename($class, $parentClass)
     {
         $filename = $this->baseDir . '/' . str_replace('\\', '/', ltrim($class, '\\')) . '.php';
+
+        $parentClass = '\\' . ltrim($parentClass, '\\');
 
         if (!file_exists($filename)) {
             preg_match('#^\\\\(.*)\\\\([^\\\\]+)$#', $class, $match);

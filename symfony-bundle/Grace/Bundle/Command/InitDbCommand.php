@@ -7,6 +7,7 @@ use Grace\Bundle\GracePlusSymfony;
 use Grace\DBAL\Exception\QueryException;
 use Grace\ORM\Service\Config\Element\ModelElement;
 use Grace\ORM\Service\TypeConverter;
+use Grace\ORM\Type\TypeGeoPoint;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,6 +52,9 @@ class InitDbCommand extends ContainerAwareCommand
         if ($createDb) {
             $output->writeln("Creating database '{$dbName}'");
             $db->createDatabaseIfNotExist();
+
+            // TODO IS-723 создавать более нормально
+            TypeGeoPoint::initPostgis($orm->db);
         }
 
         $config = $orm->config->models;
@@ -59,17 +63,6 @@ class InitDbCommand extends ContainerAwareCommand
             $output->writeln($this->createTable($db, $typeConverter, $modelName, $modelConfig, $forceDrop));
         }
         $output->writeln("Tables have been created");
-
-
-        $initSql = $this->getContainer()->getParameter('grace.init_db_sql_file');
-        if ($initSql != '') {
-            $initSql = file_get_contents($initSql);
-            // TODO для mysqli работать не будет, там нужно отдельно делать multiple query
-            $output->writeln("Start executing init sql file");
-            $db->execute($initSql);
-        } else {
-            $output->writeln("No init sql file");
-        }
 
 
         if ($input->getOption('insert-fakes')) {
@@ -84,6 +77,16 @@ class InitDbCommand extends ContainerAwareCommand
             } else {
                 $output->writeln("No fakes found!");
             }
+        }
+
+        $initSql = $this->getContainer()->getParameter('grace.init_db_sql_file');
+        if ($initSql != '') {
+            $initSql = file_get_contents($initSql);
+            // TODO для mysqli работать не будет, там нужно отдельно делать multiple query
+            $output->writeln("Start executing init sql file");
+            $db->execute($initSql);
+        } else {
+            $output->writeln("No init sql file");
         }
 
         $output->writeln("All tasks complete.");

@@ -79,23 +79,11 @@ abstract class ModelAbstract
         // TODO может это убрать в интертосный ModelAbstract
         $this->properties = $values;
     }
-    final public function setProperties($values)
-    {
-        foreach ($values as $property => $value) {
-            if ($property != 'id') {
-                $methodName = 'set' . ucfirst($property);
-                if (method_exists($this, $methodName)) {
-                    call_user_func(array($this, $methodName), $value);
-                }
-            }
-        }
-        return $this;
-    }
     final public function getProperty($name)
     {
         return $this->properties[$name];
     }
-    final public function setProperty($name, $value)
+    public function setProperty($name, $value)
     {
         if ($name == 'id') {
             throw new \InvalidArgumentException('Cannot set ID of a model');

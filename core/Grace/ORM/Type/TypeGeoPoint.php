@@ -10,6 +10,7 @@
 
 namespace Grace\ORM\Type;
 
+use Grace\DBAL\ConnectionAbstract\ConnectionInterface;
 use Grace\SQLBuilder\SqlValue\SqlValue;
 
 class TypeGeoPoint implements TypeInterface
@@ -78,5 +79,13 @@ class TypeGeoPoint implements TypeInterface
     public function getSqlField()
     {
         return 'ST_AsEWKT(?f)';
+    }
+
+    public static function initPostgis(ConnectionInterface $db)
+    {
+        // initialize PostGIS in the DB if we can
+        if ($db->execute("SELECT count(*) FROM pg_catalog.pg_extension WHERE extname = 'postgis'")->fetchResult()) {
+            $db->execute('CREATE EXTENSION IF NOT EXISTS postgis');
+        }
     }
 }

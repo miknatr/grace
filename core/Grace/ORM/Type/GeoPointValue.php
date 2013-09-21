@@ -80,4 +80,18 @@ class GeoPointValue
     {
         return $this->longitude;
     }
+
+    const EARTH_RADIUS = 6371; // km
+    public function getDistanceTo(GeoPointValue $point)
+    {
+        $dLat = deg2rad($point->getLatitude() - $this->getLatitude());
+        $dLon = deg2rad($point->getLongitude() - $this->getLongitude());
+        $lat1 = deg2rad($this->getLatitude());
+        $lat2 = deg2rad($point->getLatitude());
+
+        $a = sin($dLat / 2) * sin($dLat / 2) + sin($dLon / 2) * sin($dLon / 2) * cos($lat1) * cos($lat2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $c * static::EARTH_RADIUS;
+    }
 }

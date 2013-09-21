@@ -15,6 +15,7 @@ use Grace\Bundle\Validator\Constraint\Unique;
 use Grace\Bundle\Validator\ValidationException;
 use Grace\ORM\Grace;
 use Grace\ORM\ModelAbstract;
+use Grace\ORM\Type\ConversionImpossibleException;
 use Intertos\CoreBundle\Security\Core\User\UserAbstract;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -39,16 +40,36 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
     {
     }
 
+    // собираем ошибки конверсии и на ensureValid превращаем их в ошибки валидации вместе со всеми
+    /** @var ConstraintViolation[] */
+    protected $conversionViolations = array();
+    public function setProperty($name, $value)
+    {
+        try {
+            parent::setProperty($name, $value);
+        } catch (ConversionImpossibleException $e) {
+            $this->conversionViolations[] = new ConstraintViolation(
+                $e->getMessage(),
+                array(),
+                $this,
+                $name, // last defined property
+                $value // last defined value
+            );
+        }
+
+        return $this;
+    }
+
     /**
      * @throws Validator\ValidationException
      * @return $this
      */
     public function ensureValid()
     {
-        if ($this->needsInitCreatedModel) {
-            $constraintViolationList = $this->validateProperties($this->properties);
-        } else {
-            $constraintViolationList = $this->validateProperties(array_diff($this->properties, $this->originalProperties));
+        $constraintViolationList = $this->orm->validator->validate($this);
+
+        foreach ($this->conversionViolations as $violation) {
+            $constraintViolationList->add($violation);
         }
 
         if ($constraintViolationList->count() != 0) {
@@ -61,74 +82,8 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
             $this->needsInitCreatedModel = false;
         }
 
+        $this->conversionViolations = array();
+
         return $this;
-    }
-
-    public function ensurePropertiesValid(array $properties)
-    {
-        if (empty($properties)) {
-            return;
-        }
-
-        $list = $this->validateProperties($properties);
-        if ($list->count() != 0) {
-            throw new ValidationException($list);
-        }
-    }
-
-    /**
-     * @param array $properties
-     * @return ConstraintViolationList
-     */
-    public function validateProperties(array $properties)
-    {
-        $validator = $this->orm->validator;
-
-        /** @var ClassMetadata $classMetadata */
-        $classMetadata = $validator->getMetadataFactory()->getClassMetadata(get_class($this));
-
-        $fieldConstraints = array();
-
-        foreach (array_keys($properties) as $fieldName) {
-            if (!isset($classMetadata->members[$fieldName])) {
-                // no constraints for this property
-                $fieldConstraints[$fieldName] = array();
-                continue;
-            }
-            $fieldConstraints[$fieldName] = array();
-            foreach ($classMetadata->members[$fieldName] as $fieldMetadata) {
-                /** @var GetterMetadata $fieldMetadata */
-                $fieldConstraints[$fieldName] = array_values($fieldMetadata->constraints);
-                // TODO IS-644 хак для уникального валидатора, надо завязывать с этой валидацией отдельных пропертей и валидировать весь объект с контекстом
-                foreach ($fieldConstraints[$fieldName] as $constraint) {
-                    if ($constraint instanceof Unique) {
-                        $constraint->id        = $this->id;
-                        $constraint->baseClass = $this->baseClass;
-                        $constraint->property  = $fieldName;
-                    }
-                }
-            }
-        }
-
-        $constraint = new Collection(array('fields' => $fieldConstraints));
-
-        $listWithWrongNames = $validator->validateValue($properties, $constraint);
-
-        $properList = new ConstraintViolationList();
-
-        foreach ($listWithWrongNames as $k => $v) {
-            /** @var ConstraintViolation $v */
-            $properList[$k] = new ConstraintViolation(
-                $v->getMessageTemplate(),
-                $v->getMessageParameters(),
-                $v->getRoot(),
-                substr($v->getPropertyPath(), 1, -1), // [fieldName] => fieldName
-                $v->getInvalidValue(),
-                $v->getMessagePluralization(),
-                $v->getCode()
-            );
-        }
-
-        return $properList;
     }
 }

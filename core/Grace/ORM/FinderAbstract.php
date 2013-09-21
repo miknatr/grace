@@ -213,7 +213,16 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         /** @var ModelAbstract $model */
         $model = new $modelClass($id, null, $this->baseClass, $this->orm);
         $this->orm->identityMap->setModel($this->baseClass, $id, $model);
-        $model->setProperties($properties);
+
+        foreach ($properties as $property => $value) {
+            if ($property != 'id') {
+                $methodName = 'set' . ucfirst($property);
+                if (method_exists($model, $methodName)) {
+                    call_user_func(array($model, $methodName), $value);
+                }
+            }
+        }
+
         $this->orm->unitOfWork->markAsNew($model);
 
         return $model;
