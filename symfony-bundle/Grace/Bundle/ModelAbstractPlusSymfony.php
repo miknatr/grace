@@ -15,6 +15,7 @@ use Grace\Bundle\Validator\Constraint\Unique;
 use Grace\Bundle\Validator\ValidationException;
 use Grace\ORM\Grace;
 use Grace\ORM\ModelAbstract;
+use Grace\ORM\Type\ConversionImpossibleException;
 use Intertos\CoreBundle\Security\Core\User\UserAbstract;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -39,6 +40,26 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
     {
     }
 
+    // собираем ошибки конверсии и на ensureValid превращаем их в ошибки валидации вместе со всеми
+    /** @var ConstraintViolation[] */
+    protected $conversionViolations = array();
+    public function setProperty($name, $value)
+    {
+        try {
+            parent::setProperty($name, $value);
+        } catch (ConversionImpossibleException $e) {
+            $this->conversionViolations[] = new ConstraintViolation(
+                $e->getMessage(),
+                array(),
+                $this,
+                $name, // last defined property
+                $value // last defined value
+            );
+        }
+
+        return $this;
+    }
+
     /**
      * @throws Validator\ValidationException
      * @return $this
@@ -51,6 +72,10 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
             $constraintViolationList = $this->validateProperties(array_diff($this->properties, $this->originalProperties));
         }
 
+        foreach ($this->conversionViolations as $violation) {
+            $constraintViolationList->add($violation);
+        }
+
         if ($constraintViolationList->count() != 0) {
             $this->revert();
             throw new ValidationException($constraintViolationList);
@@ -60,6 +85,8 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
             $this->initCreatedModel();
             $this->needsInitCreatedModel = false;
         }
+
+        $this->conversionViolations = array();
 
         return $this;
     }
