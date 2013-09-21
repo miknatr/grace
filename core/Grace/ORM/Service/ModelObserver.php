@@ -17,8 +17,5 @@ class ModelObserver
     public function onBeforeInsert(ModelAbstract $model) {}
     public function onBeforeChange(ModelAbstract $model) {}
     public function onBeforeDelete(ModelAbstract $model) {}
-
-    public function onAfterInsert(ModelAbstract $model) {}
-    public function onAfterChange(ModelAbstract $model) {}
-    public function onAfterDelete(ModelAbstract $model) {}
+    public function onCommitDone() {}
 }

@@ -137,10 +137,6 @@ abstract class ModelAbstract
     {
         return $this->originalProperties;
     }
-    final public function setOriginalProperties(array $properties)
-    {
-        $this->originalProperties = $properties;
-    }
     public function revert()
     {
         $this->orm->unitOfWork->revert($this);

@@ -64,69 +64,43 @@ class Grace
         if ($unitOfWork->needCommit()) {
             $db->start();
 
-            $i = 0;
             try {
-                while ($unitOfWork->needCommit()) {
-                    if ($i++ > 50) {
-                        throw new \OutOfRangeException('Max reached');
-                    }
-
-                    $this->unitOfWork = new UnitOfWork();
-
-                    foreach ($unitOfWork->getNewModels() as $model) {
-                        $modelObserver->onBeforeInsert($model);
-                    }
-                    foreach ($unitOfWork->getChangedModels() as $model) {
-                        $modelObserver->onBeforeChange($model);
-                    }
-                    foreach ($unitOfWork->getDeletedModels() as $model) {
-                        $modelObserver->onBeforeDelete($model);
-                    }
-
-
-                    foreach ($unitOfWork->getNewModels() as $model) {
-                        $this->getFinder($model->baseClass)->insertModelOnCommit($model);
-                        $unitOfWork->saveCommittedProps($model);
-                    }
-
-                    foreach ($unitOfWork->getChangedModels() as $model) {
-                        $this->getFinder($model->baseClass)->updateModelOnCommit($model);
-                        $unitOfWork->saveCommittedProps($model);
-                    }
-
-                    foreach ($unitOfWork->getDeletedModels() as $model) {
-                        $this->getFinder($model->baseClass)->deleteModelOnCommit($model);
-                        $unitOfWork->saveCommittedProps($model);
-                    }
-
-
-                    foreach ($unitOfWork->getNewModels() as $model) {
-                        $modelObserver->onAfterInsert($model);
-                    }
-                    foreach ($unitOfWork->getChangedModels() as $model) {
-                        $modelObserver->onAfterChange($model);
-                    }
-                    foreach ($unitOfWork->getDeletedModels() as $model) {
-                        $modelObserver->onAfterDelete($model);
-                    }
-
-
-                    $unitOfWork->flushCommittedPropsInModels();
-
-
-                    foreach ($unitOfWork->getDeletedModels() as $model) {
-                        $this->identityMap->unsetModel($model->baseClass, $model->id);
-                    }
-
-                    $unitOfWork->clean();
-                    $unitOfWork = $this->unitOfWork;
+                foreach ($unitOfWork->getNewModels() as $model) {
+                    $modelObserver->onBeforeInsert($model);
                 }
+                foreach ($unitOfWork->getChangedModels() as $model) {
+                    $modelObserver->onBeforeChange($model);
+                }
+                foreach ($unitOfWork->getDeletedModels() as $model) {
+                    $modelObserver->onBeforeDelete($model);
+                }
+
+
+                foreach ($unitOfWork->getNewModels() as $model) {
+                    $this->getFinder($model->baseClass)->insertModelOnCommit($model);
+                }
+
+                foreach ($unitOfWork->getChangedModels() as $model) {
+                    $this->getFinder($model->baseClass)->updateModelOnCommit($model);
+                }
+
+                foreach ($unitOfWork->getDeletedModels() as $model) {
+                    $this->getFinder($model->baseClass)->deleteModelOnCommit($model);
+                }
+
+
+                foreach ($unitOfWork->getDeletedModels() as $model) {
+                    $this->identityMap->unsetModel($model->baseClass, $model->id);
+                }
+
+                $unitOfWork->clean();
             } catch (\Exception $e) {
                 $db->rollback();
                 throw $e;
             }
 
             $db->commit();
+            $modelObserver->onCommitDone();
         }
 
         $this->clean();
