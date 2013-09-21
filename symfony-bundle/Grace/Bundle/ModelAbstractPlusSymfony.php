@@ -40,6 +40,13 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
     {
     }
 
+    public function revert()
+    {
+        $this->conversionViolations = array();
+        parent::revert();
+    }
+
+
     // собираем ошибки конверсии и на ensureValid превращаем их в ошибки валидации вместе со всеми
     /** @var ConstraintViolation[] */
     protected $conversionViolations = array();
