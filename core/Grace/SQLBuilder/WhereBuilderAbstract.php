@@ -207,12 +207,13 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      * @param       $field
      * @param array $values
      * @param       $operator
+     * @param       $emptyValuesCondition
      * @return $this
      */
-    protected function setInOperator($field, array $values, $operator)
+    protected function setInOperator($field, array $values, $operator, $emptyValuesCondition)
     {
         if (empty($values)) {
-            $this->whereSqlConditions[] = 'FALSE';
+            $this->whereSqlConditions[] = $emptyValuesCondition;
         } else {
             $whereCondition =  '?f:alias:.?f ' . $operator . ' (' . substr(str_repeat('?q,', count($values)), 0, -1) . ')';
 
@@ -230,7 +231,7 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     public function in($field, array $values)
     {
-        return $this->setInOperator($field, $values, 'IN');
+        return $this->setInOperator($field, $values, 'IN', 'FALSE');
     }
     /**
      * Adds NOT IN statement into where statement
@@ -240,7 +241,7 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
      */
     public function notIn($field, array $values)
     {
-        return $this->setInOperator($field, $values, 'NOT IN');
+        return $this->setInOperator($field, $values, 'NOT IN', 'TRUE');
     }
     /**
      * @param $field
