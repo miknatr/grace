@@ -108,7 +108,7 @@ class Grace
     public function clean()
     {
         $this->unitOfWork->clean();
-        //$this->identityMap->clean();
+        $this->identityMap->clean();
     }
 
 
