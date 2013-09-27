@@ -228,4 +228,9 @@ class Connection extends ConnectionAbstract
     {
         return function_exists('pg_connect');
     }
+
+    public function generateNewId($table)
+    {
+        return $this->execute('SELECT nextval(\'?f\')', array($table . 'Sequence'))->fetchResult();
+    }
 }

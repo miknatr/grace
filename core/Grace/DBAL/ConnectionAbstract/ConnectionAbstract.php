@@ -194,7 +194,6 @@ abstract class ConnectionAbstract implements ConnectionInterface
      */
     public function generateNewId($table)
     {
-        //TODO будет логично для постгреса юзать последовательности
         if (!isset($this->idCounterByTable[$table])) {
             $this->idCounterByTable[$table] = $this->getSQLBuilder()->select($table)->field('id')->orderDesc('id')->limit(0, 1)->fetchResult();
         }
