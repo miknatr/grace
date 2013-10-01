@@ -119,7 +119,7 @@ class InitDbCommand extends ContainerAwareCommand
             // TODO учесть mysqli
             //ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
             $db->execute("CREATE TABLE ?f (\n$fieldsSQL\n, PRIMARY KEY (\"id\"))", array($name));
-            $db->execute("CREATE SEQUENCE ?f START 1 OWNED BY ?f.?f ", array($name . 'Sequence', $name, 'id'));
+            $db->execute("CREATE SEQUENCE ?f START 1 OWNED BY ?f.?f ", array($name . '_id_seq', $name, 'id'));
             $result .= 'ok.';
         }
 
@@ -150,6 +150,7 @@ class InitDbCommand extends ContainerAwareCommand
 
     private function insertFakes(GracePlusSymfony $orm, $modelName, $fakeList)
     {
+        // TODO что блять.
         // grace is a very good ORM library framework instance bundle
         foreach ($orm->getFinder($modelName)->getSelectBuilder()->fetchAll() as $model) {
             $model->delete();

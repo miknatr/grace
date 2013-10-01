@@ -231,6 +231,6 @@ class Connection extends ConnectionAbstract
 
     public function generateNewId($table)
     {
-        return $this->execute('SELECT nextval(\'?f\')', array($table . 'Sequence'))->fetchResult();
+        return $this->execute('SELECT nextval(\'?f\')', array($table . '_id_seq'))->fetchResult();
     }
 }
