@@ -75,36 +75,48 @@ class Grace
                     $modelObserver->onBeforeDelete($model);
                 }
 
-
                 foreach ($unitOfWork->getNewModels() as $model) {
                     $this->getFinder($model->baseClass)->insertModelOnCommit($model);
                 }
-
                 foreach ($unitOfWork->getChangedModels() as $model) {
                     $this->getFinder($model->baseClass)->updateModelOnCommit($model);
                 }
-
                 foreach ($unitOfWork->getDeletedModels() as $model) {
                     $this->getFinder($model->baseClass)->deleteModelOnCommit($model);
                 }
-
 
                 foreach ($unitOfWork->getDeletedModels() as $model) {
                     $this->identityMap->unsetModel($model->baseClass, $model->id);
                 }
 
-                $unitOfWork->clean();
             } catch (\Exception $e) {
                 $db->rollback();
                 throw $e;
             }
 
             $db->commit();
-            $modelObserver->onCommitDone();
-        }
 
-        $this->clean();
+            // TODO IS-901 лочить юнитОфВок, чтобы после комита на событиях нельзя было ничего менять
+
+            // чтобы в событиях можно было воспользоваться getOriginalProperties, это сначала, а потом все чистим
+            $modelObserver->onCommitDone();
+
+
+            foreach ($unitOfWork->getNewModels() as $model) {
+                $model->flushDefaults();
+            }
+            foreach ($unitOfWork->getChangedModels() as $model) {
+                $model->flushDefaults();
+            }
+            foreach ($unitOfWork->getDeletedModels() as $model) {
+                $model->flushDefaults();
+            }
+
+            $unitOfWork->clean();
+        }
     }
+
+    // TODO IS-902 возможно выпиливается
     public function clean()
     {
         $this->unitOfWork->clean();

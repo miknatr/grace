@@ -142,6 +142,10 @@ abstract class ModelAbstract
         $this->orm->unitOfWork->revert($this);
         $this->properties = $this->originalProperties;
     }
+    final public function flushDefaults()
+    {
+        $this->originalProperties = $this->properties;
+    }
     final public function delete()
     {
         $this->orm->unitOfWork->markAsDeleted($this);
