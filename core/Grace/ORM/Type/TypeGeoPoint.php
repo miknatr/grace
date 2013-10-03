@@ -11,6 +11,7 @@
 namespace Grace\ORM\Type;
 
 use Grace\DBAL\ConnectionAbstract\ConnectionInterface;
+use Grace\DBAL\Exception\QueryException;
 use Grace\SQLBuilder\SqlValue\SqlValue;
 
 class TypeGeoPoint implements TypeInterface
@@ -84,8 +85,10 @@ class TypeGeoPoint implements TypeInterface
     public static function initPostgis(ConnectionInterface $db)
     {
         // initialize PostGIS in the DB if we can
-        if ($db->execute("SELECT count(*) FROM pg_catalog.pg_extension WHERE extname = 'postgis'")->fetchResult()) {
+        // TODO find a way to check if postgis is installed correctly
+        try {
             $db->execute('CREATE EXTENSION IF NOT EXISTS postgis');
+        } catch (QueryException $ignored) {
         }
     }
 }
