@@ -54,6 +54,7 @@ class InitDbCommand extends ContainerAwareCommand
             $db->createDatabaseIfNotExist();
 
             // TODO IS-723 создавать более нормально
+            $output->writeln("Initializing PostGIS in the database");
             TypeGeoPoint::initPostgis($orm->db);
         }
 
@@ -64,6 +65,15 @@ class InitDbCommand extends ContainerAwareCommand
         }
         $output->writeln("Tables have been created");
 
+        $initSql = $this->getContainer()->getParameter('grace.init_db_sql_file');
+        if ($initSql != '') {
+            $initSql = file_get_contents($initSql);
+            // TODO для mysqli работать не будет, там нужно отдельно делать multiple query
+            $output->writeln("Start executing init sql file");
+            $db->execute($initSql);
+        } else {
+            $output->writeln("No init sql file");
+        }
 
         if ($input->getOption('insert-fakes')) {
             $output->writeln("Inserting fakes");
@@ -77,16 +87,6 @@ class InitDbCommand extends ContainerAwareCommand
             } else {
                 $output->writeln("No fakes found!");
             }
-        }
-
-        $initSql = $this->getContainer()->getParameter('grace.init_db_sql_file');
-        if ($initSql != '') {
-            $initSql = file_get_contents($initSql);
-            // TODO для mysqli работать не будет, там нужно отдельно делать multiple query
-            $output->writeln("Start executing init sql file");
-            $db->execute($initSql);
-        } else {
-            $output->writeln("No init sql file");
         }
 
         $output->writeln("All tasks complete.");
