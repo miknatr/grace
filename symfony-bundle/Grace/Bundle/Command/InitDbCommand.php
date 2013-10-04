@@ -158,6 +158,10 @@ class InitDbCommand extends ContainerAwareCommand
         $orm->commit();
 
         foreach ($fakeList as $fake) {
+            // TODO HACK: fakes contain their own IDs, but we have sequences in the DB
+            // we need to rewind the sequence along, otherwise it will be producing duplicate IDs later
+            $orm->db->generateNewId($modelName);
+            // TODO also we shouldn't create sequences for string primary keys like AutoType
             $orm->getFinder($modelName)->create($fake);
         }
         $orm->commit();
