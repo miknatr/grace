@@ -2,6 +2,16 @@
 
 rm -fR ./vendor
 
+git clone git://github.com/miknatr/grace-cache.git ./vendor/grace-cache
+#cd ./vendor/grace-cache
+#git checkout v2.1.10
+#cd ../..
+
+git clone git://github.com/miknatr/grace-dbal.git ./vendor/grace-dbal
+#cd ./vendor/grace-dbal
+#git checkout v2.1.10
+#cd ../..
+
 git clone git://github.com/symfony/symfony.git ./vendor/symfony
 cd ./vendor/symfony
 git checkout v2.1.10

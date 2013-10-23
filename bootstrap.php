@@ -15,6 +15,12 @@ $loader->registerNamespaces(array(
     'Sensio\\Bundle\\FrameworkExtraBundle' => __DIR__ . '/vendor/sensio-extra-bundle/',
     'Doctrine\\Common'                     => __DIR__ . '/vendor/doctrine-common/lib/',
     'Monolog'                              => __DIR__ . '/vendor/monolog/src/',
+    'Grace\\Cache'                         => __DIR__ . '/vendor/grace-cache/lib',
+    'Grace\\Tests\\Cache'                  => __DIR__ . '/vendor/grace-cache/lib',
+    'Grace\\Tests\\SQLBuilder'             => __DIR__ . '/vendor/grace-dbal/lib',
+    'Grace\\SQLBuilder'                    => __DIR__ . '/vendor/grace-dbal/lib',
+    'Grace\\Tests\\DBAL'                   => __DIR__ . '/vendor/grace-dbal/lib',
+    'Grace\\DBAL'                          => __DIR__ . '/vendor/grace-dbal/lib',
     'Grace\\Bundle'                        => __DIR__ . '/symfony-bundle/',
     'Grace'                                => __DIR__ . '/core/',
 ));
