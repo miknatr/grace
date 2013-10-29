@@ -68,11 +68,16 @@ abstract class ModelAbstractPlusSymfony extends ModelAbstract
     }
 
     /**
+     * @param bool $isAlreadyInitialized
      * @throws Validator\ValidationException
      * @return $this
      */
-    public function ensureValid()
+    public function ensureValid($isAlreadyInitialized = false)
     {
+        if ($isAlreadyInitialized) {
+            $this->needsInitCreatedModel = false;
+        }
+
         $constraintViolationList = $this->orm->validator->validate($this);
 
         foreach ($this->conversionViolations as $violation) {
