@@ -28,7 +28,7 @@ class GeoPointValue
             throw new ConversionImpossibleException('Invalid point value type: ' . gettype($ewktString));
         }
 
-        if (!preg_match('/^SRID=(\d+);POINT\(?([\d.]+) ([\d.]+)\)?$/', $ewktString, $match)) {
+        if (!preg_match('/^SRID=(\d+);POINT\(?(-?[\d.]+) (-?[\d.]+)\)?$/', $ewktString, $match)) {
             throw new ConversionImpossibleException('Invalid point type format: "' . $ewktString . '", should be a string like "SRID=4326;POINT(0 0)"');
         }
 
@@ -45,7 +45,7 @@ class GeoPointValue
             throw new ConversionImpossibleException('Invalid point value type: ' . gettype($commaSeparatedCoords));
         }
 
-        if (!preg_match('/^\(?([\d.]+),([\d.]+)\)?$/', $commaSeparatedCoords, $match)) {
+        if (!preg_match('/^\(?(-?[\d.]+),(-?[\d.]+)\)?$/', $commaSeparatedCoords, $match)) {
             throw new ConversionImpossibleException('Invalid point type format: "' . $commaSeparatedCoords . '", should be a string like "0,0"');
         }
 
