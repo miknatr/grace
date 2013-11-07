@@ -10,6 +10,12 @@
 
 namespace Grace\ORM\Type;
 
+/**
+ * ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ ЧИТАТЬ СЮДА ГЛАЗАМИ
+ * в постгисе формат координат x y, то есть сначала longitude, а потом latitude
+ * у них разные пределы -180:180 и -90:90
+ * в связи с крайне понятной документацией постгиса, любому пытающемуся их перепутать рекоммендовано мокнуть голову в унитаз
+ */
 class GeoPointValue
 {
     private $srid      = 0;
@@ -33,8 +39,8 @@ class GeoPointValue
         }
 
         $srid      = $match[1];
-        $latitude  = $match[2];
-        $longitude = $match[3];
+        $latitude  = $match[3];
+        $longitude = $match[2];
 
         return new static($srid, $latitude, $longitude);
     }
@@ -63,7 +69,7 @@ class GeoPointValue
 
     public function toEWKT()
     {
-        return "SRID=" . strval($this->srid) . ";POINT(" . strval($this->latitude) . ' ' . strval($this->longitude) . ")";
+        return "SRID=" . strval($this->srid) . ";POINT(" . strval($this->longitude) . ' ' . strval($this->latitude) . ")";
     }
 
     public function getSrid()

@@ -64,7 +64,7 @@ class TypeGeoPoint implements TypeInterface
     {
         //'PointFromWKB(POINT(?e, ?e))';//mysql
         /** @var $value GeoPointValue */
-        return new SqlValue("ST_GeographyFromText('SRID=?e;POINT(?e ?e)')", array($value->getSrid(), $value->getLatitude(), $value->getLongitude()));
+        return new SqlValue("ST_GeographyFromText(?q)", array($value->toEWKT()));
     }
 
     public function getPhpDefaultValueCode()
