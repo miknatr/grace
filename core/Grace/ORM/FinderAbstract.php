@@ -39,6 +39,15 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         return $this->orm->db->provideSqlDialect();
     }
 
+    public function getNumRows()
+    {
+        if (!is_object($this->queryResult)) {
+            throw new \LogicException('Unprepared sql select result');
+        }
+
+        return $this->queryResult->getNumRows();
+    }
+
     /** @return ModelAbstract|bool */
     public function fetchOneOrFalse()
     {
