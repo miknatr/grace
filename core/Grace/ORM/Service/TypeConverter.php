@@ -12,6 +12,7 @@ namespace Grace\ORM\Service;
 
 use Grace\ORM\Type\ConversionImpossibleException;
 use Grace\ORM\Type\TypeBool;
+use Grace\ORM\Type\TypeDate;
 use Grace\ORM\Type\TypeFloat;
 use Grace\ORM\Type\TypeInt;
 use Grace\ORM\Type\TypeInterface;
@@ -47,6 +48,7 @@ class TypeConverter
         $this->addType(new TypeTimeInterval);
         $this->addType(new TypeTimestamp);
         $this->addType(new TypeYear);
+        $this->addType(new TypeDate);
     }
 
     public function addType(TypeInterface $type)
