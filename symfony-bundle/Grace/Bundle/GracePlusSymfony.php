@@ -25,6 +25,9 @@ class GracePlusSymfony extends Grace
     /** @var Validator */
     public $validator;
 
+    /** @var DispatchedModelObserver */ // если не перекрывать из базового (что не нужно, т.к. там уже определен), то шторм не хочет понимать, что это именно DispatchedModelObserver, даже если у класса @property-аннотацию написать, поэтому так
+    public $modelObserver;
+
     public function __construct(
         ConnectionInterface $db,
         ClassNameProvider $classNameProvider,
@@ -37,11 +40,20 @@ class GracePlusSymfony extends Grace
         RoleHierarchyInterface $roleHierarchy,
         Validator $validator
     ) {
+        if (!($modelObserver instanceof DispatchedModelObserver)) {
+            throw new \LogicException('Model observer must be instance of DispatchedModelObserver for properly work of GracePlusSymfony extension');
+        }
+
         parent::__construct($db, $classNameProvider, $modelObserver, $typeConverter, $config, $cache);
 
         $this->eventDispatcher = $eventDispatcher;
         $this->logger          = $logger;
         $this->roleHierarchy   = $roleHierarchy;
         $this->validator       = $validator;
+    }
+
+    public function doOnCommitDone(callable $callback)
+    {
+        $this->modelObserver->doOnCommitDone($callback);
     }
 }

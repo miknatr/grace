@@ -42,5 +42,15 @@ class DispatchedModelObserver extends ModelObserver
     public function onCommitDone()
     {
         $this->eventDispatcher->dispatch('commitDone', new CommitDoneEvent());
+
+        foreach ($this->onCommitDoneCallbacks as $callback) {
+            call_user_func($callback);
+        }
+    }
+
+    protected $onCommitDoneCallbacks = array();
+    public function doOnCommitDone(callable $callback)
+    {
+        $this->onCommitDoneCallbacks[] = $callback;
     }
 }
