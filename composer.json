@@ -7,6 +7,7 @@
         }
     ],
     "require": {
-
+        "miknatr/grace-dbal": "dev-master",
+        "miknatr/grace-cache": "dev-master"
     }
 }

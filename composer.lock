@@ -1,0 +1,89 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "b0affd813184fe881e9df1acf693211a",
+    "packages": [
+        {
+            "name": "miknatr/grace-cache",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/miknatr/grace-cache.git",
+                "reference": "3237b949e9cf566e754256b1043f42bfa4d2bd3e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/miknatr/grace-cache/zipball/3237b949e9cf566e754256b1043f42bfa4d2bd3e",
+                "reference": "3237b949e9cf566e754256b1043f42bfa4d2bd3e",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Grace\\Cache": "lib/",
+                    "Grace\\Tests\\Cache": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "miknatr",
+                    "email": "miknatr@gmail.com"
+                }
+            ],
+            "description": "Simple cache interface and memcache implementation",
+            "time": "2013-10-23 22:05:11"
+        },
+        {
+            "name": "miknatr/grace-dbal",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/miknatr/grace-dbal.git",
+                "reference": "5164401dedb57e668dd6bf75d17da6963ef6f5f8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/miknatr/grace-dbal/zipball/5164401dedb57e668dd6bf75d17da6963ef6f5f8",
+                "reference": "5164401dedb57e668dd6bf75d17da6963ef6f5f8",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Grace\\DBAL": "lib/",
+                    "Grace\\Tests\\DBAL": "lib/",
+                    "Grace\\SQLBuilder": "lib/",
+                    "Grace\\Tests\\SQLBuilder": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "miknatr",
+                    "email": "miknatr@gmail.com"
+                }
+            ],
+            "time": "2014-03-11 11:07:49"
+        }
+    ],
+    "packages-dev": [
+
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "miknatr/grace-dbal": 20,
+        "miknatr/grace-cache": 20
+    },
+    "platform": [
+
+    ],
+    "platform-dev": [
+
+    ]
+}
