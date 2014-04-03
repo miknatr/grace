@@ -24,7 +24,14 @@ class DispatchedModelObserver extends ModelObserver
     /** @var callable */
     private $onCommitDone;
 
-    public function __construct(callable $onBeforeInsert, callable $onBeforeChange, callable $onBeforeDelete, callable $onCommitDone)
+    /**
+     * STOPPER выпилить null и вернуть callable тайпхинты потом когда симфони уйдёт
+     * @param callable $onBeforeInsert
+     * @param callable $onBeforeChange
+     * @param callable $onBeforeDelete
+     * @param callable $onCommitDone
+     */
+    public function __construct($onBeforeInsert = null, $onBeforeChange = null, $onBeforeDelete = null, $onCommitDone = null)
     {
         $this->onBeforeInsert = $onBeforeInsert;
         $this->onBeforeChange = $onBeforeChange;
