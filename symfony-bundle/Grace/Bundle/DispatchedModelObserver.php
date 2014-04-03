@@ -1,54 +1,84 @@
 <?php
+/*
+ * This file is part of the Grace package.
+ *
+ * (c) Mikhail Natrov <miknatr@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Grace\Bundle;
 
-use Grace\Bundle\Event\CommitDoneEvent;
-use Grace\Bundle\Event\RecordChangeEvent;
-use Grace\Bundle\ModelAbstractPlusSymfony;
 use Grace\ORM\ModelAbstract;
 use Grace\ORM\Service\ModelObserver;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class DispatchedModelObserver extends ModelObserver
 {
-    const BEFORE_INSERT = 'before_insert';
-    const BEFORE_CHANGE = 'before_change';
-    const BEFORE_DELETE = 'before_delete';
+    /** @var callable */
+    private $onBeforeInsert;
+    /** @var callable */
+    private $onBeforeChange;
+    /** @var callable */
+    private $onBeforeDelete;
+    /** @var callable */
+    private $onCommitDone;
 
-    /** @var EventDispatcher */
-    protected $eventDispatcher;
-
-    public function __construct(EventDispatcher $eventDispatcher)
+    public function __construct(callable $onBeforeInsert, callable $onBeforeChange, callable $onBeforeDelete, callable $onCommitDone)
     {
-        $this->eventDispatcher = $eventDispatcher;
+        $this->onBeforeInsert = $onBeforeInsert;
+        $this->onBeforeChange = $onBeforeChange;
+        $this->onBeforeDelete = $onBeforeDelete;
+        $this->onCommitDone   = $onCommitDone;
     }
 
     public function onBeforeInsert(ModelAbstract $model)
     {
+        parent::onBeforeInsert($model);
+
         if ($model instanceof ModelAbstractPlusSymfony) {
             $model->ensureValid();
         }
-        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::BEFORE_INSERT));
+
+        call_user_func($this->onBeforeInsert, $model);
     }
 
     public function onBeforeChange(ModelAbstract $model)
     {
+        parent::onBeforeChange($model);
+
         if ($model instanceof ModelAbstractPlusSymfony) {
             $model->ensureValid();
         }
-        $this->eventDispatcher->dispatch('recordChange', new RecordChangeEvent($model, self::BEFORE_CHANGE));
+
+        call_user_func($this->onBeforeChange, $model);
+    }
+
+    public function onBeforeDelete(ModelAbstract $model)
+    {
+        parent::onBeforeDelete($model);
+
+        if ($model instanceof ModelAbstractPlusSymfony) {
+            $model->ensureValid();
+        }
+
+        call_user_func($this->onBeforeDelete, $model);
     }
 
     public function onCommitDone()
     {
-        $this->eventDispatcher->dispatch('commitDone', new CommitDoneEvent());
+        parent::onCommitDone();
+
+        call_user_func($this->onCommitDone);
 
         foreach ($this->onCommitDoneCallbacks as $callback) {
             call_user_func($callback);
         }
     }
 
+    /** @var callable[] */
     protected $onCommitDoneCallbacks = array();
+
     public function doOnCommitDone(callable $callback)
     {
         $this->onCommitDoneCallbacks[] = $callback;
