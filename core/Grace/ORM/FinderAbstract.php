@@ -115,6 +115,16 @@ abstract class FinderAbstract implements ExecutableInterface, ResultInterface
         return $r;
     }
 
+    public function fetchAssocOneOrFalse()
+    {
+        return $this->queryResult->fetchAssocOneOrFalse();
+    }
+
+    public function fetchAssocAll()
+    {
+        return $this->queryResult->fetchAssocAll();
+    }
+
     public function execute($query, array $arguments = array())
     {
         $this->queryResult = $this->orm->db->execute($query, $arguments);
