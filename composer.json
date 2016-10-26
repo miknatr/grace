@@ -7,8 +7,8 @@
         }
     ],
     "require": {
-        "miknatr/grace-dbal": "dev-master",
-        "miknatr/grace-cache": "dev-master"
+        "miknatr/grace-dbal": "v1.4.1",
+        "miknatr/grace-cache": "v1.4.0"
     },
     "autoload": {
         "psr-0": {
