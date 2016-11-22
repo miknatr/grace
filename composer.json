@@ -7,7 +7,7 @@
         }
     ],
     "require": {
-        "miknatr/grace-dbal": "v1.4.2",
+        "miknatr/grace-dbal": "v1.4.3",
         "miknatr/grace-cache": "v1.4.0"
     },
     "autoload": {
